@@ -1,8 +1,7 @@
-import React from "react";
 import clsx from "clsx";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "outline" | "danger" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -29,20 +28,22 @@ const Button = ({
       disabled={disabled || loading}
       className={clsx(
         // Base
-        "inline-flex items-center justify-center rounded-lg font-medium transition focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center whitespace-nowrap rounded-xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-60",
         // Size
-        size === "sm" && "text-sm px-3 py-1.5",
-        size === "md" && "text-sm px-4 py-2",
-        size === "lg" && "text-base px-6 py-3",
+        size === "sm" && "h-9 text-xs px-3",
+        size === "md" && "h-10 text-sm px-4",
+        size === "lg" && "h-12 text-sm px-5",
         // Variants
         variant === "primary" &&
-          "bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 dark:bg-blue-500 dark:hover:bg-blue-600",
+          "bg-primary text-primary-foreground shadow-soft hover:brightness-95 active:scale-[0.99]",
         variant === "secondary" &&
-          "bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-400 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700",
+          "bg-secondary text-secondary-foreground hover:brightness-95 active:scale-[0.99]",
+        variant === "outline" &&
+          "bg-transparent border border-border text-foreground hover:bg-muted/75",
         variant === "danger" &&
-          "bg-red-600 text-white hover:bg-red-700 focus:ring-red-500",
+          "bg-danger text-white hover:brightness-95 active:scale-[0.99]",
         variant === "ghost" &&
-          "bg-transparent text-gray-900 hover:bg-gray-100 dark:text-gray-100 dark:hover:bg-gray-900",
+          "bg-transparent text-foreground hover:bg-muted/75",
         className
       )}
       {...rest}

@@ -6,6 +6,7 @@ import { GuestOnly, RequireAuth, RequireFinishedGetStarted, RequireRole } from '
 // Lazy load pages if you want:
 import Login from '@/pages/Auth/login';
 import NotFound from '@/pages/NotFound';
+import DesignSystemPage from '@/pages/DesignSystem';
 
 // Dashboard pages
 import Home from '@/pages/Dashboard/home';
@@ -21,6 +22,10 @@ export const router = createBrowserRouter([
   {
     element: <TransactionsPageRQ />,
     path: '/transactions'
+  },
+  {
+    element: <DesignSystemPage />,
+    path: '/design-system'
   },
   {
     path: '/app',

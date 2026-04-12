@@ -1,7 +1,76 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* optional, but handy */
-html, body, #root { height: 100%; }
+:root {
+  color-scheme: light;
+  --background: 210 40% 98%;
+  --foreground: 207 48% 11%;
+  --surface: 202 46% 96%;
+  --card: 0 0% 100%;
+  --border: 210 26% 86%;
+  --muted: 205 33% 93%;
+  --muted-foreground: 205 18% 40%;
+  --primary: 198 50% 35%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 162 37% 64%;
+  --secondary-foreground: 198 50% 17%;
+  --accent: 203 54% 44%;
+  --accent-foreground: 0 0% 100%;
+  --success: 152 56% 40%;
+  --warning: 35 92% 54%;
+  --attention: 24 91% 49%;
+  --danger: 0 84% 60%;
+  --ring: 198 50% 45%;
+}
 
+.dark {
+  color-scheme: dark;
+  --background: 212 50% 10%;
+  --foreground: 196 33% 92%;
+  --surface: 212 45% 14%;
+  --card: 212 43% 16%;
+  --border: 210 26% 28%;
+  --muted: 212 37% 20%;
+  --muted-foreground: 202 16% 72%;
+  --primary: 194 46% 63%;
+  --primary-foreground: 212 50% 10%;
+  --secondary: 162 36% 52%;
+  --secondary-foreground: 200 100% 98%;
+  --accent: 201 59% 56%;
+  --accent-foreground: 210 50% 10%;
+  --success: 151 49% 52%;
+  --warning: 37 95% 56%;
+  --attention: 28 91% 57%;
+  --danger: 0 83% 67%;
+  --ring: 194 42% 58%;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-image:
+      radial-gradient(circle at top right, hsl(var(--secondary) / 0.12), transparent 45%),
+      radial-gradient(circle at bottom left, hsl(var(--primary) / 0.16), transparent 42%);
+  }
+}
+
+@layer components {
+  .ds-shell {
+    @apply bg-card/85 border border-border shadow-panel rounded-2xl backdrop-blur-sm;
+  }
+
+  .ds-field {
+    @apply w-full rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:border-transparent disabled:cursor-not-allowed disabled:opacity-60;
+  }
+}
