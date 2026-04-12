@@ -1,25 +1,34 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from '@/ui/atoms/Button';
-import { useAppDispatch } from '@/app/hooks';
-import { setSession } from '@/domain/auth/authSlice';
-import { api } from '@/libs/axios/client';
+import Input from '@/ui/atoms/Input';
+import Card from '@/ui/atoms/Card';
+import { useAppDispatch, useAppSelector } from '@/app/hooks';
+import { login } from '@/domain/auth/auth.thunks';
 const Login = () => {
-    const [email, setEmail] = useState('admin@example.com');
-    const [password, setPassword] = useState('password');
-    const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const navigate = useNavigate();
+    const location = useLocation();
     const dispatch = useAppDispatch();
+    const { loading, error, user, tokens } = useAppSelector((s) => s.auth);
+    const destination = (location.state?.from?.pathname ?? '/app');
+    useEffect(() => {
+        if (user && tokens?.accessToken) {
+            navigate('/app', { replace: true });
+        }
+    }, [navigate, tokens?.accessToken, user]);
     const onSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         try {
-            const { data } = await api.core.post('/auth/login', { email, password });
-            dispatch(setSession(data)); // expects { user, tokens }
+            await dispatch(login({ email, password })).unwrap();
+            navigate(destination, { replace: true });
         }
-        finally {
-            setLoading(false);
+        catch {
+            return;
         }
     };
-    return (_jsx("div", { className: "min-h-screen grid place-items-center", children: _jsxs("form", { onSubmit: onSubmit, className: "w-full max-w-sm bg-white dark:bg-gray-950 p-6 rounded-xl shadow", children: [_jsx("h1", { className: "text-xl font-semibold mb-4", children: "Login" }), _jsx("input", { className: "w-full mb-3 rounded border px-3 py-2 bg-transparent", value: email, onChange: e => setEmail(e.target.value) }), _jsx("input", { className: "w-full mb-4 rounded border px-3 py-2 bg-transparent", type: "password", value: password, onChange: e => setPassword(e.target.value) }), _jsx(Button, { type: "submit", loading: loading, children: "Sign in" })] }) }));
+    return (_jsx("div", { className: "min-h-screen grid place-items-center p-4", children: _jsx(Card, { title: "Sign in", description: "Use your account credentials to access the dashboard.", className: "w-full max-w-md", children: _jsxs("form", { onSubmit: onSubmit, className: "space-y-4", children: [_jsx(Input, { type: "email", label: "Email", value: email, onChange: (e) => setEmail(e.target.value), autoComplete: "email", required: true }), _jsx(Input, { type: "password", label: "Password", value: password, onChange: (e) => setPassword(e.target.value), autoComplete: "current-password", required: true }), error ? _jsx("p", { className: "text-sm text-danger", children: error }) : null, _jsx(Button, { type: "submit", loading: loading, className: "w-full", disabled: !email || !password, children: "Sign in" }), _jsxs("p", { className: "text-sm text-muted-foreground", children: ["No account yet?", ' ', _jsx(Link, { to: "/register", className: "text-primary hover:underline", children: "Create one" })] })] }) }) }));
 };
 export default Login;

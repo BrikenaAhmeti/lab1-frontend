@@ -5,9 +5,11 @@ import { ReactNode } from 'react';
 import { useAppSelector } from '@/app/hooks';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const { user } = useAppSelector(s => s.auth);
-  const role = user?.role || localStorage.getItem('role');
-  const showRightSidebar = role === 'admins';
+  const { user } = useAppSelector((s) => s.auth);
+  const storedRole = localStorage.getItem('role');
+  const roles = user?.roles?.length ? user.roles : storedRole ? [storedRole] : [];
+  const normalizedRoles = roles.map((role) => role.toUpperCase());
+  const showRightSidebar = normalizedRoles.includes('ADMIN') || normalizedRoles.includes('ADMINS');
 
   return (
     <div className="min-h-screen flex flex-col">

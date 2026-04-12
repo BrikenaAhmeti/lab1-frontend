@@ -1,63 +1,88 @@
 import axios from 'axios';
-import type { AxiosInstance, AxiosError } from 'axios';
+import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { store } from '@/app/store';
 import { clearSession, setSession } from '@/domain/auth/authSlice';
 import { env } from '@/config/env';
-import { addSubscriber, flushSubscribers, getRefreshing, setRefreshing } from './refreshQueue';
+import type { AuthTokensResponse } from '@/domain/auth/types';
+import { toAuthSession } from '@/domain/auth/types';
 
 type ApiKey = 'core' | 'deviceInfo';
 const base: Record<ApiKey, string> = { core: env.API_CORE, deviceInfo: env.API_DEVICE_INFO };
 
+type RetryableConfig = InternalAxiosRequestConfig & { _retry?: boolean };
+
+let refreshPromise: Promise<AuthTokensResponse> | null = null;
+
+const shouldSkipRefresh = (cfg: RetryableConfig) => {
+  const url = cfg.url ?? '';
+  return (
+    url.includes('/auth/login') ||
+    url.includes('/auth/register') ||
+    url.includes('/auth/refresh')
+  );
+};
+
+const redirectToLogin = () => {
+  if (typeof window === 'undefined') return;
+  if (window.location.pathname === '/login') return;
+  window.history.replaceState({}, '', '/login');
+  window.dispatchEvent(new PopStateEvent('popstate'));
+};
+
+const getRefreshPromise = () => {
+  if (refreshPromise) return refreshPromise;
+
+  const refreshToken = store.getState().auth.tokens?.refreshToken;
+  if (!refreshToken) {
+    return Promise.reject(new Error('No refresh token'));
+  }
+
+  refreshPromise = axios
+    .post<AuthTokensResponse>(`${base.core}/auth/refresh`, { refreshToken }, { timeout: 20000 })
+    .then((r) => r.data)
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+};
+
 function build(key: ApiKey): AxiosInstance {
   const instance = axios.create({ baseURL: base[key], timeout: 20000 });
 
-  instance.interceptors.request.use(cfg => {
+  instance.interceptors.request.use((cfg) => {
     const token = store.getState().auth.tokens?.accessToken;
-    if (token) cfg.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      cfg.headers = cfg.headers ?? {};
+      cfg.headers.Authorization = `Bearer ${token}`;
+    }
     return cfg;
   });
 
   instance.interceptors.response.use(
-    res => res,
+    (res) => res,
     async (error: AxiosError) => {
-      const orig = error.config!;
+      const orig = error.config as RetryableConfig | undefined;
       const status = error.response?.status;
 
-      if (status === 401 && !(orig as any)._retry) {
-        (orig as any)._retry = true;
+      if (!orig) return Promise.reject(error);
 
-        if (!getRefreshing()) {
-          setRefreshing(true);
-          try {
-            const refreshToken = store.getState().auth.tokens?.refreshToken;
-            if (!refreshToken) throw new Error('No refresh token');
+      if (status === 401 && !orig._retry && !shouldSkipRefresh(orig)) {
+        orig._retry = true;
 
-            const { data } = await axios.post(`${base.core}/auth/refresh`, { refreshToken });
-            store.dispatch(setSession({ user: data.user, tokens: data.tokens }));
-            setRefreshing(false);
-            flushSubscribers(data.tokens.accessToken);
-            orig.headers = orig.headers ?? {};
-            (orig.headers as any).Authorization = `Bearer ${data.tokens.accessToken}`;
-            return instance(orig);
-          } catch (e) {
-            setRefreshing(false);
-            store.dispatch(clearSession());
-            return Promise.reject(e);
-          }
+        try {
+          const refreshed = await getRefreshPromise();
+          store.dispatch(setSession(toAuthSession(refreshed)));
+          orig.headers = orig.headers ?? {};
+          orig.headers.Authorization = `Bearer ${refreshed.accessToken}`;
+          return instance(orig);
+        } catch (refreshError) {
+          store.dispatch(clearSession());
+          redirectToLogin();
+          return Promise.reject(refreshError);
         }
-
-        return new Promise((resolve, reject) => {
-          addSubscriber((newToken) => {
-            orig.headers = orig.headers ?? {};
-            (orig.headers as any).Authorization = `Bearer ${newToken}`;
-            instance(orig).then(resolve).catch(reject);
-          });
-        });
       }
 
-      if (status === 403) {
-        store.dispatch(clearSession());
-      }
       return Promise.reject(error);
     }
   );

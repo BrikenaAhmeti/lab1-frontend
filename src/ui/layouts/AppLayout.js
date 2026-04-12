@@ -5,8 +5,13 @@ import { Outlet } from 'react-router-dom';
 // import RightSidebar from '@/ui/organisms/RightSidebar';
 import { useAppSelector } from '@/app/hooks';
 export default function AppLayout() {
-    const { user } = useAppSelector(s => s.auth);
-    const role = user?.role || localStorage.getItem('role');
-    const showRightSidebar = role === 'admins' || role === 'super-admins';
+    const { user } = useAppSelector((s) => s.auth);
+    const storedRole = localStorage.getItem('role');
+    const roles = user?.roles?.length ? user.roles : storedRole ? [storedRole] : [];
+    const normalizedRoles = roles.map((role) => role.toUpperCase());
+    const showRightSidebar = normalizedRoles.includes('ADMIN') ||
+        normalizedRoles.includes('ADMINS') ||
+        normalizedRoles.includes('SUPER-ADMINS') ||
+        normalizedRoles.includes('SUPER_ADMIN');
     return (_jsx("div", { className: "min-h-screen flex flex-col", children: _jsxs("div", { className: "flex flex-1", children: [_jsx("aside", { className: "hidden md:block w-64 border-r border-gray-200 dark:border-gray-800" }), _jsx("main", { className: "flex-1 p-4 md:p-6", children: _jsx(Outlet, {}) }), showRightSidebar && (_jsx("aside", { className: "hidden lg:block w-80 border-l border-gray-200 dark:border-gray-800" }))] }) }));
 }

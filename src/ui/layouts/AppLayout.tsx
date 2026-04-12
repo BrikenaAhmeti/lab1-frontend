@@ -5,10 +5,16 @@ import { Outlet } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
 
 export default function AppLayout() {
-    const { user } = useAppSelector(s => s.auth);
-    const role = user?.role || localStorage.getItem('role');
+    const { user } = useAppSelector((s) => s.auth);
+    const storedRole = localStorage.getItem('role');
+    const roles = user?.roles?.length ? user.roles : storedRole ? [storedRole] : [];
+    const normalizedRoles = roles.map((role) => role.toUpperCase());
 
-    const showRightSidebar = role === 'admins' || role === 'super-admins';
+    const showRightSidebar =
+        normalizedRoles.includes('ADMIN') ||
+        normalizedRoles.includes('ADMINS') ||
+        normalizedRoles.includes('SUPER-ADMINS') ||
+        normalizedRoles.includes('SUPER_ADMIN');
 
     return (
         <div className="min-h-screen flex flex-col">

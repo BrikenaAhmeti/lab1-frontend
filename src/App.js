@@ -1,4 +1,21 @@
 import { jsx as _jsx } from "react/jsx-runtime";
+import { useEffect, useRef } from 'react';
 import { RouterProvider } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '@/app/hooks';
+import { bootstrapAuth } from '@/domain/auth/auth.thunks';
 import { router } from '@/routes';
-export default function App() { return _jsx(RouterProvider, { router: router }); }
+export default function App() {
+    const dispatch = useAppDispatch();
+    const initialized = useAppSelector((s) => s.auth.initialized);
+    const didBootstrap = useRef(false);
+    useEffect(() => {
+        if (didBootstrap.current)
+            return;
+        didBootstrap.current = true;
+        dispatch(bootstrapAuth());
+    }, [dispatch]);
+    if (!initialized) {
+        return _jsx("div", { className: "min-h-screen grid place-items-center text-sm text-muted-foreground", children: "Loading session..." });
+    }
+    return _jsx(RouterProvider, { router: router });
+}

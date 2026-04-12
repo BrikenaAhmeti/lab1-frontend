@@ -1,34 +1,40 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
-// Helper: get role (Redux or localStorage)
-const getRole = () => {
-    const ls = localStorage.getItem('role');
-    return ls ?? undefined;
+const getStoredRoles = () => {
+    const role = localStorage.getItem('role');
+    return role ? [role] : [];
 };
-// 1) Routes that anyone can access (no guard needed) — but we keep a <PublicGuard/> to redirect logged-in users away from guest-only pages if you want.
+const normalizeRole = (role) => role.trim().toUpperCase();
 export function GuestOnly() {
-    const { user, tokens } = useAppSelector(s => s.auth);
-    const isAuthed = !!(user || tokens);
+    const { user, tokens, initialized } = useAppSelector((s) => s.auth);
+    if (!initialized)
+        return null;
+    const isAuthed = !!(user && tokens?.accessToken);
     return isAuthed ? _jsx(Navigate, { to: "/app", replace: true }) : _jsx(Outlet, {});
 }
-// 2) Require logged-in
 export function RequireAuth() {
-    const { user, tokens } = useAppSelector(s => s.auth);
-    const isAuthed = !!(user || tokens);
+    const { user, tokens, initialized } = useAppSelector((s) => s.auth);
     const location = useLocation();
+    if (!initialized)
+        return null;
+    const isAuthed = !!(user && tokens?.accessToken);
     return isAuthed ? _jsx(Outlet, {}) : _jsx(Navigate, { to: "/login", state: { from: location }, replace: true });
 }
-// 3) Require specific role(s)
 export function RequireRole({ allow }) {
-    const { user } = useAppSelector(s => s.auth);
-    const role = user?.role || getRole();
-    if (!role)
+    const { user, initialized } = useAppSelector((s) => s.auth);
+    if (!initialized)
+        return null;
+    const allowedRoles = allow.map(normalizeRole);
+    const userRoles = [...(user?.roles ?? []), ...getStoredRoles()].map(normalizeRole);
+    const hasRole = userRoles.some((role) => allowedRoles.includes(role));
+    if (!userRoles.length)
         return _jsx(Navigate, { to: "/login", replace: true });
-    return allow.includes(role) ? _jsx(Outlet, {}) : _jsx(Navigate, { to: "/403", replace: true });
+    return hasRole ? _jsx(Outlet, {}) : _jsx(Navigate, { to: "/403", replace: true });
 }
-// 4) Optional: “finished setup” guard
 export function RequireFinishedGetStarted() {
-    const { finishedGetStarted } = useAppSelector(s => s.auth);
+    const { finishedGetStarted, initialized } = useAppSelector((s) => s.auth);
+    if (!initialized)
+        return null;
     return finishedGetStarted ? _jsx(Outlet, {}) : _jsx(Navigate, { to: "/choose", replace: true });
 }
