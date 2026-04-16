@@ -1,6 +1,14 @@
-import { jsxs as _jsxs, jsx as _jsx } from "react/jsx-runtime";
+import { jsx as _jsx } from "react/jsx-runtime";
+import clsx from 'clsx';
 import { useThemeMode } from '@/hooks/useThemeMode';
+const themeModes = [
+    { value: 'light', label: 'Light' },
+    { value: 'dark', label: 'Dark' },
+    { value: 'system', label: 'System' },
+];
 export default function ThemeToggle() {
-    const { mode, cycle, setMode } = useThemeMode();
-    return (_jsxs("div", { className: "flex items-center gap-2", children: [_jsxs("button", { onClick: cycle, className: "px-3 py-1 rounded border bg-gray-100 dark:bg-gray-800", title: "Cycle theme: light \u2192 dark \u2192 system", children: ["Theme: ", mode] }), _jsxs("div", { className: "hidden sm:flex gap-1", children: [_jsx("button", { className: "px-2 py-1 rounded border", onClick: () => setMode('light'), children: "Light" }), _jsx("button", { className: "px-2 py-1 rounded border", onClick: () => setMode('dark'), children: "Dark" }), _jsx("button", { className: "px-2 py-1 rounded border", onClick: () => setMode('system'), children: "System" })] })] }));
+    const { mode, setMode } = useThemeMode();
+    return (_jsx("div", { className: "inline-flex items-center rounded-xl border border-border/70 bg-card/80 p-1", children: themeModes.map((theme) => (_jsx("button", { type: "button", onClick: () => setMode(theme.value), className: clsx('rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors', mode === theme.value
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground'), "aria-label": `Switch theme to ${theme.label}`, children: theme.label }, theme.value))) }));
 }

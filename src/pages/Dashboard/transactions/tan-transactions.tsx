@@ -1,52 +1,99 @@
-import ThemeToggle from '@/ui/molecules/ThemeToggle';
-import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import { useTranslation } from 'react-i18next';
-import { useTransactions, useCreateTransaction, useDeleteTransaction } from '@/domain/transactions/transactions.hooks';
+import {
+  useCreateTransaction,
+  useDeleteTransaction,
+  useTransactions,
+} from '@/domain/transactions/transactions.hooks';
+import Badge from '@/ui/atoms/Badge';
+import Button from '@/ui/atoms/Button';
+import Card from '@/ui/atoms/Card';
 
 const TransactionsPageRQ = () => {
-  const { t } = useTranslation(['transactions', 'common']); // namespaces
+  const { t } = useTranslation(['transactions', 'common']);
   const { data, isLoading, refetch } = useTransactions(1, 20);
   const createTx = useCreateTransaction();
-  const delTx = useDeleteTransaction();
+  const deleteTx = useDeleteTransaction();
+  const hasItems = Boolean(data?.items?.length);
 
   return (
-    <div className="p-4 space-y-4 min-h-screen bg-white dark:bg-black text-tx-light dark:text-tx-dark">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{t('transactions:title')}</h1>
-
-        <div className="flex items-center gap-3">
-          <LanguageSwitch />
-          <ThemeToggle />
+    <section className="space-y-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">{t('transactions:title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            TanStack Query workflow with cache updates for create and delete actions.
+          </p>
         </div>
+        <Badge>Query Cache</Badge>
       </div>
 
-      <div className="flex gap-2">
-        <button onClick={() => refetch()} className="px-3 py-1 border rounded">
+      <div className="flex flex-wrap gap-2">
+        <Button onClick={() => refetch()} loading={isLoading}>
           {t('common:load')}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => createTx.mutate({ userId: 'u1', amount: 100, currency: 'EUR' })}
-          className="px-3 py-1 border rounded"
+          variant="secondary"
+          loading={createTx.isPending}
         >
           {t('common:create')}
-        </button>
+        </Button>
       </div>
 
-      {isLoading && <div>{t('common:loading')}</div>}
+      <Card
+        title="Transaction List"
+        description="Data source: TanStack Query cache for page 1 and page size 20."
+      >
+        {isLoading ? <p className="text-sm text-muted-foreground">{t('common:loading')}</p> : null}
+        {!isLoading && !hasItems ? (
+          <p className="text-sm text-muted-foreground">No transactions loaded yet.</p>
+        ) : null}
 
-      <ul>
-        {data?.items?.map((tItem: any) => (
-          <li key={tItem.id} className="flex justify-between border-b py-1">
-            <span>
-              {t('transactions:currency', { amount: tItem.amount, currency: tItem.currency })}
-            </span>
-            <button onClick={() => delTx.mutate(tItem.id)} className="px-2 py-0.5 border rounded">
-              {t('common:delete')}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </div>
+        {hasItems ? (
+          <ul className="space-y-2">
+            {data?.items.map((transactionItem) => (
+              <li
+                key={transactionItem.id}
+                className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 bg-surface/70 px-3 py-2"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {t('transactions:currency', {
+                      amount: transactionItem.amount,
+                      currency: transactionItem.currency,
+                    })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t('transactions:created')}: {new Date(transactionItem.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge
+                    variant={
+                      transactionItem.status === 'completed'
+                        ? 'success'
+                        : transactionItem.status === 'failed'
+                          ? 'danger'
+                          : 'warning'
+                    }
+                  >
+                    {transactionItem.status}
+                  </Badge>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    loading={deleteTx.isPending}
+                    onClick={() => deleteTx.mutate(transactionItem.id)}
+                  >
+                    {t('common:delete')}
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Card>
+    </section>
   );
 };
 

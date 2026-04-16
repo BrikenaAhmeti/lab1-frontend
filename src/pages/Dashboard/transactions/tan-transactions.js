@@ -1,13 +1,22 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import ThemeToggle from '@/ui/molecules/ThemeToggle';
-import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import { useTranslation } from 'react-i18next';
-import { useTransactions, useCreateTransaction, useDeleteTransaction } from '@/domain/transactions/transactions.hooks';
+import { useCreateTransaction, useDeleteTransaction, useTransactions, } from '@/domain/transactions/transactions.hooks';
+import Badge from '@/ui/atoms/Badge';
+import Button from '@/ui/atoms/Button';
+import Card from '@/ui/atoms/Card';
 const TransactionsPageRQ = () => {
-    const { t } = useTranslation(['transactions', 'common']); // namespaces
+    const { t } = useTranslation(['transactions', 'common']);
     const { data, isLoading, refetch } = useTransactions(1, 20);
     const createTx = useCreateTransaction();
-    const delTx = useDeleteTransaction();
-    return (_jsxs("div", { className: "p-4 space-y-4 min-h-screen bg-white dark:bg-black text-tx-light dark:text-tx-dark", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsx("h1", { className: "text-xl font-semibold", children: t('transactions:title') }), _jsxs("div", { className: "flex items-center gap-3", children: [_jsx(LanguageSwitch, {}), _jsx(ThemeToggle, {})] })] }), _jsxs("div", { className: "flex gap-2", children: [_jsx("button", { onClick: () => refetch(), className: "px-3 py-1 border rounded", children: t('common:load') }), _jsx("button", { onClick: () => createTx.mutate({ userId: 'u1', amount: 100, currency: 'EUR' }), className: "px-3 py-1 border rounded", children: t('common:create') })] }), isLoading && _jsx("div", { children: t('common:loading') }), _jsx("ul", { children: data?.items?.map((tItem) => (_jsxs("li", { className: "flex justify-between border-b py-1", children: [_jsx("span", { children: t('transactions:currency', { amount: tItem.amount, currency: tItem.currency }) }), _jsx("button", { onClick: () => delTx.mutate(tItem.id), className: "px-2 py-0.5 border rounded", children: t('common:delete') })] }, tItem.id))) })] }));
+    const deleteTx = useDeleteTransaction();
+    const hasItems = Boolean(data?.items?.length);
+    return (_jsxs("section", { className: "space-y-5", children: [_jsxs("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [_jsxs("div", { children: [_jsx("h1", { className: "text-2xl font-bold text-foreground", children: t('transactions:title') }), _jsx("p", { className: "mt-1 text-sm text-muted-foreground", children: "TanStack Query workflow with cache updates for create and delete actions." })] }), _jsx(Badge, { children: "Query Cache" })] }), _jsxs("div", { className: "flex flex-wrap gap-2", children: [_jsx(Button, { onClick: () => refetch(), loading: isLoading, children: t('common:load') }), _jsx(Button, { onClick: () => createTx.mutate({ userId: 'u1', amount: 100, currency: 'EUR' }), variant: "secondary", loading: createTx.isPending, children: t('common:create') })] }), _jsxs(Card, { title: "Transaction List", description: "Data source: TanStack Query cache for page 1 and page size 20.", children: [isLoading ? _jsx("p", { className: "text-sm text-muted-foreground", children: t('common:loading') }) : null, !isLoading && !hasItems ? (_jsx("p", { className: "text-sm text-muted-foreground", children: "No transactions loaded yet." })) : null, hasItems ? (_jsx("ul", { className: "space-y-2", children: data?.items.map((transactionItem) => (_jsxs("li", { className: "flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border/70 bg-surface/70 px-3 py-2", children: [_jsxs("div", { children: [_jsx("p", { className: "text-sm font-semibold text-foreground", children: t('transactions:currency', {
+                                                amount: transactionItem.amount,
+                                                currency: transactionItem.currency,
+                                            }) }), _jsxs("p", { className: "text-xs text-muted-foreground", children: [t('transactions:created'), ": ", new Date(transactionItem.createdAt).toLocaleString()] })] }), _jsxs("div", { className: "flex items-center gap-2", children: [_jsx(Badge, { variant: transactionItem.status === 'completed'
+                                                ? 'success'
+                                                : transactionItem.status === 'failed'
+                                                    ? 'danger'
+                                                    : 'warning', children: transactionItem.status }), _jsx(Button, { size: "sm", variant: "outline", loading: deleteTx.isPending, onClick: () => deleteTx.mutate(transactionItem.id), children: t('common:delete') })] })] }, transactionItem.id))) })) : null] })] }));
 };
 export default TransactionsPageRQ;

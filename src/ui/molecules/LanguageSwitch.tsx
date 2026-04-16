@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+import { useEffect, useState } from 'react';
 import i18n from 'i18next';
 
 const langs = [
@@ -5,20 +7,41 @@ const langs = [
   { code: 'de', label: 'DE' },
 ];
 
+const resolveLanguage = () => {
+  const current = (i18n.resolvedLanguage ?? i18n.language ?? 'en').toLowerCase();
+  return current.startsWith('de') ? 'de' : 'en';
+};
+
 const LanguageSwitch = () => {
+  const [activeLanguage, setActiveLanguage] = useState(resolveLanguage);
+
+  useEffect(() => {
+    const onLanguageChanged = (lng: string) => setActiveLanguage(lng.toLowerCase().startsWith('de') ? 'de' : 'en');
+    i18n.on('languageChanged', onLanguageChanged);
+    return () => {
+      i18n.off('languageChanged', onLanguageChanged);
+    };
+  }, []);
+
   return (
-    <div className="flex items-center gap-2">
-      {langs.map(l => (
+    <div className="inline-flex items-center rounded-xl border border-border/70 bg-card/80 p-1">
+      {langs.map((language) => (
         <button
-          key={l.code}
-          onClick={() => i18n.changeLanguage(l.code)}
-          className="px-2 py-1 border rounded text-sm"
-          aria-label={`Change language to ${l.label}`}
+          key={language.code}
+          type="button"
+          onClick={() => i18n.changeLanguage(language.code)}
+          className={clsx(
+            'rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors',
+            activeLanguage === language.code
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          )}
+          aria-label={`Change language to ${language.label}`}
         >
-          {l.label}
+          {language.label}
         </button>
       ))}
     </div>
   );
-}
+};
 export default LanguageSwitch;

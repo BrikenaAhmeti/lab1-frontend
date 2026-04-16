@@ -1,22 +1,33 @@
+import clsx from 'clsx';
 import { useThemeMode } from '@/hooks/useThemeMode';
 
+const themeModes = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System' },
+] as const;
+
 export default function ThemeToggle() {
-  const { mode, cycle, setMode } = useThemeMode();
+  const { mode, setMode } = useThemeMode();
 
   return (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={cycle}
-        className="px-3 py-1 rounded border bg-gray-100 dark:bg-gray-800"
-        title="Cycle theme: light → dark → system"
-      >
-        Theme: {mode}
-      </button>
-      <div className="hidden sm:flex gap-1">
-        <button className="px-2 py-1 rounded border" onClick={() => setMode('light')}>Light</button>
-        <button className="px-2 py-1 rounded border" onClick={() => setMode('dark')}>Dark</button>
-        <button className="px-2 py-1 rounded border" onClick={() => setMode('system')}>System</button>
-      </div>
+    <div className="inline-flex items-center rounded-xl border border-border/70 bg-card/80 p-1">
+      {themeModes.map((theme) => (
+        <button
+          key={theme.value}
+          type="button"
+          onClick={() => setMode(theme.value)}
+          className={clsx(
+            'rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-colors',
+            mode === theme.value
+              ? 'bg-primary text-primary-foreground'
+              : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+          )}
+          aria-label={`Switch theme to ${theme.label}`}
+        >
+          {theme.label}
+        </button>
+      ))}
     </div>
   );
 }
