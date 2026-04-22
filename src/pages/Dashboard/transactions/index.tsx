@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useAppDispatch, useAppSelector } from '@/app/hooks';
 import {
   createTransaction,
@@ -9,6 +10,7 @@ import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 
 const TransactionsPageRTK = () => {
+  const { t } = useTranslation(['transactions', 'common']);
   const dispatch = useAppDispatch();
   const page = useAppSelector((s) => s.transactions.page);
   const loading = useAppSelector((s) => s.transactions.loading);
@@ -32,31 +34,26 @@ const TransactionsPageRTK = () => {
     <section className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Transactions</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Redux Toolkit flow for loading, creating, and deleting transactions.
-          </p>
+          <h1 className="text-2xl font-bold text-foreground">{t('transactions:title')}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t('transactions:rtkDescription')}</p>
         </div>
-        <Badge variant="secondary">RTK State</Badge>
+        <Badge variant="secondary">{t('transactions:badgeRtk')}</Badge>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <Button onClick={load} loading={loading}>
-          Load Transactions
+          {t('transactions:loadTransactions')}
         </Button>
         <Button onClick={add} variant="secondary" disabled={loading}>
-          Create Demo Transaction
+          {t('transactions:createDemo')}
         </Button>
       </div>
 
-      <Card
-        title="Transaction List"
-        description="Data source: transactions slice in Redux store."
-      >
+      <Card title={t('transactions:listTitle')} description={t('transactions:listDescriptionRedux')}>
         {error ? <p className="text-sm text-danger">{error}</p> : null}
 
         {!error && !hasItems ? (
-          <p className="text-sm text-muted-foreground">No transactions loaded yet.</p>
+          <p className="text-sm text-muted-foreground">{t('transactions:empty')}</p>
         ) : null}
 
         {hasItems ? (
@@ -64,11 +61,11 @@ const TransactionsPageRTK = () => {
             <table className="min-w-full text-left text-sm">
               <thead className="text-xs uppercase tracking-wide text-muted-foreground">
                 <tr>
-                  <th className="px-3 py-2">ID</th>
-                  <th className="px-3 py-2">Amount</th>
-                  <th className="px-3 py-2">Currency</th>
-                  <th className="px-3 py-2">Status</th>
-                  <th className="px-3 py-2 text-right">Actions</th>
+                  <th className="px-3 py-2">{t('transactions:table.id')}</th>
+                  <th className="px-3 py-2">{t('transactions:table.amount')}</th>
+                  <th className="px-3 py-2">{t('transactions:table.currency')}</th>
+                  <th className="px-3 py-2">{t('transactions:table.status')}</th>
+                  <th className="px-3 py-2 text-right">{t('transactions:table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -97,7 +94,7 @@ const TransactionsPageRTK = () => {
                         disabled={loading}
                         onClick={() => remove(transaction.id)}
                       >
-                        Delete
+                        {t('common:delete')}
                       </Button>
                     </td>
                   </tr>

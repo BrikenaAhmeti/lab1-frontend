@@ -2,11 +2,12 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { beforeEach, describe, expect, it } from 'vitest';
-import authReducer from '@/domain/auth/authSlice';
-import transactionsReducer from '@/domain/transactions/transactions.slice';
-import authChatReducer from '@/domain/auth/authChat.slice';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import AppLayout from '@/ui/layouts/AppLayout';
+
+vi.mock('@/domain/auth/auth.thunks', () => ({
+  logout: () => ({ type: 'auth/logout' }),
+}));
 
 const createUser = (roles: string[]) => ({
   id: 'u-1',
@@ -29,34 +30,36 @@ type RenderOptions = {
 };
 
 function renderLayout({ roles = ['STAFF'], route = '/app' }: RenderOptions = {}) {
+  const preloadedState = {
+    auth: {
+      user: createUser(roles),
+      tokens: { accessToken: 'access-token', refreshToken: 'refresh-token' },
+      finishedGetStarted: false,
+      loading: false,
+      initialized: true,
+      error: null,
+    },
+    transactions: {
+      page: null,
+      byId: {},
+      loading: false,
+      error: undefined,
+    },
+    authChat: {
+      chatId: null,
+      messages: [],
+      loading: false,
+      error: null,
+    },
+  };
+
   const store = configureStore({
     reducer: {
-      auth: authReducer,
-      transactions: transactionsReducer,
-      authChat: authChatReducer,
+      auth: (state = preloadedState.auth) => state,
+      transactions: (state = preloadedState.transactions) => state,
+      authChat: (state = preloadedState.authChat) => state,
     },
-    preloadedState: {
-      auth: {
-        user: createUser(roles),
-        tokens: { accessToken: 'access-token', refreshToken: 'refresh-token' },
-        finishedGetStarted: false,
-        loading: false,
-        initialized: true,
-        error: null,
-      },
-      transactions: {
-        page: null,
-        byId: {},
-        loading: false,
-        error: undefined,
-      },
-      authChat: {
-        chatId: null,
-        messages: [],
-        loading: false,
-        error: null,
-      },
-    },
+    preloadedState,
   });
 
   return render(
@@ -64,7 +67,8 @@ function renderLayout({ roles = ['STAFF'], route = '/app' }: RenderOptions = {})
       <MemoryRouter initialEntries={[route]}>
         <Routes>
           <Route path="/app" element={<AppLayout />}>
-            <Route index element={<div>Dashboard content</div>} />
+            <Route index element={<div>Index content</div>} />
+            <Route path="patients" element={<div>Patients content</div>} />
             <Route path="transactions" element={<div>Transactions content</div>} />
             <Route path="admin" element={<div>Admin content</div>} />
           </Route>
@@ -80,23 +84,29 @@ describe('AppLayout', () => {
   });
 
   it('renders outlet content with the primary shell controls', () => {
-    renderLayout();
+    renderLayout({ route: '/app/patients' });
 
-    expect(screen.getByText('Dashboard content')).toBeInTheDocument();
+    expect(screen.getByText('Patients content')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument();
     expect(screen.getByText('MEDSPHERE')).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: /language/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /theme/i })).toBeInTheDocument();
   });
 
-  it('shows admin insights panel only for admin roles', () => {
-    renderLayout();
+  it('keeps the same single-sidebar layout for admin roles', () => {
+    const initialRender = renderLayout({ route: '/app/patients' });
     expect(screen.queryByText(/Security and permission monitoring enabled/i)).not.toBeInTheDocument();
+    initialRender.unmount();
 
-    renderLayout({ roles: ['ADMIN'], route: '/app/admin' });
-    expect(screen.getByText(/Security and permission monitoring enabled/i)).toBeInTheDocument();
+    renderLayout({ roles: ['ADMIN'], route: '/app/patients' });
+    expect(screen.queryByText(/Security and permission monitoring enabled/i)).not.toBeInTheDocument();
+    expect(screen.getAllByText('Patients').length).toBeGreaterThan(0);
+    expect(screen.getByText('Doctors')).toBeInTheDocument();
+    expect(screen.getByText('Departments')).toBeInTheDocument();
   });
 
   it('toggles mobile navigation state from the header button', () => {
-    renderLayout();
+    renderLayout({ route: '/app/patients' });
 
     const navToggle = screen.getByRole('button', { name: /open navigation/i });
     expect(navToggle).toHaveAttribute('aria-expanded', 'false');

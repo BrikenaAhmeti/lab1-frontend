@@ -20,11 +20,9 @@ const TransactionsPageRQ = () => {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-foreground">{t('transactions:title')}</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            TanStack Query workflow with cache updates for create and delete actions.
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">{t('transactions:queryDescription')}</p>
         </div>
-        <Badge>Query Cache</Badge>
+        <Badge>{t('transactions:badgeQuery')}</Badge>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -41,12 +39,12 @@ const TransactionsPageRQ = () => {
       </div>
 
       <Card
-        title="Transaction List"
-        description="Data source: TanStack Query cache for page 1 and page size 20."
+        title={t('transactions:listTitle')}
+        description={t('transactions:listDescriptionQuery')}
       >
         {isLoading ? <p className="text-sm text-muted-foreground">{t('common:loading')}</p> : null}
         {!isLoading && !hasItems ? (
-          <p className="text-sm text-muted-foreground">No transactions loaded yet.</p>
+          <p className="text-sm text-muted-foreground">{t('transactions:empty')}</p>
         ) : null}
 
         {hasItems ? (

@@ -1,0 +1,67 @@
+export const moduleNavigation = [
+  {
+    key: 'patients',
+    path: 'patients',
+    to: '/app/patients',
+    labelKey: 'navigation.patients.label',
+    descriptionKey: 'navigation.patients.description',
+  },
+  {
+    key: 'doctors',
+    path: 'doctors',
+    to: '/app/doctors',
+    labelKey: 'navigation.doctors.label',
+    descriptionKey: 'navigation.doctors.description',
+  },
+  {
+    key: 'departments',
+    path: 'departments',
+    to: '/app/departments',
+    labelKey: 'navigation.departments.label',
+    descriptionKey: 'navigation.departments.description',
+  },
+  {
+    key: 'appointments',
+    path: 'appointments',
+    to: '/app/appointments',
+    labelKey: 'navigation.appointments.label',
+    descriptionKey: 'navigation.appointments.description',
+  },
+  {
+    key: 'medicalRecords',
+    path: 'medical-records',
+    to: '/app/medical-records',
+    labelKey: 'navigation.medicalRecords.label',
+    descriptionKey: 'navigation.medicalRecords.description',
+  },
+  {
+    key: 'rooms',
+    path: 'rooms',
+    to: '/app/rooms',
+    labelKey: 'navigation.rooms.label',
+    descriptionKey: 'navigation.rooms.description',
+  },
+  {
+    key: 'admissions',
+    path: 'admissions',
+    to: '/app/admissions',
+    labelKey: 'navigation.admissions.label',
+    descriptionKey: 'navigation.admissions.description',
+  },
+  {
+    key: 'invoices',
+    path: 'invoices',
+    to: '/app/invoices',
+    labelKey: 'navigation.invoices.label',
+    descriptionKey: 'navigation.invoices.description',
+  },
+  {
+    key: 'nurses',
+    path: 'nurses',
+    to: '/app/nurses',
+    labelKey: 'navigation.nurses.label',
+    descriptionKey: 'navigation.nurses.description',
+  },
+] as const;
+
+export type ModuleKey = (typeof moduleNavigation)[number]['key'];

@@ -1,0 +1,22 @@
+{
+  "title": "Transaktionen",
+  "created": "Erstellt",
+  "currency": "{{amount}} {{currency}}",
+  "rtkDescription": "Redux-Toolkit-Ablauf zum Laden, Erstellen und Löschen von Transaktionen.",
+  "queryDescription": "TanStack-Query-Ablauf mit Cache-Updates für Erstellen- und Löschen-Aktionen.",
+  "badgeRtk": "RTK-Status",
+  "badgeQuery": "Query-Cache",
+  "loadTransactions": "Transaktionen laden",
+  "createDemo": "Demo-Transaktion erstellen",
+  "listTitle": "Transaktionsliste",
+  "listDescriptionRedux": "Datenquelle: Transaktions-Slice im Redux-Store.",
+  "listDescriptionQuery": "Datenquelle: TanStack-Query-Cache für Seite 1 und Seitengröße 20.",
+  "empty": "Es wurden noch keine Transaktionen geladen.",
+  "table": {
+    "id": "ID",
+    "amount": "Betrag",
+    "currency": "Währung",
+    "status": "Status",
+    "actions": "Aktionen"
+  }
+}
