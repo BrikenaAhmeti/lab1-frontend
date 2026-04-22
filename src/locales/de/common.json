@@ -1,0 +1,117 @@
+{
+  "appTitle": "MEDSPHERE",
+  "load": "Laden",
+  "create": "Erstellen",
+  "delete": "Löschen",
+  "loading": "Wird geladen...",
+  "loadingSession": "Sitzung wird geladen...",
+  "theme": "Thema",
+  "language": "Sprache",
+  "logout": "Abmelden",
+  "shell": {
+    "logoAlt": "MedSphere-Logo",
+    "brandSubtitle": "Krankenhausmanagement",
+    "mobileOpen": "Navigation öffnen",
+    "mobileClose": "Navigation schließen",
+    "defaultTitle": "Krankenhausbereich",
+    "defaultDescription": "Verwalten Sie Patienten, Abteilungen und Personal an einem Ort.",
+    "settingsTitle": "Einstellungen",
+    "settingsDescription": "Wählen Sie Sprache und Erscheinungsbild für den Admin-Bereich.",
+    "languageHint": "Wählen Sie die Sprache des Dashboards.",
+    "themeHint": "Wählen Sie hell, dunkel oder die Systemeinstellung."
+  },
+  "languageOptions": {
+    "en": "Englisch",
+    "de": "Deutsch"
+  },
+  "themeOptions": {
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
+  },
+  "navigation": {
+    "patients": {
+      "label": "Patienten",
+      "description": "Patientenakten und aktive Behandlungspläne"
+    },
+    "doctors": {
+      "label": "Ärzte",
+      "description": "Ärzteverzeichnis und Verfügbarkeit"
+    },
+    "departments": {
+      "label": "Abteilungen",
+      "description": "Abteilungsstruktur und medizinische Teams"
+    },
+    "appointments": {
+      "label": "Termine",
+      "description": "Zeitpläne, Besuche und Nachsorge"
+    },
+    "medicalRecords": {
+      "label": "Krankenakten",
+      "description": "Klinische Notizen, Verlauf und Dokumentation"
+    },
+    "rooms": {
+      "label": "Zimmer",
+      "description": "Kapazität, Betten und Belegungsstatus"
+    },
+    "admissions": {
+      "label": "Aufnahmen",
+      "description": "Check-ins, Aufenthalte und Entlassungsabläufe"
+    },
+    "invoices": {
+      "label": "Rechnungen",
+      "description": "Abrechnung, Salden und Zahlungsverfolgung"
+    },
+    "nurses": {
+      "label": "Pflegekräfte",
+      "description": "Pflegeeinsätze und Stationszuweisungen"
+    }
+  },
+  "modules": {
+    "patients": {
+      "title": "Patienten",
+      "description": "Verwalten Sie Patientenakten, Aufnahme-Status und Behandlungsdetails."
+    },
+    "doctors": {
+      "title": "Ärzte",
+      "description": "Prüfen Sie Ärzte, Fachgebiete und Verfügbarkeit."
+    },
+    "departments": {
+      "title": "Abteilungen",
+      "description": "Organisieren Sie Krankenhausabteilungen und Teamverantwortungen."
+    },
+    "appointments": {
+      "title": "Termine",
+      "description": "Koordinieren Sie Zeitpläne, Besuche und Nachsorge."
+    },
+    "medicalRecords": {
+      "title": "Krankenakten",
+      "description": "Greifen Sie auf Krankengeschichte, Notizen und Patientendokumentation zu."
+    },
+    "rooms": {
+      "title": "Zimmer",
+      "description": "Verfolgen Sie Zimmerkapazität, Betten und Belegung."
+    },
+    "admissions": {
+      "title": "Aufnahmen",
+      "description": "Überwachen Sie Check-ins, aktive Aufenthalte und Entlassungsplanung."
+    },
+    "invoices": {
+      "title": "Rechnungen",
+      "description": "Bearbeiten Sie Abrechnungsaktivitäten und Zahlungsverfolgung."
+    },
+    "nurses": {
+      "title": "Pflegekräfte",
+      "description": "Verwalten Sie Pflegeeinsätze und Unterstützung in den Schichten."
+    }
+  },
+  "modulePage": {
+    "badge": "Modul",
+    "overviewTitle": "{{module}} Überblick",
+    "overviewDescription": "Dieser Bereich ist für den Workflow von {{module}} bereit.",
+    "overviewBody": "Nutzen Sie diese Seite, um Listen, Filter und Details für {{module}} aufzubauen.",
+    "helperTitle": "Nächster Schritt",
+    "helperDescription": "Das übersetzte Layout ist für diesen Bereich bereit.",
+    "helperBody": "Sie können dieses Modul jetzt mit Tabellen, Formularen und Detailansichten erweitern und dabei dieselben Sprach- und Theme-Einstellungen beibehalten."
+  }
+}

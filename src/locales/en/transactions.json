@@ -1,0 +1,22 @@
+{
+  "title": "Transactions",
+  "created": "Created",
+  "currency": "{{amount}} {{currency}}",
+  "rtkDescription": "Redux Toolkit flow for loading, creating, and deleting transactions.",
+  "queryDescription": "TanStack Query workflow with cache updates for create and delete actions.",
+  "badgeRtk": "RTK State",
+  "badgeQuery": "Query Cache",
+  "loadTransactions": "Load transactions",
+  "createDemo": "Create demo transaction",
+  "listTitle": "Transaction list",
+  "listDescriptionRedux": "Data source: transactions slice in the Redux store.",
+  "listDescriptionQuery": "Data source: TanStack Query cache for page 1 and page size 20.",
+  "empty": "No transactions loaded yet.",
+  "table": {
+    "id": "ID",
+    "amount": "Amount",
+    "currency": "Currency",
+    "status": "Status",
+    "actions": "Actions"
+  }
+}

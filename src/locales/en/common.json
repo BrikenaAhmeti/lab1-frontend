@@ -1,0 +1,117 @@
+{
+  "appTitle": "MEDSPHERE",
+  "load": "Load",
+  "create": "Create",
+  "delete": "Delete",
+  "loading": "Loading...",
+  "loadingSession": "Loading session...",
+  "theme": "Theme",
+  "language": "Language",
+  "logout": "Logout",
+  "shell": {
+    "logoAlt": "MedSphere logo",
+    "brandSubtitle": "Hospital Management",
+    "mobileOpen": "Open navigation",
+    "mobileClose": "Close navigation",
+    "defaultTitle": "Hospital workspace",
+    "defaultDescription": "Manage patients, departments, and staff from one place.",
+    "settingsTitle": "Settings",
+    "settingsDescription": "Choose the language and appearance for the admin workspace.",
+    "languageHint": "Select the dashboard language.",
+    "themeHint": "Choose light, dark, or follow the system setting."
+  },
+  "languageOptions": {
+    "en": "English",
+    "de": "German"
+  },
+  "themeOptions": {
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "navigation": {
+    "patients": {
+      "label": "Patients",
+      "description": "Patient records and active care plans"
+    },
+    "doctors": {
+      "label": "Doctors",
+      "description": "Doctor directory and availability"
+    },
+    "departments": {
+      "label": "Departments",
+      "description": "Department structure and medical teams"
+    },
+    "appointments": {
+      "label": "Appointments",
+      "description": "Schedules, visits, and follow-ups"
+    },
+    "medicalRecords": {
+      "label": "Medical Records",
+      "description": "Clinical notes, history, and documentation"
+    },
+    "rooms": {
+      "label": "Rooms",
+      "description": "Capacity, beds, and occupancy status"
+    },
+    "admissions": {
+      "label": "Admissions",
+      "description": "Check-ins, stays, and discharge flow"
+    },
+    "invoices": {
+      "label": "Invoices",
+      "description": "Billing, balances, and payment tracking"
+    },
+    "nurses": {
+      "label": "Nurses",
+      "description": "Nursing coverage and ward assignments"
+    }
+  },
+  "modules": {
+    "patients": {
+      "title": "Patients",
+      "description": "Manage patient records, intake status, and care details."
+    },
+    "doctors": {
+      "title": "Doctors",
+      "description": "Review doctors, specialties, and availability."
+    },
+    "departments": {
+      "title": "Departments",
+      "description": "Organize hospital departments and team responsibilities."
+    },
+    "appointments": {
+      "title": "Appointments",
+      "description": "Coordinate schedules, visits, and follow-up care."
+    },
+    "medicalRecords": {
+      "title": "Medical Records",
+      "description": "Access clinical history, notes, and patient documentation."
+    },
+    "rooms": {
+      "title": "Rooms",
+      "description": "Track room capacity, beds, and occupancy."
+    },
+    "admissions": {
+      "title": "Admissions",
+      "description": "Monitor check-ins, active stays, and discharge planning."
+    },
+    "invoices": {
+      "title": "Invoices",
+      "description": "Handle billing activity and payment follow-up."
+    },
+    "nurses": {
+      "title": "Nurses",
+      "description": "Manage nursing assignments and shift support."
+    }
+  },
+  "modulePage": {
+    "badge": "Module",
+    "overviewTitle": "{{module}} overview",
+    "overviewDescription": "This section is ready for the {{module}} workflow.",
+    "overviewBody": "Use this page to build lists, filters, and details for {{module}}.",
+    "helperTitle": "Next step",
+    "helperDescription": "The translated layout is ready for this section.",
+    "helperBody": "You can now extend this module with tables, forms, and detail views while keeping the same language and theme settings."
+  }
+}
