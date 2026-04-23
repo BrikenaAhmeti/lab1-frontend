@@ -1,0 +1,89 @@
+{
+  "list": {
+    "title": "Patients",
+    "description": "Search, review, and manage patient records.",
+    "filtersTitle": "Search and filters",
+    "filtersDescription": "Search by first or last name and choose how many records to show per page.",
+    "searchPlaceholder": "Search by first or last name",
+    "resultsTitle": "Patient records",
+    "resultsDescription": "Browse the available patient records.",
+    "results": "Showing {{count}} of {{total}} patients",
+    "page": "Page {{page}} of {{totalPages}}",
+    "refreshing": "Refreshing patients..."
+  },
+  "details": {
+    "title": "Patient details",
+    "description": "Review full patient information.",
+    "deleteConfirm": "Delete this patient?",
+    "notFoundTitle": "Patient not found",
+    "notFoundDescription": "This patient record is no longer available."
+  },
+  "form": {
+    "createTitle": "Create patient",
+    "createDescription": "Add a new patient record.",
+    "editTitle": "Edit patient",
+    "editDescription": "Update patient information.",
+    "formTitle": "Patient form",
+    "formDescription": "Fill in the patient details below.",
+    "genderPlaceholder": "Select gender",
+    "bloodTypePlaceholder": "Select blood type"
+  },
+  "actions": {
+    "search": "Search",
+    "clear": "Clear",
+    "create": "Create patient",
+    "view": "View",
+    "edit": "Edit",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save patient",
+    "update": "Update patient",
+    "delete": "Delete",
+    "retry": "Try again",
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "fields": {
+    "search": "Search",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "phoneNumber": "Phone number",
+    "address": "Address",
+    "bloodType": "Blood type"
+  },
+  "labels": {
+    "limit": "Rows per page"
+  },
+  "states": {
+    "loadingTitle": "Loading patients",
+    "loadingDescription": "Please wait a moment.",
+    "loadingPatientTitle": "Loading patient",
+    "loadingPatientDescription": "Please wait a moment.",
+    "emptyTitle": "No patients found",
+    "emptyDescription": "Try another search or create a new patient.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load patient data."
+  },
+  "errors": {
+    "list": "We could not load the patients list.",
+    "details": "We could not load this patient.",
+    "save": "We could not save the patient.",
+    "delete": "We could not delete the patient."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "dateOfBirth": "Use YYYY-MM-DD.",
+    "phoneNumber": "Use a valid phone number like +38344111222."
+  },
+  "genders": {
+    "MALE": "Male",
+    "FEMALE": "Female",
+    "OTHER": "Other"
+  }
+}

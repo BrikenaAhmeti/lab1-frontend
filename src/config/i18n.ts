@@ -5,15 +5,19 @@ import enCommon from '@/locales/en/common.json';
 import deCommon from '@/locales/de/common.json';
 import enTransactions from '@/locales/en/transactions.json';
 import deTransactions from '@/locales/de/transactions.json';
+import enPatients from '@/locales/en/patients.json';
+import dePatients from '@/locales/de/patients.json';
 
 const resources = {
   en: {
     common: enCommon,
     transactions: enTransactions,
+    patients: enPatients,
   },
   de: {
     common: deCommon,
     transactions: deTransactions,
+    patients: dePatients,
   },
 } as const;
 
@@ -24,7 +28,7 @@ i18n
     resources,
     fallbackLng: 'en',
     supportedLngs: ['en', 'de'],
-    ns: ['common', 'transactions'],
+    ns: ['common', 'transactions', 'patients'],
     defaultNS: 'common',
     load: 'languageOnly',
     detection: {

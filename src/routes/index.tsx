@@ -9,7 +9,17 @@ import DesignSystemPage from '@/pages/DesignSystem';
 import ModulePage from '@/pages/Dashboard/modules';
 import TransactionsPageRTK from '@/pages/Dashboard/transactions';
 import TransactionsPageRQ from '@/pages/Dashboard/transactions/tan-transactions';
+import PatientsListPage from '@/pages/Dashboard/patients';
+import PatientDetailsPage from '@/pages/Dashboard/patients/details';
+import PatientFormPage from '@/pages/Dashboard/patients/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
+
+const moduleRoutes = moduleNavigation
+  .filter((item) => item.key !== 'patients')
+  .map((item) => ({
+    path: item.path,
+    element: <ModulePage moduleKey={item.key} />,
+  }));
 
 export const router = createBrowserRouter([
   {
@@ -41,10 +51,16 @@ export const router = createBrowserRouter([
         element: <AppLayout />,
         children: [
           { index: true, element: <Navigate to="patients" replace /> },
-          ...moduleNavigation.map((item) => ({
-            path: item.path,
-            element: <ModulePage moduleKey={item.key} />,
-          })),
+          {
+            path: 'patients',
+            children: [
+              { index: true, element: <PatientsListPage /> },
+              { path: 'new', element: <PatientFormPage /> },
+              { path: ':id', element: <PatientDetailsPage /> },
+              { path: ':id/edit', element: <PatientFormPage /> },
+            ],
+          },
+          ...moduleRoutes,
           { path: 'transactions', element: <TransactionsPageRTK /> },
           { path: 'tan-transactions', element: <TransactionsPageRQ /> },
           { path: 'admin', element: <Navigate to="/app/patients" replace /> },

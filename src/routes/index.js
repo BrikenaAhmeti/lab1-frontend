@@ -9,7 +9,16 @@ import DesignSystemPage from '@/pages/DesignSystem';
 import ModulePage from '@/pages/Dashboard/modules';
 import TransactionsPageRTK from '@/pages/Dashboard/transactions';
 import TransactionsPageRQ from '@/pages/Dashboard/transactions/tan-transactions';
+import PatientsListPage from '@/pages/Dashboard/patients';
+import PatientDetailsPage from '@/pages/Dashboard/patients/details';
+import PatientFormPage from '@/pages/Dashboard/patients/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
+const moduleRoutes = moduleNavigation
+    .filter((item) => item.key !== 'patients')
+    .map((item) => ({
+    path: item.path,
+    element: _jsx(ModulePage, { moduleKey: item.key }),
+}));
 export const router = createBrowserRouter([
     {
         element: _jsx(GuestOnly, {}),
@@ -40,10 +49,16 @@ export const router = createBrowserRouter([
                 element: _jsx(AppLayout, {}),
                 children: [
                     { index: true, element: _jsx(Navigate, { to: "patients", replace: true }) },
-                    ...moduleNavigation.map((item) => ({
-                        path: item.path,
-                        element: _jsx(ModulePage, { moduleKey: item.key }),
-                    })),
+                    {
+                        path: 'patients',
+                        children: [
+                            { index: true, element: _jsx(PatientsListPage, {}) },
+                            { path: 'new', element: _jsx(PatientFormPage, {}) },
+                            { path: ':id', element: _jsx(PatientDetailsPage, {}) },
+                            { path: ':id/edit', element: _jsx(PatientFormPage, {}) },
+                        ],
+                    },
+                    ...moduleRoutes,
                     { path: 'transactions', element: _jsx(TransactionsPageRTK, {}) },
                     { path: 'tan-transactions', element: _jsx(TransactionsPageRQ, {}) },
                     { path: 'admin', element: _jsx(Navigate, { to: "/app/patients", replace: true }) },

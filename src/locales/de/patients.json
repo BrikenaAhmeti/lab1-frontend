@@ -1,0 +1,89 @@
+{
+  "list": {
+    "title": "Patienten",
+    "description": "Patientendaten suchen, prüfen und verwalten.",
+    "filtersTitle": "Suche und Filter",
+    "filtersDescription": "Nach Vor- oder Nachname suchen und die Anzahl der Einträge pro Seite wählen.",
+    "searchPlaceholder": "Nach Vor- oder Nachname suchen",
+    "resultsTitle": "Patientendaten",
+    "resultsDescription": "Verfügbare Patientendaten durchsuchen.",
+    "results": "{{count}} von {{total}} Patienten angezeigt",
+    "page": "Seite {{page}} von {{totalPages}}",
+    "refreshing": "Patienten werden aktualisiert..."
+  },
+  "details": {
+    "title": "Patientendetails",
+    "description": "Vollständige Patienteninformationen anzeigen.",
+    "deleteConfirm": "Diesen Patienten löschen?",
+    "notFoundTitle": "Patient nicht gefunden",
+    "notFoundDescription": "Dieser Patientendatensatz ist nicht mehr verfügbar."
+  },
+  "form": {
+    "createTitle": "Patient erstellen",
+    "createDescription": "Einen neuen Patientendatensatz anlegen.",
+    "editTitle": "Patient bearbeiten",
+    "editDescription": "Patienteninformationen aktualisieren.",
+    "formTitle": "Patientenformular",
+    "formDescription": "Patientendaten unten ausfüllen.",
+    "genderPlaceholder": "Geschlecht wählen",
+    "bloodTypePlaceholder": "Blutgruppe wählen"
+  },
+  "actions": {
+    "search": "Suchen",
+    "clear": "Zurücksetzen",
+    "create": "Patient erstellen",
+    "view": "Ansehen",
+    "edit": "Bearbeiten",
+    "back": "Zurück",
+    "cancel": "Abbrechen",
+    "save": "Patient speichern",
+    "update": "Patient aktualisieren",
+    "delete": "Löschen",
+    "retry": "Erneut versuchen",
+    "previous": "Zurück",
+    "next": "Weiter"
+  },
+  "fields": {
+    "search": "Suche",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "dateOfBirth": "Geburtsdatum",
+    "gender": "Geschlecht",
+    "phoneNumber": "Telefonnummer",
+    "address": "Adresse",
+    "bloodType": "Blutgruppe"
+  },
+  "labels": {
+    "limit": "Zeilen pro Seite"
+  },
+  "states": {
+    "loadingTitle": "Patienten werden geladen",
+    "loadingDescription": "Bitte einen Moment warten.",
+    "loadingPatientTitle": "Patient wird geladen",
+    "loadingPatientDescription": "Bitte einen Moment warten.",
+    "emptyTitle": "Keine Patienten gefunden",
+    "emptyDescription": "Versuchen Sie eine andere Suche oder erstellen Sie einen neuen Patienten.",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Zugriff verweigert",
+    "forbiddenDescription": "Sie haben keine Berechtigung für diese Ressource.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDescription": "Patientendaten konnten nicht geladen werden."
+  },
+  "errors": {
+    "list": "Die Patientenliste konnte nicht geladen werden.",
+    "details": "Dieser Patient konnte nicht geladen werden.",
+    "save": "Der Patient konnte nicht gespeichert werden.",
+    "delete": "Der Patient konnte nicht gelöscht werden."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich.",
+    "dateOfBirth": "Verwenden Sie YYYY-MM-DD.",
+    "phoneNumber": "Verwenden Sie eine gültige Telefonnummer wie +38344111222."
+  },
+  "genders": {
+    "MALE": "Männlich",
+    "FEMALE": "Weiblich",
+    "OTHER": "Andere"
+  }
+}
