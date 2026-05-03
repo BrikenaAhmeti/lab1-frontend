@@ -1,18 +1,23 @@
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/libs/axios/client';
-async function fetchUsers() {
-    const { data } = await api.core.get('/users'); // your API
-    return data;
-}
-export function useUsers() {
+import { AuthAdminApi } from '@/domain/auth/auth.api';
+export function useUsers(options = {}) {
     return useQuery({
         queryKey: ['users'],
-        queryFn: fetchUsers,
+        queryFn: () => AuthAdminApi.listUsers(),
+        enabled: options.enabled ?? true,
         staleTime: 1000 * 60 * 5,
-        retry: (failCount, err) => {
-            if (err?.response?.status === 401 && failCount < 2)
+        retry: (failCount, error) => {
+            const status = typeof error === 'object' &&
+                error !== null &&
+                'response' in error &&
+                typeof error.response === 'object' &&
+                error.response !== null &&
+                'status' in error.response
+                ? error.response.status
+                : undefined;
+            if (status === 401 && failCount < 2)
                 return true;
             return failCount < 3;
-        }
+        },
     });
 }

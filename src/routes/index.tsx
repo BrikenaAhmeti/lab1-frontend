@@ -12,13 +12,16 @@ import TransactionsPageRQ from '@/pages/Dashboard/transactions/tan-transactions'
 import PatientsListPage from '@/pages/Dashboard/patients';
 import PatientDetailsPage from '@/pages/Dashboard/patients/details';
 import PatientFormPage from '@/pages/Dashboard/patients/form';
+import DoctorsListPage from '@/pages/Dashboard/doctors';
+import DoctorDetailsPage from '@/pages/Dashboard/doctors/details';
+import DoctorFormPage from '@/pages/Dashboard/doctors/form';
 import DepartmentsListPage from '@/pages/Dashboard/departments';
 import DepartmentDetailsPage from '@/pages/Dashboard/departments/details';
 import DepartmentFormPage from '@/pages/Dashboard/departments/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
 
 const moduleRoutes = moduleNavigation
-  .filter((item) => item.key !== 'patients' && item.key !== 'departments')
+  .filter((item) => !['patients', 'doctors', 'departments'].includes(item.key))
   .map((item) => ({
     path: item.path,
     element: <ModulePage moduleKey={item.key} />,
@@ -61,6 +64,15 @@ export const router = createBrowserRouter([
               { path: 'new', element: <PatientFormPage /> },
               { path: ':id', element: <PatientDetailsPage /> },
               { path: ':id/edit', element: <PatientFormPage /> },
+            ],
+          },
+          {
+            path: 'doctors',
+            children: [
+              { index: true, element: <DoctorsListPage /> },
+              { path: 'new', element: <DoctorFormPage /> },
+              { path: ':id', element: <DoctorDetailsPage /> },
+              { path: ':id/edit', element: <DoctorFormPage /> },
             ],
           },
           {

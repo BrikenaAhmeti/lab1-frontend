@@ -7,6 +7,8 @@ import enTransactions from '@/locales/en/transactions.json';
 import deTransactions from '@/locales/de/transactions.json';
 import enPatients from '@/locales/en/patients.json';
 import dePatients from '@/locales/de/patients.json';
+import enDoctors from '@/locales/en/doctors.json';
+import deDoctors from '@/locales/de/doctors.json';
 import enDepartments from '@/locales/en/departments.json';
 import deDepartments from '@/locales/de/departments.json';
 const resources = {
@@ -14,12 +16,14 @@ const resources = {
         common: enCommon,
         transactions: enTransactions,
         patients: enPatients,
+        doctors: enDoctors,
         departments: enDepartments,
     },
     de: {
         common: deCommon,
         transactions: deTransactions,
         patients: dePatients,
+        doctors: deDoctors,
         departments: deDepartments,
     },
 };
@@ -30,7 +34,7 @@ i18n
     resources,
     fallbackLng: 'en',
     supportedLngs: ['en', 'de'],
-    ns: ['common', 'transactions', 'patients', 'departments'],
+    ns: ['common', 'transactions', 'patients', 'doctors', 'departments'],
     defaultNS: 'common',
     load: 'languageOnly',
     detection: {

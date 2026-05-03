@@ -1,0 +1,95 @@
+{
+  "list": {
+    "title": "Doctors",
+    "description": "Review and manage hospital doctors.",
+    "resultsTitle": "Doctor records",
+    "resultsDescription": "Browse the doctors available in the hospital.",
+    "results": "{{count}} doctors available",
+    "refreshing": "Refreshing doctors..."
+  },
+  "details": {
+    "title": "Doctor details",
+    "description": "Review linked account, specialization, and department details.",
+    "deleteConfirm": "Delete this doctor?",
+    "notFoundTitle": "Doctor not found",
+    "notFoundDescription": "This doctor record is no longer available."
+  },
+  "form": {
+    "createTitle": "Create doctor",
+    "createDescription": "Add a new doctor record.",
+    "editTitle": "Edit doctor",
+    "editDescription": "Update the selected doctor.",
+    "formTitle": "Doctor form",
+    "formDescription": "Fill in the doctor details below.",
+    "userPlaceholder": "Select user account",
+    "departmentPlaceholder": "Select department",
+    "userReadOnlyHint": "The linked user account is read only here."
+  },
+  "actions": {
+    "create": "Create doctor",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save doctor",
+    "update": "Update doctor",
+    "cancel": "Cancel",
+    "back": "Back",
+    "retry": "Try again",
+    "viewDepartment": "View department",
+    "viewDepartments": "View departments"
+  },
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "userId": "User account",
+    "specialization": "Specialization",
+    "department": "Department",
+    "departmentLocation": "Department location",
+    "phoneNumber": "Phone number",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "labels": {
+    "noDepartment": "No department assigned.",
+    "notAvailable": "Not available"
+  },
+  "states": {
+    "loadingTitle": "Loading doctors",
+    "loadingDescription": "Please wait a moment.",
+    "loadingDoctorTitle": "Loading doctor",
+    "loadingDoctorDescription": "Please wait a moment.",
+    "loadingOptionsTitle": "Loading form options",
+    "loadingOptionsDescription": "Please wait while users and departments are loaded.",
+    "emptyTitle": "No doctors found",
+    "emptyDescription": "Create a doctor to get started.",
+    "emptyDepartmentsTitle": "No departments available",
+    "emptyDepartmentsDescription": "Create a department before adding doctors.",
+    "emptyUsersTitle": "No users available",
+    "emptyUsersDescription": "Create a user account before linking it to a doctor.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "createForbiddenTitle": "Admin access required",
+    "createForbiddenDescription": "Only admins can create doctor records.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load doctor data."
+  },
+  "errors": {
+    "list": "We could not load the doctors list.",
+    "details": "We could not load this doctor.",
+    "save": "We could not save the doctor.",
+    "delete": "We could not delete the doctor.",
+    "departments": "We could not load the departments for this form.",
+    "users": "We could not load the users for this form."
+  },
+  "messages": {
+    "created": "Doctor created successfully.",
+    "updated": "Doctor updated successfully.",
+    "deleted": "Doctor deleted successfully."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "phoneNumber": "Use a valid phone number like +38344111222."
+  }
+}
