@@ -12,9 +12,12 @@ import TransactionsPageRQ from '@/pages/Dashboard/transactions/tan-transactions'
 import PatientsListPage from '@/pages/Dashboard/patients';
 import PatientDetailsPage from '@/pages/Dashboard/patients/details';
 import PatientFormPage from '@/pages/Dashboard/patients/form';
+import DepartmentsListPage from '@/pages/Dashboard/departments';
+import DepartmentDetailsPage from '@/pages/Dashboard/departments/details';
+import DepartmentFormPage from '@/pages/Dashboard/departments/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
 const moduleRoutes = moduleNavigation
-    .filter((item) => item.key !== 'patients')
+    .filter((item) => item.key !== 'patients' && item.key !== 'departments')
     .map((item) => ({
     path: item.path,
     element: _jsx(ModulePage, { moduleKey: item.key }),
@@ -56,6 +59,15 @@ export const router = createBrowserRouter([
                             { path: 'new', element: _jsx(PatientFormPage, {}) },
                             { path: ':id', element: _jsx(PatientDetailsPage, {}) },
                             { path: ':id/edit', element: _jsx(PatientFormPage, {}) },
+                        ],
+                    },
+                    {
+                        path: 'departments',
+                        children: [
+                            { index: true, element: _jsx(DepartmentsListPage, {}) },
+                            { path: 'new', element: _jsx(DepartmentFormPage, {}) },
+                            { path: ':id', element: _jsx(DepartmentDetailsPage, {}) },
+                            { path: ':id/edit', element: _jsx(DepartmentFormPage, {}) },
                         ],
                     },
                     ...moduleRoutes,

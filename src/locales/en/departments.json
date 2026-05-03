@@ -1,0 +1,93 @@
+{
+  "list": {
+    "title": "Departments",
+    "description": "Review and manage hospital departments.",
+    "resultsTitle": "Department records",
+    "resultsDescription": "Browse the departments available in the hospital.",
+    "results": "{{count}} departments available",
+    "refreshing": "Refreshing departments..."
+  },
+  "details": {
+    "title": "Department details",
+    "description": "Review department information, doctors, and rooms.",
+    "deleteConfirm": "Delete this department?",
+    "notFoundTitle": "Department not found",
+    "notFoundDescription": "This department is no longer available.",
+    "doctorsTitle": "Doctors",
+    "roomsTitle": "Rooms",
+    "relatedCount": "{{count}} records",
+    "noDoctorsTitle": "No doctors assigned",
+    "noDoctorsDescription": "This department does not have doctors assigned yet.",
+    "noRoomsTitle": "No rooms found",
+    "noRoomsDescription": "This department does not have rooms assigned yet.",
+    "loadingDoctorsTitle": "Loading doctors",
+    "loadingDoctorsDescription": "Please wait while doctor assignments are loaded.",
+    "loadingRoomsTitle": "Loading rooms",
+    "loadingRoomsDescription": "Please wait while room assignments are loaded."
+  },
+  "form": {
+    "createTitle": "Create department",
+    "createDescription": "Add a new hospital department.",
+    "editTitle": "Edit department",
+    "editDescription": "Update the selected department.",
+    "formTitle": "Department form",
+    "formDescription": "Fill in the department details below.",
+    "descriptionPlaceholder": "Add an optional short description"
+  },
+  "actions": {
+    "create": "Create department",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save department",
+    "update": "Update department",
+    "cancel": "Cancel",
+    "back": "Back",
+    "retry": "Try again"
+  },
+  "fields": {
+    "name": "Name",
+    "location": "Location",
+    "description": "Description",
+    "status": "Status",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "labels": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "noDescription": "No description provided.",
+    "notAvailable": "Not available",
+    "noData": "No extra data available."
+  },
+  "states": {
+    "loadingTitle": "Loading departments",
+    "loadingDescription": "Please wait a moment.",
+    "loadingDepartmentTitle": "Loading department",
+    "loadingDepartmentDescription": "Please wait a moment.",
+    "emptyTitle": "No departments found",
+    "emptyDescription": "Create a department to get started.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load department data."
+  },
+  "errors": {
+    "list": "We could not load the departments list.",
+    "details": "We could not load this department.",
+    "save": "We could not save the department.",
+    "delete": "We could not delete the department.",
+    "doctors": "We could not load the doctors for this department.",
+    "rooms": "We could not load the rooms for this department."
+  },
+  "messages": {
+    "created": "Department created successfully.",
+    "updated": "Department updated successfully.",
+    "deleted": "Department deleted successfully."
+  },
+  "validation": {
+    "required": "This field is required."
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "list": {
+    "title": "Abteilungen",
+    "description": "Krankenhausabteilungen anzeigen und verwalten.",
+    "resultsTitle": "Abteilungsübersicht",
+    "resultsDescription": "Durchsuchen Sie die verfügbaren Abteilungen des Krankenhauses.",
+    "results": "{{count}} Abteilungen verfügbar",
+    "refreshing": "Abteilungen werden aktualisiert..."
+  },
+  "details": {
+    "title": "Abteilungsdetails",
+    "description": "Prüfen Sie Abteilungsinformationen, Ärzte und Räume.",
+    "deleteConfirm": "Diese Abteilung löschen?",
+    "notFoundTitle": "Abteilung nicht gefunden",
+    "notFoundDescription": "Diese Abteilung ist nicht mehr verfügbar.",
+    "doctorsTitle": "Ärzte",
+    "roomsTitle": "Räume",
+    "relatedCount": "{{count}} Einträge",
+    "noDoctorsTitle": "Keine Ärzte zugewiesen",
+    "noDoctorsDescription": "Dieser Abteilung sind noch keine Ärzte zugewiesen.",
+    "noRoomsTitle": "Keine Räume gefunden",
+    "noRoomsDescription": "Dieser Abteilung sind noch keine Räume zugewiesen.",
+    "loadingDoctorsTitle": "Ärzte werden geladen",
+    "loadingDoctorsDescription": "Bitte warten Sie, während die Arztzuweisungen geladen werden.",
+    "loadingRoomsTitle": "Räume werden geladen",
+    "loadingRoomsDescription": "Bitte warten Sie, während die Raumzuweisungen geladen werden."
+  },
+  "form": {
+    "createTitle": "Abteilung erstellen",
+    "createDescription": "Fügen Sie eine neue Krankenhausabteilung hinzu.",
+    "editTitle": "Abteilung bearbeiten",
+    "editDescription": "Aktualisieren Sie die ausgewählte Abteilung.",
+    "formTitle": "Abteilungsformular",
+    "formDescription": "Geben Sie unten die Abteilungsdetails ein.",
+    "descriptionPlaceholder": "Optional eine kurze Beschreibung hinzufügen"
+  },
+  "actions": {
+    "create": "Abteilung erstellen",
+    "view": "Ansehen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Abteilung speichern",
+    "update": "Abteilung aktualisieren",
+    "cancel": "Abbrechen",
+    "back": "Zurück",
+    "retry": "Erneut versuchen"
+  },
+  "fields": {
+    "name": "Name",
+    "location": "Standort",
+    "description": "Beschreibung",
+    "status": "Status",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am"
+  },
+  "labels": {
+    "active": "Aktiv",
+    "inactive": "Inaktiv",
+    "noDescription": "Keine Beschreibung vorhanden.",
+    "notAvailable": "Nicht verfügbar",
+    "noData": "Keine zusätzlichen Daten verfügbar."
+  },
+  "states": {
+    "loadingTitle": "Abteilungen werden geladen",
+    "loadingDescription": "Bitte warten Sie einen Moment.",
+    "loadingDepartmentTitle": "Abteilung wird geladen",
+    "loadingDepartmentDescription": "Bitte warten Sie einen Moment.",
+    "emptyTitle": "Keine Abteilungen gefunden",
+    "emptyDescription": "Erstellen Sie eine Abteilung, um zu beginnen.",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Zugriff verweigert",
+    "forbiddenDescription": "Sie haben keine Berechtigung für diese Ressource.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDescription": "Die Abteilungsdaten konnten nicht geladen werden."
+  },
+  "errors": {
+    "list": "Die Abteilungsliste konnte nicht geladen werden.",
+    "details": "Diese Abteilung konnte nicht geladen werden.",
+    "save": "Die Abteilung konnte nicht gespeichert werden.",
+    "delete": "Die Abteilung konnte nicht gelöscht werden.",
+    "doctors": "Die Ärzte dieser Abteilung konnten nicht geladen werden.",
+    "rooms": "Die Räume dieser Abteilung konnten nicht geladen werden."
+  },
+  "messages": {
+    "created": "Abteilung erfolgreich erstellt.",
+    "updated": "Abteilung erfolgreich aktualisiert.",
+    "deleted": "Abteilung erfolgreich gelöscht."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich."
+  }
+}
