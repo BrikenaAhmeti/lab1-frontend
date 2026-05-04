@@ -2,7 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDeleteDepartment, useDepartment, useDepartmentDoctors, useDepartmentRooms, } from '@/domain/departments/departments.hooks';
+import { useDeleteDepartment, useDepartment, useDepartmentDoctors, useDepartmentNurses, useDepartmentRooms, } from '@/domain/departments/departments.hooks';
 import { formatDepartmentDate, getDepartmentApiMessage, getDepartmentApiStatus, } from '@/domain/departments/departments.utils';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
@@ -23,14 +23,20 @@ function getItemTitle(item, kind, index) {
     if (fullName) {
         return fullName;
     }
-    const titleCandidates = kind === 'doctor'
-        ? [item.name, item.fullName, item.email]
-        : [item.name, item.roomNumber, item.number, item.code];
+    const titleCandidates = kind === 'room'
+        ? [item.name, item.roomNumber, item.number, item.code]
+        : [item.name, item.fullName, item.email];
     const title = titleCandidates.find((value) => typeof value === 'string' && value.trim());
     if (typeof title === 'string') {
         return title;
     }
-    return kind === 'doctor' ? `Doctor ${index + 1}` : `Room ${index + 1}`;
+    if (kind === 'doctor') {
+        return `Doctor ${index + 1}`;
+    }
+    if (kind === 'nurse') {
+        return `Nurse ${index + 1}`;
+    }
+    return `Room ${index + 1}`;
 }
 function getItemEntries(item) {
     return Object.entries(item ?? {}).filter(([key, value]) => {
@@ -55,6 +61,7 @@ export default function DepartmentDetailsPage() {
     const { id = '' } = useParams();
     const departmentQuery = useDepartment(id);
     const doctorsQuery = useDepartmentDoctors(id);
+    const nursesQuery = useDepartmentNurses(id);
     const roomsQuery = useDepartmentRooms(id);
     const deleteDepartment = useDeleteDepartment();
     const [actionError, setActionError] = useState('');
@@ -78,9 +85,15 @@ export default function DepartmentDetailsPage() {
     };
     const renderRelatedItems = (query, kind, emptyTitle, emptyDescription, errorFallback) => {
         if (query.isLoading) {
-            return (_jsx(SectionState, { title: kind === 'doctor' ? t('details.loadingDoctorsTitle') : t('details.loadingRoomsTitle'), description: kind === 'doctor'
+            return (_jsx(SectionState, { title: kind === 'doctor'
+                    ? t('details.loadingDoctorsTitle')
+                    : kind === 'nurse'
+                        ? t('details.loadingNursesTitle')
+                        : t('details.loadingRoomsTitle'), description: kind === 'doctor'
                     ? t('details.loadingDoctorsDescription')
-                    : t('details.loadingRoomsDescription') }));
+                    : kind === 'nurse'
+                        ? t('details.loadingNursesDescription')
+                        : t('details.loadingRoomsDescription') }));
         }
         if (query.error) {
             return (_jsx(SectionState, { title: t('states.errorTitle'), description: getDepartmentApiMessage(query.error, errorFallback), children: _jsx(Button, { size: "sm", variant: "outline", onClick: () => query.refetch(), children: t('actions.retry') }) }));
@@ -131,5 +144,5 @@ export default function DepartmentDetailsPage() {
             full: true,
         },
     ];
-    return (_jsxs("section", { className: "space-y-6", children: [_jsxs("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [_jsxs("div", { children: [_jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [_jsx("h1", { className: "text-2xl font-bold text-foreground md:text-3xl", children: department.name }), _jsx(Badge, { variant: department.isActive === false ? 'warning' : 'success', children: department.isActive === false ? t('labels.inactive') : t('labels.active') })] }), _jsx("p", { className: "mt-1 text-sm text-muted-foreground", children: t('details.description') })] }), _jsxs("div", { className: "flex flex-wrap gap-2", children: [_jsx(Button, { variant: "outline", onClick: () => navigate('/app/departments'), children: t('actions.back') }), _jsx(Button, { variant: "secondary", onClick: () => navigate(`/app/departments/${department.id}/edit`), children: t('actions.edit') }), _jsx(Button, { variant: "danger", loading: deleteDepartment.isPending, onClick: handleDelete, children: t('actions.delete') })] })] }), _jsxs(Card, { title: t('details.title'), description: t('details.description'), children: [actionError ? (_jsx("div", { className: "mb-4 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger", children: actionError })) : null, _jsx("div", { className: "grid gap-4 md:grid-cols-2", children: fields.map((field) => (_jsxs("div", { className: field.full ? 'md:col-span-2' : undefined, children: [_jsx("p", { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: field.label }), _jsx("p", { className: "mt-1 break-words text-sm text-foreground", children: field.value })] }, field.label))) })] }), _jsxs("div", { className: "grid gap-4 xl:grid-cols-2", children: [_jsx(Card, { title: t('details.doctorsTitle'), description: t('details.relatedCount', { count: doctorsQuery.data?.length ?? 0 }), className: "h-full", children: renderRelatedItems(doctorsQuery, 'doctor', t('details.noDoctorsTitle'), t('details.noDoctorsDescription'), t('errors.doctors')) }), _jsx(Card, { title: t('details.roomsTitle'), description: t('details.relatedCount', { count: roomsQuery.data?.length ?? 0 }), className: "h-full", children: renderRelatedItems(roomsQuery, 'room', t('details.noRoomsTitle'), t('details.noRoomsDescription'), t('errors.rooms')) })] })] }));
+    return (_jsxs("section", { className: "space-y-6", children: [_jsxs("div", { className: "flex flex-wrap items-start justify-between gap-3", children: [_jsxs("div", { children: [_jsxs("div", { className: "flex flex-wrap items-center gap-2", children: [_jsx("h1", { className: "text-2xl font-bold text-foreground md:text-3xl", children: department.name }), _jsx(Badge, { variant: department.isActive === false ? 'warning' : 'success', children: department.isActive === false ? t('labels.inactive') : t('labels.active') })] }), _jsx("p", { className: "mt-1 text-sm text-muted-foreground", children: t('details.description') })] }), _jsxs("div", { className: "flex flex-wrap gap-2", children: [_jsx(Button, { variant: "outline", onClick: () => navigate('/app/departments'), children: t('actions.back') }), _jsx(Button, { variant: "secondary", onClick: () => navigate(`/app/departments/${department.id}/edit`), children: t('actions.edit') }), _jsx(Button, { variant: "danger", loading: deleteDepartment.isPending, onClick: handleDelete, children: t('actions.delete') })] })] }), _jsxs(Card, { title: t('details.title'), description: t('details.description'), children: [actionError ? (_jsx("div", { className: "mb-4 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger", children: actionError })) : null, _jsx("div", { className: "grid gap-4 md:grid-cols-2", children: fields.map((field) => (_jsxs("div", { className: field.full ? 'md:col-span-2' : undefined, children: [_jsx("p", { className: "text-xs font-semibold uppercase tracking-wide text-muted-foreground", children: field.label }), _jsx("p", { className: "mt-1 break-words text-sm text-foreground", children: field.value })] }, field.label))) })] }), _jsxs("div", { className: "grid gap-4 xl:grid-cols-3", children: [_jsx(Card, { title: t('details.doctorsTitle'), description: t('details.relatedCount', { count: doctorsQuery.data?.length ?? 0 }), className: "h-full", children: renderRelatedItems(doctorsQuery, 'doctor', t('details.noDoctorsTitle'), t('details.noDoctorsDescription'), t('errors.doctors')) }), _jsx(Card, { title: t('details.nursesTitle'), description: t('details.relatedCount', { count: nursesQuery.data?.length ?? 0 }), className: "h-full", children: renderRelatedItems(nursesQuery, 'nurse', t('details.noNursesTitle'), t('details.noNursesDescription'), t('errors.nurses')) }), _jsx(Card, { title: t('details.roomsTitle'), description: t('details.relatedCount', { count: roomsQuery.data?.length ?? 0 }), className: "h-full", children: renderRelatedItems(roomsQuery, 'room', t('details.noRoomsTitle'), t('details.noRoomsDescription'), t('errors.rooms')) })] })] }));
 }

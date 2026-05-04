@@ -11,6 +11,8 @@ import enDoctors from '@/locales/en/doctors.json';
 import deDoctors from '@/locales/de/doctors.json';
 import enDepartments from '@/locales/en/departments.json';
 import deDepartments from '@/locales/de/departments.json';
+import enNurses from '@/locales/en/nurses.json';
+import deNurses from '@/locales/de/nurses.json';
 const resources = {
     en: {
         common: enCommon,
@@ -18,6 +20,7 @@ const resources = {
         patients: enPatients,
         doctors: enDoctors,
         departments: enDepartments,
+        nurses: enNurses,
     },
     de: {
         common: deCommon,
@@ -25,6 +28,7 @@ const resources = {
         patients: dePatients,
         doctors: deDoctors,
         departments: deDepartments,
+        nurses: deNurses,
     },
 };
 i18n
@@ -34,7 +38,7 @@ i18n
     resources,
     fallbackLng: 'en',
     supportedLngs: ['en', 'de'],
-    ns: ['common', 'transactions', 'patients', 'doctors', 'departments'],
+    ns: ['common', 'transactions', 'patients', 'doctors', 'departments', 'nurses'],
     defaultNS: 'common',
     load: 'languageOnly',
     detection: {

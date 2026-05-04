@@ -6,6 +6,7 @@ import {
   useDeleteDepartment,
   useDepartment,
   useDepartmentDoctors,
+  useDepartmentNurses,
   useDepartmentRooms,
 } from '@/domain/departments/departments.hooks';
 import type { DepartmentRelationItem } from '@/domain/departments/departments.types';
@@ -28,7 +29,7 @@ function formatFieldLabel(value: string) {
     .replace(/^./, (character) => character.toUpperCase());
 }
 
-function getItemTitle(item: DepartmentRelationItem, kind: 'doctor' | 'room', index: number) {
+function getItemTitle(item: DepartmentRelationItem, kind: 'doctor' | 'room' | 'nurse', index: number) {
   const firstName = typeof item.firstName === 'string' ? item.firstName.trim() : '';
   const lastName = typeof item.lastName === 'string' ? item.lastName.trim() : '';
   const fullName = [firstName, lastName].filter(Boolean).join(' ');
@@ -37,9 +38,10 @@ function getItemTitle(item: DepartmentRelationItem, kind: 'doctor' | 'room', ind
     return fullName;
   }
 
-  const titleCandidates = kind === 'doctor'
-    ? [item.name, item.fullName, item.email]
-    : [item.name, item.roomNumber, item.number, item.code];
+  const titleCandidates =
+    kind === 'room'
+      ? [item.name, item.roomNumber, item.number, item.code]
+      : [item.name, item.fullName, item.email];
 
   const title = titleCandidates.find((value) => typeof value === 'string' && value.trim());
 
@@ -47,7 +49,15 @@ function getItemTitle(item: DepartmentRelationItem, kind: 'doctor' | 'room', ind
     return title;
   }
 
-  return kind === 'doctor' ? `Doctor ${index + 1}` : `Room ${index + 1}`;
+  if (kind === 'doctor') {
+    return `Doctor ${index + 1}`;
+  }
+
+  if (kind === 'nurse') {
+    return `Nurse ${index + 1}`;
+  }
+
+  return `Room ${index + 1}`;
 }
 
 function getItemEntries(item: DepartmentRelationItem) {
@@ -92,6 +102,7 @@ export default function DepartmentDetailsPage() {
   const { id = '' } = useParams();
   const departmentQuery = useDepartment(id);
   const doctorsQuery = useDepartmentDoctors(id);
+  const nursesQuery = useDepartmentNurses(id);
   const roomsQuery = useDepartmentRooms(id);
   const deleteDepartment = useDeleteDepartment();
   const [actionError, setActionError] = useState('');
@@ -118,7 +129,7 @@ export default function DepartmentDetailsPage() {
 
   const renderRelatedItems = (
     query: UseQueryResult<DepartmentRelationItem[], unknown>,
-    kind: 'doctor' | 'room',
+    kind: 'doctor' | 'room' | 'nurse',
     emptyTitle: string,
     emptyDescription: string,
     errorFallback: string
@@ -126,11 +137,19 @@ export default function DepartmentDetailsPage() {
     if (query.isLoading) {
       return (
         <SectionState
-          title={kind === 'doctor' ? t('details.loadingDoctorsTitle') : t('details.loadingRoomsTitle')}
+          title={
+            kind === 'doctor'
+              ? t('details.loadingDoctorsTitle')
+              : kind === 'nurse'
+                ? t('details.loadingNursesTitle')
+                : t('details.loadingRoomsTitle')
+          }
           description={
             kind === 'doctor'
               ? t('details.loadingDoctorsDescription')
-              : t('details.loadingRoomsDescription')
+              : kind === 'nurse'
+                ? t('details.loadingNursesDescription')
+                : t('details.loadingRoomsDescription')
           }
         />
       );
@@ -308,7 +327,7 @@ export default function DepartmentDetailsPage() {
         </div>
       </Card>
 
-      <div className="grid gap-4 xl:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-3">
         <Card
           title={t('details.doctorsTitle')}
           description={t('details.relatedCount', { count: doctorsQuery.data?.length ?? 0 })}
@@ -320,6 +339,20 @@ export default function DepartmentDetailsPage() {
             t('details.noDoctorsTitle'),
             t('details.noDoctorsDescription'),
             t('errors.doctors')
+          )}
+        </Card>
+
+        <Card
+          title={t('details.nursesTitle')}
+          description={t('details.relatedCount', { count: nursesQuery.data?.length ?? 0 })}
+          className="h-full"
+        >
+          {renderRelatedItems(
+            nursesQuery,
+            'nurse',
+            t('details.noNursesTitle'),
+            t('details.noNursesDescription'),
+            t('errors.nurses')
           )}
         </Card>
 

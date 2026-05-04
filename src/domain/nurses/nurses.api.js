@@ -1,5 +1,5 @@
 import { api } from '@/libs/axios/client';
-const BASE = '/api/departments';
+const BASE = '/api/nurses';
 function getObjectList(value, key) {
     if (typeof value !== 'object' || value === null || !(key in value)) {
         return null;
@@ -21,19 +21,21 @@ function normalizeList(value) {
     }
     return [];
 }
-export const DepartmentsApi = {
-    list: () => api.core.get(BASE).then((r) => normalizeList(r.data)),
+function buildNursesQuery(params = {}) {
+    const query = new URLSearchParams();
+    if (params.departmentId?.trim()) {
+        query.set('departmentId', params.departmentId.trim());
+    }
+    return query.toString();
+}
+export const NursesApi = {
+    list: (params = {}) => {
+        const query = buildNursesQuery(params);
+        const url = query ? `${BASE}?${query}` : BASE;
+        return api.core.get(url).then((r) => normalizeList(r.data));
+    },
     get: (id) => api.core.get(`${BASE}/${id}`).then((r) => r.data),
     create: (payload) => api.core.post(BASE, payload).then((r) => r.data),
     update: (id, payload) => api.core.put(`${BASE}/${id}`, payload).then((r) => r.data),
     remove: (id) => api.core.delete(`${BASE}/${id}`).then(() => undefined),
-    doctors: (id) => api.core
-        .get(`${BASE}/${id}/doctors`)
-        .then((r) => normalizeList(r.data)),
-    rooms: (id) => api.core
-        .get(`${BASE}/${id}/rooms`)
-        .then((r) => normalizeList(r.data)),
-    nurses: (id) => api.core
-        .get(`${BASE}/${id}/nurses`)
-        .then((r) => normalizeList(r.data)),
 };

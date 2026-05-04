@@ -62,4 +62,9 @@ export const DepartmentsApi = {
     api.core
       .get<unknown>(`${BASE}/${id}/rooms`)
       .then((r) => normalizeList<DepartmentRelationItem>(r.data)),
+
+  nurses: (id: string) =>
+    api.core
+      .get<unknown>(`${BASE}/${id}/nurses`)
+      .then((r) => normalizeList<DepartmentRelationItem>(r.data)),
 };

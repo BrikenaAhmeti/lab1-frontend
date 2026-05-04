@@ -9,19 +9,24 @@
   },
   "details": {
     "title": "Abteilungsdetails",
-    "description": "Prüfen Sie Abteilungsinformationen, Ärzte und Räume.",
+    "description": "Prüfen Sie Abteilungsinformationen, Ärzte, Pflegekräfte und Räume.",
     "deleteConfirm": "Diese Abteilung löschen?",
     "notFoundTitle": "Abteilung nicht gefunden",
     "notFoundDescription": "Diese Abteilung ist nicht mehr verfügbar.",
     "doctorsTitle": "Ärzte",
+    "nursesTitle": "Pflegekräfte",
     "roomsTitle": "Räume",
     "relatedCount": "{{count}} Einträge",
     "noDoctorsTitle": "Keine Ärzte zugewiesen",
     "noDoctorsDescription": "Dieser Abteilung sind noch keine Ärzte zugewiesen.",
+    "noNursesTitle": "Keine Pflegekräfte zugewiesen",
+    "noNursesDescription": "Dieser Abteilung sind noch keine Pflegekräfte zugewiesen.",
     "noRoomsTitle": "Keine Räume gefunden",
     "noRoomsDescription": "Dieser Abteilung sind noch keine Räume zugewiesen.",
     "loadingDoctorsTitle": "Ärzte werden geladen",
     "loadingDoctorsDescription": "Bitte warten Sie, während die Arztzuweisungen geladen werden.",
+    "loadingNursesTitle": "Pflegekräfte werden geladen",
+    "loadingNursesDescription": "Bitte warten Sie, während die Pflegezuweisungen geladen werden.",
     "loadingRoomsTitle": "Räume werden geladen",
     "loadingRoomsDescription": "Bitte warten Sie, während die Raumzuweisungen geladen werden."
   },
@@ -80,6 +85,7 @@
     "save": "Die Abteilung konnte nicht gespeichert werden.",
     "delete": "Die Abteilung konnte nicht gelöscht werden.",
     "doctors": "Die Ärzte dieser Abteilung konnten nicht geladen werden.",
+    "nurses": "Die Pflegekräfte dieser Abteilung konnten nicht geladen werden.",
     "rooms": "Die Räume dieser Abteilung konnten nicht geladen werden."
   },
   "messages": {

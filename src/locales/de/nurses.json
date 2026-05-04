@@ -1,0 +1,102 @@
+{
+  "list": {
+    "title": "Pflegekräfte",
+    "description": "Krankenhaus-Pflegekräfte ansehen und verwalten.",
+    "resultsTitle": "Pflegekräfte",
+    "resultsDescription": "Durchsuchen Sie die Pflegekräfte des Krankenhauses.",
+    "results": "{{count}} Pflegekräfte verfügbar",
+    "refreshing": "Pflegekräfte werden aktualisiert..."
+  },
+  "details": {
+    "title": "Pflegekraft-Details",
+    "description": "Prüfen Sie die Zuordnung und Schichtdetails der Pflegekraft.",
+    "deleteConfirm": "Diese Pflegekraft löschen?",
+    "notFoundTitle": "Pflegekraft nicht gefunden",
+    "notFoundDescription": "Dieser Eintrag ist nicht mehr verfügbar."
+  },
+  "form": {
+    "createTitle": "Pflegekraft erstellen",
+    "createDescription": "Fügen Sie einen neuen Pflegekraft-Eintrag hinzu.",
+    "editTitle": "Pflegekraft bearbeiten",
+    "editDescription": "Aktualisieren Sie die ausgewählte Pflegekraft.",
+    "formTitle": "Pflegekraft-Formular",
+    "formDescription": "Füllen Sie die Angaben zur Pflegekraft unten aus.",
+    "departmentPlaceholder": "Abteilung auswählen",
+    "shiftPlaceholder": "Schicht auswählen"
+  },
+  "filters": {
+    "title": "Filter",
+    "description": "Filtern Sie Pflegekräfte nach Abteilung oder Schicht.",
+    "allDepartments": "Alle Abteilungen",
+    "allShifts": "Alle Schichten"
+  },
+  "actions": {
+    "create": "Pflegekraft erstellen",
+    "view": "Ansehen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Pflegekraft speichern",
+    "update": "Pflegekraft aktualisieren",
+    "cancel": "Abbrechen",
+    "back": "Zurück",
+    "retry": "Erneut versuchen",
+    "clear": "Filter zurücksetzen",
+    "clearShift": "Schichtfilter entfernen",
+    "viewDepartment": "Abteilung ansehen",
+    "viewDepartments": "Abteilungen ansehen"
+  },
+  "fields": {
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "department": "Abteilung",
+    "departmentLocation": "Standort der Abteilung",
+    "shift": "Schicht",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am"
+  },
+  "labels": {
+    "noDepartment": "Keine Abteilung zugewiesen.",
+    "notAvailable": "Nicht verfügbar",
+    "loadingDepartments": "Abteilungen werden geladen..."
+  },
+  "states": {
+    "loadingTitle": "Pflegekräfte werden geladen",
+    "loadingDescription": "Bitte warten Sie einen Moment.",
+    "loadingNurseTitle": "Pflegekraft wird geladen",
+    "loadingNurseDescription": "Bitte warten Sie einen Moment.",
+    "loadingOptionsTitle": "Formularoptionen werden geladen",
+    "loadingOptionsDescription": "Bitte warten Sie, während die Abteilungen geladen werden.",
+    "emptyTitle": "Keine Pflegekräfte gefunden",
+    "emptyDescription": "Erstellen Sie eine Pflegekraft, um zu beginnen.",
+    "emptyFilteredTitle": "Keine Pflegekraft passt zu dieser Schicht",
+    "emptyFilteredDescription": "Wählen Sie eine andere Schicht oder entfernen Sie den Filter.",
+    "emptyDepartmentsTitle": "Keine Abteilungen verfügbar",
+    "emptyDepartmentsDescription": "Erstellen Sie zuerst eine Abteilung, bevor Sie Pflegekräfte hinzufügen.",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Zugriff verweigert",
+    "forbiddenDescription": "Sie haben keine Berechtigung für diese Ressource.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDescription": "Die Pflegedaten konnten nicht geladen werden."
+  },
+  "errors": {
+    "list": "Die Liste der Pflegekräfte konnte nicht geladen werden.",
+    "details": "Diese Pflegekraft konnte nicht geladen werden.",
+    "save": "Die Pflegekraft konnte nicht gespeichert werden.",
+    "delete": "Die Pflegekraft konnte nicht gelöscht werden.",
+    "departments": "Die Abteilungen für diesen Bereich konnten nicht geladen werden."
+  },
+  "messages": {
+    "created": "Pflegekraft erfolgreich erstellt.",
+    "updated": "Pflegekraft erfolgreich aktualisiert.",
+    "deleted": "Pflegekraft erfolgreich gelöscht."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich."
+  },
+  "shifts": {
+    "Morning": "Morgen",
+    "Evening": "Abend",
+    "Night": "Nacht"
+  }
+}

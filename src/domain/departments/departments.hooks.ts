@@ -9,6 +9,7 @@ export const departmentsKeys = {
   detail: (id: string) => [...departmentsKeys.details(), id] as const,
   doctors: (id: string) => [...departmentsKeys.detail(id), 'doctors'] as const,
   rooms: (id: string) => [...departmentsKeys.detail(id), 'rooms'] as const,
+  nurses: (id: string) => [...departmentsKeys.detail(id), 'nurses'] as const,
 };
 
 export function useDepartments() {
@@ -38,6 +39,14 @@ export function useDepartmentRooms(id: string) {
   return useQuery({
     queryKey: departmentsKeys.rooms(id),
     queryFn: () => DepartmentsApi.rooms(id),
+    enabled: !!id,
+  });
+}
+
+export function useDepartmentNurses(id: string) {
+  return useQuery({
+    queryKey: departmentsKeys.nurses(id),
+    queryFn: () => DepartmentsApi.nurses(id),
     enabled: !!id,
   });
 }
@@ -76,6 +85,7 @@ export function useDeleteDepartment() {
       queryClient.removeQueries({ queryKey: departmentsKeys.detail(id) });
       queryClient.removeQueries({ queryKey: departmentsKeys.doctors(id) });
       queryClient.removeQueries({ queryKey: departmentsKeys.rooms(id) });
+      queryClient.removeQueries({ queryKey: departmentsKeys.nurses(id) });
       queryClient.setQueryData<Department[]>(departmentsKeys.list(), (current) =>
         current?.filter((department) => department.id !== id) ?? current
       );

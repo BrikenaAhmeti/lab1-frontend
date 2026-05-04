@@ -9,19 +9,24 @@
   },
   "details": {
     "title": "Department details",
-    "description": "Review department information, doctors, and rooms.",
+    "description": "Review department information, doctors, nurses, and rooms.",
     "deleteConfirm": "Delete this department?",
     "notFoundTitle": "Department not found",
     "notFoundDescription": "This department is no longer available.",
     "doctorsTitle": "Doctors",
+    "nursesTitle": "Nurses",
     "roomsTitle": "Rooms",
     "relatedCount": "{{count}} records",
     "noDoctorsTitle": "No doctors assigned",
     "noDoctorsDescription": "This department does not have doctors assigned yet.",
+    "noNursesTitle": "No nurses assigned",
+    "noNursesDescription": "This department does not have nurses assigned yet.",
     "noRoomsTitle": "No rooms found",
     "noRoomsDescription": "This department does not have rooms assigned yet.",
     "loadingDoctorsTitle": "Loading doctors",
     "loadingDoctorsDescription": "Please wait while doctor assignments are loaded.",
+    "loadingNursesTitle": "Loading nurses",
+    "loadingNursesDescription": "Please wait while nurse assignments are loaded.",
     "loadingRoomsTitle": "Loading rooms",
     "loadingRoomsDescription": "Please wait while room assignments are loaded."
   },
@@ -80,6 +85,7 @@
     "save": "We could not save the department.",
     "delete": "We could not delete the department.",
     "doctors": "We could not load the doctors for this department.",
+    "nurses": "We could not load the nurses for this department.",
     "rooms": "We could not load the rooms for this department."
   },
   "messages": {

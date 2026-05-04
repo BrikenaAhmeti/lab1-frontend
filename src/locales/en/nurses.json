@@ -1,0 +1,102 @@
+{
+  "list": {
+    "title": "Nurses",
+    "description": "Review and manage hospital nurses.",
+    "resultsTitle": "Nurse records",
+    "resultsDescription": "Browse the nurses available in the hospital.",
+    "results": "{{count}} nurses available",
+    "refreshing": "Refreshing nurses..."
+  },
+  "details": {
+    "title": "Nurse details",
+    "description": "Review nurse assignment and shift details.",
+    "deleteConfirm": "Delete this nurse?",
+    "notFoundTitle": "Nurse not found",
+    "notFoundDescription": "This nurse record is no longer available."
+  },
+  "form": {
+    "createTitle": "Create nurse",
+    "createDescription": "Add a new nurse record.",
+    "editTitle": "Edit nurse",
+    "editDescription": "Update the selected nurse.",
+    "formTitle": "Nurse form",
+    "formDescription": "Fill in the nurse details below.",
+    "departmentPlaceholder": "Select department",
+    "shiftPlaceholder": "Select shift"
+  },
+  "filters": {
+    "title": "Filters",
+    "description": "Filter nurses by department or shift.",
+    "allDepartments": "All departments",
+    "allShifts": "All shifts"
+  },
+  "actions": {
+    "create": "Create nurse",
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save nurse",
+    "update": "Update nurse",
+    "cancel": "Cancel",
+    "back": "Back",
+    "retry": "Try again",
+    "clear": "Clear filters",
+    "clearShift": "Clear shift filter",
+    "viewDepartment": "View department",
+    "viewDepartments": "View departments"
+  },
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "department": "Department",
+    "departmentLocation": "Department location",
+    "shift": "Shift",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "labels": {
+    "noDepartment": "No department assigned.",
+    "notAvailable": "Not available",
+    "loadingDepartments": "Loading departments..."
+  },
+  "states": {
+    "loadingTitle": "Loading nurses",
+    "loadingDescription": "Please wait a moment.",
+    "loadingNurseTitle": "Loading nurse",
+    "loadingNurseDescription": "Please wait a moment.",
+    "loadingOptionsTitle": "Loading form options",
+    "loadingOptionsDescription": "Please wait while departments are loaded.",
+    "emptyTitle": "No nurses found",
+    "emptyDescription": "Create a nurse to get started.",
+    "emptyFilteredTitle": "No nurses match this shift",
+    "emptyFilteredDescription": "Try another shift or clear the filter.",
+    "emptyDepartmentsTitle": "No departments available",
+    "emptyDepartmentsDescription": "Create a department before adding nurses.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load nurse data."
+  },
+  "errors": {
+    "list": "We could not load the nurses list.",
+    "details": "We could not load this nurse.",
+    "save": "We could not save the nurse.",
+    "delete": "We could not delete the nurse.",
+    "departments": "We could not load the departments for this screen."
+  },
+  "messages": {
+    "created": "Nurse created successfully.",
+    "updated": "Nurse updated successfully.",
+    "deleted": "Nurse deleted successfully."
+  },
+  "validation": {
+    "required": "This field is required."
+  },
+  "shifts": {
+    "Morning": "Morning",
+    "Evening": "Evening",
+    "Night": "Night"
+  }
+}
