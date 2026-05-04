@@ -54,7 +54,7 @@ export default function AppLayout() {
         >
           <div className="flex h-full flex-col">
             <div className="border-b border-border/70 px-4 py-4">
-              <div className="flex items-center gap-3">
+              <NavLink to="/app" end className="flex items-center gap-3 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring/45">
                 <div className="rounded-2xl border border-border/70 bg-background/70 p-2 shadow-soft">
                   <img src="/medsphere.png" alt={t('shell.logoAlt')} className="h-10 w-10 object-contain" />
                 </div>
@@ -62,7 +62,7 @@ export default function AppLayout() {
                   <p className="text-xs font-bold tracking-[0.24em] text-primary">{t('appTitle')}</p>
                   <p className="text-sm text-muted-foreground">{t('shell.brandSubtitle')}</p>
                 </div>
-              </div>
+              </NavLink>
 
               <div className="mt-4 rounded-2xl border border-border/70 bg-surface/80 p-3">
                 <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-muted-foreground">

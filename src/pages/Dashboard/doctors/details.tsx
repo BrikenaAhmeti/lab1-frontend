@@ -13,6 +13,7 @@ import {
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import RelatedAppointmentsCard from '@/pages/Dashboard/appointments/related-card';
 import DoctorStateCard from './state-card';
 
 export default function DoctorDetailsPage() {
@@ -199,6 +200,8 @@ export default function DoctorDetailsPage() {
           </div>
         </div>
       </Card>
+
+      <RelatedAppointmentsCard doctorId={doctor.id} />
     </section>
   );
 }

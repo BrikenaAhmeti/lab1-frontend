@@ -6,6 +6,7 @@ import { formatPatientDate, getPatientApiMessage, getPatientApiStatus } from '@/
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import RelatedAppointmentsCard from '@/pages/Dashboard/appointments/related-card';
 import { useState } from 'react';
 import PatientStateCard from './state-card';
 
@@ -148,6 +149,8 @@ export default function PatientDetailsPage() {
           ))}
         </div>
       </Card>
+
+      <RelatedAppointmentsCard patientId={patient.id} />
     </section>
   );
 }

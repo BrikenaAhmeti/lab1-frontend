@@ -7,11 +7,15 @@ import Register from '@/pages/Auth/register';
 import NotFound from '@/pages/NotFound';
 import DesignSystemPage from '@/pages/DesignSystem';
 import ModulePage from '@/pages/Dashboard/modules';
+import DashboardHomePage from '@/pages/Dashboard/home';
 import TransactionsPageRTK from '@/pages/Dashboard/transactions';
 import TransactionsPageRQ from '@/pages/Dashboard/transactions/tan-transactions';
 import PatientsListPage from '@/pages/Dashboard/patients';
 import PatientDetailsPage from '@/pages/Dashboard/patients/details';
 import PatientFormPage from '@/pages/Dashboard/patients/form';
+import AppointmentsListPage from '@/pages/Dashboard/appointments';
+import AppointmentDetailsPage from '@/pages/Dashboard/appointments/details';
+import AppointmentFormPage from '@/pages/Dashboard/appointments/form';
 import DoctorsListPage from '@/pages/Dashboard/doctors';
 import DoctorDetailsPage from '@/pages/Dashboard/doctors/details';
 import DoctorFormPage from '@/pages/Dashboard/doctors/form';
@@ -23,7 +27,7 @@ import NurseDetailsPage from '@/pages/Dashboard/nurses/details';
 import NurseFormPage from '@/pages/Dashboard/nurses/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
 const moduleRoutes = moduleNavigation
-    .filter((item) => !['patients', 'doctors', 'departments', 'nurses'].includes(item.key))
+    .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'nurses'].includes(item.key))
     .map((item) => ({
     path: item.path,
     element: _jsx(ModulePage, { moduleKey: item.key }),
@@ -57,7 +61,7 @@ export const router = createBrowserRouter([
             {
                 element: _jsx(AppLayout, {}),
                 children: [
-                    { index: true, element: _jsx(Navigate, { to: "patients", replace: true }) },
+                    { index: true, element: _jsx(DashboardHomePage, {}) },
                     {
                         path: 'patients',
                         children: [
@@ -65,6 +69,15 @@ export const router = createBrowserRouter([
                             { path: 'new', element: _jsx(PatientFormPage, {}) },
                             { path: ':id', element: _jsx(PatientDetailsPage, {}) },
                             { path: ':id/edit', element: _jsx(PatientFormPage, {}) },
+                        ],
+                    },
+                    {
+                        path: 'appointments',
+                        children: [
+                            { index: true, element: _jsx(AppointmentsListPage, {}) },
+                            { path: 'new', element: _jsx(AppointmentFormPage, {}) },
+                            { path: ':id', element: _jsx(AppointmentDetailsPage, {}) },
+                            { path: ':id/edit', element: _jsx(AppointmentFormPage, {}) },
                         ],
                     },
                     {

@@ -1,0 +1,139 @@
+{
+  "list": {
+    "title": "Appointments",
+    "description": "Review schedules, filter visits, and manage appointment status.",
+    "resultsTitle": "Appointment records",
+    "resultsDescription": "Browse scheduled and completed visits.",
+    "results": "{{count}} appointments found",
+    "refreshing": "Refreshing appointments..."
+  },
+  "filters": {
+    "title": "Filters",
+    "description": "Filter appointments by date, doctor, patient, and status.",
+    "allDoctors": "All doctors",
+    "allPatients": "All patients",
+    "allStatuses": "All statuses",
+    "patientSearchPlaceholder": "Search patients by name"
+  },
+  "details": {
+    "title": "Appointment details",
+    "description": "Review the selected appointment and its current status.",
+    "cancelConfirm": "Cancel this appointment?",
+    "notFoundTitle": "Appointment not found",
+    "notFoundDescription": "This appointment is no longer available."
+  },
+  "form": {
+    "createTitle": "Create appointment",
+    "createDescription": "Schedule a new patient visit.",
+    "editTitle": "Edit appointment",
+    "editDescription": "Update the schedule, notes, or status.",
+    "formTitle": "Appointment form",
+    "formDescription": "Fill in the appointment details below.",
+    "lockedNotice": "This appointment is already completed or cancelled, so rescheduling is disabled.",
+    "patientSearchPlaceholder": "Search patient options",
+    "patientPlaceholder": "Select patient",
+    "doctorPlaceholder": "Select doctor",
+    "statusHint": "New appointments are always created as Scheduled.",
+    "notesPlaceholder": "Add visit notes if needed"
+  },
+  "actions": {
+    "create": "Create appointment",
+    "view": "View",
+    "viewAll": "View all appointments",
+    "viewToday": "View today's appointments",
+    "viewPatient": "View patient",
+    "viewDoctor": "View doctor",
+    "viewPatients": "View patients",
+    "viewDoctors": "View doctors",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "cancelAppointment": "Cancel Appointment",
+    "save": "Save appointment",
+    "update": "Update appointment",
+    "back": "Back",
+    "retry": "Try again",
+    "clear": "Clear"
+  },
+  "fields": {
+    "patient": "Patient",
+    "patientSearch": "Patient search",
+    "doctor": "Doctor",
+    "specialization": "Specialization",
+    "department": "Department",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "notes": "Notes",
+    "createdAt": "Created at",
+    "updatedAt": "Updated at"
+  },
+  "labels": {
+    "notAvailable": "Not available",
+    "noNotes": "No notes added.",
+    "loadingDoctors": "Loading doctors...",
+    "loadingPatients": "Loading patients..."
+  },
+  "states": {
+    "loadingTitle": "Loading appointments",
+    "loadingDescription": "Please wait a moment.",
+    "loadingAppointmentTitle": "Loading appointment",
+    "loadingAppointmentDescription": "Please wait a moment.",
+    "loadingOptionsTitle": "Loading appointment form",
+    "loadingOptionsDescription": "Please wait while patients and doctors are loaded.",
+    "emptyTitle": "No appointments found",
+    "emptyDescription": "Try a different filter or create a new appointment.",
+    "emptyDoctorsTitle": "No doctors available",
+    "emptyDoctorsDescription": "Create a doctor before scheduling appointments.",
+    "emptyPatientsTitle": "No patients available",
+    "emptyPatientsDescription": "Create a patient before scheduling appointments.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load appointment data."
+  },
+  "errors": {
+    "list": "We could not load the appointments list.",
+    "details": "We could not load this appointment.",
+    "save": "We could not save the appointment.",
+    "cancel": "We could not cancel the appointment.",
+    "doctors": "We could not load doctor options.",
+    "patients": "We could not load patient options.",
+    "today": "We could not load today's appointments.",
+    "conflict": "This doctor already has an appointment at that time."
+  },
+  "messages": {
+    "created": "Appointment created successfully.",
+    "updated": "Appointment updated successfully.",
+    "cancelled": "Appointment cancelled successfully."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "date": "Use YYYY-MM-DD.",
+    "time": "Use HH:mm.",
+    "future": "Appointment date and time cannot be in the past.",
+    "noChanges": "There are no changes to save."
+  },
+  "statuses": {
+    "Scheduled": "Scheduled",
+    "Completed": "Completed",
+    "Cancelled": "Cancelled"
+  },
+  "related": {
+    "patientTitle": "Appointment history",
+    "doctorTitle": "Doctor schedule",
+    "count": "{{count}} linked appointments",
+    "loading": "Loading linked appointments...",
+    "emptyTitle": "No linked appointments",
+    "emptyDescription": "Appointments will appear here once they are scheduled."
+  },
+  "widget": {
+    "title": "Today's appointments",
+    "description": "Track visits that matter for the current workday.",
+    "countLabel": "Appointments today",
+    "loading": "Loading today's appointments...",
+    "emptyTitle": "No appointments for today",
+    "emptyDescription": "Today's schedule is clear."
+  }
+}

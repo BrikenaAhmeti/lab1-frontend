@@ -1,0 +1,139 @@
+{
+  "list": {
+    "title": "Termine",
+    "description": "Prufen Sie Zeitplane, filtern Sie Besuche und verwalten Sie Terminstatus.",
+    "resultsTitle": "Terminliste",
+    "resultsDescription": "Durchsuchen Sie geplante und abgeschlossene Besuche.",
+    "results": "{{count}} Termine gefunden",
+    "refreshing": "Termine werden aktualisiert..."
+  },
+  "filters": {
+    "title": "Filter",
+    "description": "Filtern Sie Termine nach Datum, Arzt, Patient und Status.",
+    "allDoctors": "Alle Arzte",
+    "allPatients": "Alle Patienten",
+    "allStatuses": "Alle Status",
+    "patientSearchPlaceholder": "Patienten nach Name suchen"
+  },
+  "details": {
+    "title": "Termindetails",
+    "description": "Prufen Sie den ausgewahlten Termin und seinen aktuellen Status.",
+    "cancelConfirm": "Diesen Termin stornieren?",
+    "notFoundTitle": "Termin nicht gefunden",
+    "notFoundDescription": "Dieser Termin ist nicht mehr verfugbar."
+  },
+  "form": {
+    "createTitle": "Termin erstellen",
+    "createDescription": "Planen Sie einen neuen Patientenbesuch.",
+    "editTitle": "Termin bearbeiten",
+    "editDescription": "Aktualisieren Sie Zeitplan, Notizen oder Status.",
+    "formTitle": "Terminformular",
+    "formDescription": "Fullen Sie die Termindetails unten aus.",
+    "lockedNotice": "Dieser Termin ist bereits abgeschlossen oder storniert, daher ist eine Umplanung deaktiviert.",
+    "patientSearchPlaceholder": "Patientenoptionen durchsuchen",
+    "patientPlaceholder": "Patient auswahlen",
+    "doctorPlaceholder": "Arzt auswahlen",
+    "statusHint": "Neue Termine werden immer als Geplant erstellt.",
+    "notesPlaceholder": "Fugen Sie bei Bedarf Besuchsnotizen hinzu"
+  },
+  "actions": {
+    "create": "Termin erstellen",
+    "view": "Ansehen",
+    "viewAll": "Alle Termine anzeigen",
+    "viewToday": "Heutige Termine anzeigen",
+    "viewPatient": "Patient ansehen",
+    "viewDoctor": "Arzt ansehen",
+    "viewPatients": "Patienten anzeigen",
+    "viewDoctors": "Arzte anzeigen",
+    "edit": "Bearbeiten",
+    "cancel": "Abbrechen",
+    "cancelAppointment": "Termin stornieren",
+    "save": "Termin speichern",
+    "update": "Termin aktualisieren",
+    "back": "Zuruck",
+    "retry": "Erneut versuchen",
+    "clear": "Zurucksetzen"
+  },
+  "fields": {
+    "patient": "Patient",
+    "patientSearch": "Patientensuche",
+    "doctor": "Arzt",
+    "specialization": "Spezialisierung",
+    "department": "Abteilung",
+    "date": "Datum",
+    "time": "Uhrzeit",
+    "status": "Status",
+    "notes": "Notizen",
+    "createdAt": "Erstellt am",
+    "updatedAt": "Aktualisiert am"
+  },
+  "labels": {
+    "notAvailable": "Nicht verfugbar",
+    "noNotes": "Keine Notizen hinzugefugt.",
+    "loadingDoctors": "Arzte werden geladen...",
+    "loadingPatients": "Patienten werden geladen..."
+  },
+  "states": {
+    "loadingTitle": "Termine werden geladen",
+    "loadingDescription": "Bitte warten Sie einen Moment.",
+    "loadingAppointmentTitle": "Termin wird geladen",
+    "loadingAppointmentDescription": "Bitte warten Sie einen Moment.",
+    "loadingOptionsTitle": "Terminformular wird geladen",
+    "loadingOptionsDescription": "Bitte warten Sie, wahrend Patienten und Arzte geladen werden.",
+    "emptyTitle": "Keine Termine gefunden",
+    "emptyDescription": "Versuchen Sie einen anderen Filter oder erstellen Sie einen neuen Termin.",
+    "emptyDoctorsTitle": "Keine Arzte verfugbar",
+    "emptyDoctorsDescription": "Erstellen Sie einen Arzt, bevor Sie Termine planen.",
+    "emptyPatientsTitle": "Keine Patienten verfugbar",
+    "emptyPatientsDescription": "Erstellen Sie einen Patienten, bevor Sie Termine planen.",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist fur diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Zugriff verweigert",
+    "forbiddenDescription": "Sie haben keine Berechtigung fur diese Ressource.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDescription": "Termindaten konnten nicht geladen werden."
+  },
+  "errors": {
+    "list": "Die Terminliste konnte nicht geladen werden.",
+    "details": "Dieser Termin konnte nicht geladen werden.",
+    "save": "Der Termin konnte nicht gespeichert werden.",
+    "cancel": "Der Termin konnte nicht storniert werden.",
+    "doctors": "Arztoptionen konnten nicht geladen werden.",
+    "patients": "Patientenoptionen konnten nicht geladen werden.",
+    "today": "Die heutigen Termine konnten nicht geladen werden.",
+    "conflict": "Dieser Arzt hat zu dieser Zeit bereits einen Termin."
+  },
+  "messages": {
+    "created": "Termin erfolgreich erstellt.",
+    "updated": "Termin erfolgreich aktualisiert.",
+    "cancelled": "Termin erfolgreich storniert."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich.",
+    "date": "Verwenden Sie YYYY-MM-DD.",
+    "time": "Verwenden Sie HH:mm.",
+    "future": "Termin darf nicht in der Vergangenheit liegen.",
+    "noChanges": "Es gibt keine Anderungen zum Speichern."
+  },
+  "statuses": {
+    "Scheduled": "Geplant",
+    "Completed": "Abgeschlossen",
+    "Cancelled": "Storniert"
+  },
+  "related": {
+    "patientTitle": "Terminverlauf",
+    "doctorTitle": "Arztplan",
+    "count": "{{count}} verknupfte Termine",
+    "loading": "Verknupfte Termine werden geladen...",
+    "emptyTitle": "Keine verknupften Termine",
+    "emptyDescription": "Termine werden hier angezeigt, sobald sie geplant sind."
+  },
+  "widget": {
+    "title": "Heutige Termine",
+    "description": "Verfolgen Sie die Besuche des aktuellen Arbeitstags.",
+    "countLabel": "Termine heute",
+    "loading": "Heutige Termine werden geladen...",
+    "emptyTitle": "Keine Termine fur heute",
+    "emptyDescription": "Der heutige Zeitplan ist frei."
+  }
+}

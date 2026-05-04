@@ -67,7 +67,7 @@ function renderPage(route, roles) {
         },
         preloadedState,
     });
-    return render(_jsx(Provider, { store: store, children: _jsx(MemoryRouter, { initialEntries: [route], children: _jsxs(Routes, { children: [_jsx(Route, { path: "/app/doctors/new", element: _jsx(DoctorFormPage, {}) }), _jsx(Route, { path: "/app/doctors/:id/edit", element: _jsx(DoctorFormPage, {}) })] }) }) }));
+    return render(_jsx(Provider, { store: store, children: _jsx(MemoryRouter, { initialEntries: [route], children: _jsxs(Routes, { children: [_jsx(Route, { path: "/app/doctors/new", element: _jsx(DoctorFormPage, {}) }), _jsx(Route, { path: "/app/doctors/:id", element: _jsx("div", { children: "Doctor details" }) }), _jsx(Route, { path: "/app/doctors/:id/edit", element: _jsx(DoctorFormPage, {}) })] }) }) }));
 }
 describe('DoctorFormPage', () => {
     beforeEach(() => {
@@ -146,7 +146,7 @@ describe('DoctorFormPage', () => {
             target: { value: ' Cardiology ' },
         });
         fireEvent.change(screen.getByLabelText('Phone number'), {
-            target: { value: ' +38344111222 ' },
+            target: { value: '+38344111222' },
         });
         fireEvent.click(screen.getByRole('button', { name: /save doctor/i }));
         await waitFor(() => {

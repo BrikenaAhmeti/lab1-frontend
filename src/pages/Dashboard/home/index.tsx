@@ -1,5 +1,6 @@
 import { formatMoney } from '@/config/currencies';
 import { useUsers } from '@/hooks/useUsers';
+import TodayAppointmentsWidget from '@/pages/Dashboard/appointments/today-widget';
 import Badge from '@/ui/atoms/Badge';
 import Card from '@/ui/atoms/Card';
 
@@ -10,11 +11,6 @@ type DashboardMetric = {
 };
 
 const metrics: DashboardMetric[] = [
-  {
-    title: 'Daily Appointments',
-    value: '34',
-    change: '+8% vs yesterday',
-  },
   {
     title: 'Available Rooms',
     value: '18',
@@ -47,7 +43,7 @@ const Home = () => {
         </Badge>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         {metrics.map((metric) => (
           <Card key={metric.title} className="h-full">
             <p className="text-sm text-muted-foreground">{metric.title}</p>
@@ -58,34 +54,36 @@ const Home = () => {
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
+        <TodayAppointmentsWidget />
+
         <Card title="Revenue Snapshot" description="Billing activity aligned with today's admissions.">
           <p className="text-3xl font-bold text-foreground">{formatMoney(12345.67)}</p>
           <p className="mt-2 text-sm text-muted-foreground">Invoices and patient admissions are synchronized.</p>
         </Card>
-
-        <Card
-          title="Staff Directory Snapshot"
-          description="Pulled from your users endpoint through TanStack Query."
-        >
-          {isLoading ? <p className="text-sm text-muted-foreground">Loading users...</p> : null}
-          {error ? <p className="text-sm text-danger">Unable to load users right now.</p> : null}
-          {!isLoading && !error && users.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No users found yet.</p>
-          ) : null}
-          {!isLoading && !error && users.length > 0 ? (
-            <ul className="space-y-2">
-              {users.slice(0, 8).map((userItem) => (
-                <li
-                  key={userItem.id}
-                  className="rounded-lg border border-border/70 bg-surface/70 px-3 py-2 text-sm"
-                >
-                  {userItem.name || 'Unnamed user'}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-        </Card>
       </div>
+
+      <Card
+        title="Staff Directory Snapshot"
+        description="Pulled from your users endpoint through TanStack Query."
+      >
+        {isLoading ? <p className="text-sm text-muted-foreground">Loading users...</p> : null}
+        {error ? <p className="text-sm text-danger">Unable to load users right now.</p> : null}
+        {!isLoading && !error && users.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No users found yet.</p>
+        ) : null}
+        {!isLoading && !error && users.length > 0 ? (
+          <ul className="space-y-2">
+            {users.slice(0, 8).map((userItem) => (
+              <li
+                key={userItem.id}
+                className="rounded-lg border border-border/70 bg-surface/70 px-3 py-2 text-sm"
+              >
+                {userItem.name || 'Unnamed user'}
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </Card>
     </section>
   );
 };
