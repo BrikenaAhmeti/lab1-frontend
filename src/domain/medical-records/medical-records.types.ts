@@ -50,3 +50,13 @@ export type CreateMedicalRecordDTO = {
 };
 
 export type UpdateMedicalRecordDTO = Partial<CreateMedicalRecordDTO>;
+
+export type CreatePrescriptionDTO = {
+  medicalRecordId: string;
+  medicine: string;
+  dosage: string;
+  duration: string;
+  instructions?: string | null;
+};
+
+export type UpdatePrescriptionDTO = Partial<Omit<CreatePrescriptionDTO, 'medicalRecordId'>>;

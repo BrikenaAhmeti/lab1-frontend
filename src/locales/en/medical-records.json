@@ -32,6 +32,7 @@
   },
   "actions": {
     "create": "Create record",
+    "addPrescription": "Add prescription",
     "viewAll": "View all records",
     "viewPatient": "View patient",
     "viewPatients": "View patients",
@@ -42,9 +43,12 @@
     "update": "Update record",
     "cancel": "Cancel",
     "back": "Back",
+    "print": "Print",
     "retry": "Try again",
+    "savePrescription": "Save prescription",
     "showPrescriptions": "Show prescriptions",
-    "hidePrescriptions": "Hide prescriptions"
+    "hidePrescriptions": "Hide prescriptions",
+    "updatePrescription": "Update prescription"
   },
   "fields": {
     "patientSearch": "Patient search",
@@ -97,17 +101,23 @@
     "save": "We could not save the medical record.",
     "delete": "We could not delete the medical record.",
     "prescriptions": "We could not load the linked prescriptions.",
+    "prescriptionSave": "We could not save the prescription.",
+    "prescriptionDelete": "We could not delete the prescription.",
     "patients": "We could not load patient options.",
     "doctors": "We could not load doctor options.",
     "invalidPatient": "Select a valid patient to continue.",
     "invalidData": "Please check the medical record details and try again.",
+    "invalidPrescriptionData": "Please check the prescription details and try again.",
     "writeForbidden": "You do not have permission to change medical records.",
     "notFound": "The medical record could not be found."
   },
   "messages": {
     "created": "Medical record created successfully.",
     "updated": "Medical record updated successfully.",
-    "deleted": "Medical record deleted successfully."
+    "deleted": "Medical record deleted successfully.",
+    "prescriptionCreated": "Prescription created successfully.",
+    "prescriptionUpdated": "Prescription updated successfully.",
+    "prescriptionDeleted": "Prescription deleted successfully."
   },
   "validation": {
     "required": "This field is required.",
@@ -115,7 +125,14 @@
   },
   "prescriptions": {
     "title": "Linked prescriptions",
+    "description": "Review and manage prescriptions linked to this medical record.",
+    "createTitle": "Add prescription",
+    "editTitle": "Edit prescription",
+    "formDescription": "Fill in the prescription details below.",
+    "instructionsPlaceholder": "Add instructions if needed",
+    "deleteConfirm": "Delete this prescription?",
     "loading": "Loading prescriptions...",
+    "emptyTitle": "No prescriptions yet",
     "empty": "No linked prescriptions were found for this record."
   },
   "related": {

@@ -32,6 +32,7 @@
   },
   "actions": {
     "create": "Eintrag erstellen",
+    "addPrescription": "Verschreibung hinzufügen",
     "viewAll": "Alle Einträge anzeigen",
     "viewPatient": "Patient anzeigen",
     "viewPatients": "Patienten anzeigen",
@@ -42,9 +43,12 @@
     "update": "Eintrag aktualisieren",
     "cancel": "Abbrechen",
     "back": "Zurück",
+    "print": "Drucken",
     "retry": "Erneut versuchen",
+    "savePrescription": "Verschreibung speichern",
     "showPrescriptions": "Verschreibungen anzeigen",
-    "hidePrescriptions": "Verschreibungen ausblenden"
+    "hidePrescriptions": "Verschreibungen ausblenden",
+    "updatePrescription": "Verschreibung aktualisieren"
   },
   "fields": {
     "patientSearch": "Patientensuche",
@@ -97,17 +101,23 @@
     "save": "Der Krankenakt konnte nicht gespeichert werden.",
     "delete": "Der Krankenakt konnte nicht gelöscht werden.",
     "prescriptions": "Die verknüpften Verschreibungen konnten nicht geladen werden.",
+    "prescriptionSave": "Die Verschreibung konnte nicht gespeichert werden.",
+    "prescriptionDelete": "Die Verschreibung konnte nicht gelöscht werden.",
     "patients": "Die Patientenoptionen konnten nicht geladen werden.",
     "doctors": "Die Arztoptionen konnten nicht geladen werden.",
     "invalidPatient": "Wählen Sie einen gültigen Patienten aus, um fortzufahren.",
     "invalidData": "Bitte prüfen Sie die Angaben und versuchen Sie es erneut.",
+    "invalidPrescriptionData": "Bitte prüfen Sie die Angaben zur Verschreibung und versuchen Sie es erneut.",
     "writeForbidden": "Sie haben keine Berechtigung, Krankenakten zu ändern.",
     "notFound": "Der Krankenakt wurde nicht gefunden."
   },
   "messages": {
     "created": "Krankenakt erfolgreich erstellt.",
     "updated": "Krankenakt erfolgreich aktualisiert.",
-    "deleted": "Krankenakt erfolgreich gelöscht."
+    "deleted": "Krankenakt erfolgreich gelöscht.",
+    "prescriptionCreated": "Verschreibung erfolgreich erstellt.",
+    "prescriptionUpdated": "Verschreibung erfolgreich aktualisiert.",
+    "prescriptionDeleted": "Verschreibung erfolgreich gelöscht."
   },
   "validation": {
     "required": "Dieses Feld ist erforderlich.",
@@ -115,7 +125,14 @@
   },
   "prescriptions": {
     "title": "Verknüpfte Verschreibungen",
+    "description": "Prüfen und verwalten Sie die mit diesem Krankenakt verknüpften Verschreibungen.",
+    "createTitle": "Verschreibung hinzufügen",
+    "editTitle": "Verschreibung bearbeiten",
+    "formDescription": "Füllen Sie die Verschreibungsdetails unten aus.",
+    "instructionsPlaceholder": "Falls nötig, Anweisungen hinzufügen",
+    "deleteConfirm": "Diese Verschreibung löschen?",
     "loading": "Verschreibungen werden geladen...",
+    "emptyTitle": "Noch keine Verschreibungen",
     "empty": "Für diesen Eintrag wurden keine verknüpften Verschreibungen gefunden."
   },
   "related": {

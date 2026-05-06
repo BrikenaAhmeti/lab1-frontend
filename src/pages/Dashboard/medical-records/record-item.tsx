@@ -2,14 +2,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import type { MedicalRecord } from '@/domain/medical-records/medical-records.types';
-import { useMedicalRecordPrescriptions } from '@/domain/medical-records/medical-records.hooks';
 import {
   formatMedicalRecordDate,
-  getMedicalRecordApiMessage,
   getMedicalRecordDoctorName,
 } from '@/domain/medical-records/medical-records.utils';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
+import PrescriptionPanel from './prescription-panel';
 
 type MedicalRecordItemProps = {
   record: MedicalRecord;
@@ -31,8 +30,6 @@ export default function MedicalRecordItem({
   const { t, i18n } = useTranslation('medicalRecords');
   const navigate = useNavigate();
   const [showPrescriptions, setShowPrescriptions] = useState(false);
-  const prescriptionsQuery = useMedicalRecordPrescriptions(record.id, showPrescriptions);
-  const prescriptions = prescriptionsQuery.data ?? [];
   const doctorName = getMedicalRecordDoctorName(record.doctor) || t('labels.notAvailable');
 
   return (
@@ -99,73 +96,7 @@ export default function MedicalRecordItem({
       </div>
 
       {showPrescriptions ? (
-        <div className="mt-4 rounded-2xl border border-border/70 bg-background/60 p-4">
-          <h3 className="text-sm font-semibold text-foreground">{t('prescriptions.title')}</h3>
-
-          {prescriptionsQuery.isLoading ? (
-            <p className="mt-3 text-sm text-muted-foreground">{t('prescriptions.loading')}</p>
-          ) : prescriptionsQuery.error ? (
-            <div className="mt-3 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
-              <div>
-                {getMedicalRecordApiMessage(prescriptionsQuery.error, t('errors.prescriptions'))}
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="mt-3"
-                onClick={() => prescriptionsQuery.refetch()}
-              >
-                {t('actions.retry')}
-              </Button>
-            </div>
-          ) : !prescriptions.length ? (
-            <p className="mt-3 text-sm text-muted-foreground">{t('prescriptions.empty')}</p>
-          ) : (
-            <div className="mt-3 space-y-3">
-              {prescriptions.map((prescription) => (
-                <div
-                  key={prescription.id}
-                  className="rounded-2xl border border-border/70 bg-background/70 p-4"
-                >
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        {t('fields.medicine')}
-                      </p>
-                      <p className="mt-1 break-words text-sm text-foreground">
-                        {prescription.medicine}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        {t('fields.dosage')}
-                      </p>
-                      <p className="mt-1 break-words text-sm text-foreground">
-                        {prescription.dosage}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        {t('fields.duration')}
-                      </p>
-                      <p className="mt-1 break-words text-sm text-foreground">
-                        {prescription.duration}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        {t('fields.instructions')}
-                      </p>
-                      <p className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground">
-                        {prescription.instructions?.trim() || t('labels.noInstructions')}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        <PrescriptionPanel medicalRecordId={record.id} canManage={canManage} />
       ) : null}
     </div>
   );

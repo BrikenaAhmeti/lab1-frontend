@@ -1,5 +1,6 @@
 import { api } from '@/libs/axios/client';
 const BASE = '/api/medical-records';
+const PRESCRIPTIONS_BASE = '/api/prescriptions';
 function buildMedicalRecordsQuery(params = {}) {
     const query = new URLSearchParams();
     if (params.patientId?.trim()) {
@@ -90,10 +91,10 @@ function normalizePrescription(value) {
     return {
         id: normalizeText(getValue(prescription, ['id'])),
         medicalRecordId: normalizeText(getValue(prescription, ['medicalRecordId', 'medical_record_id'])),
-        medicine: normalizeText(getValue(prescription, ['medicine'])),
-        dosage: normalizeText(getValue(prescription, ['dosage'])),
-        duration: normalizeText(getValue(prescription, ['duration'])),
-        instructions: normalizeNullableText(getValue(prescription, ['instructions'])),
+        medicine: normalizeText(getValue(prescription, ['medicine', 'bari'])),
+        dosage: normalizeText(getValue(prescription, ['dosage', 'dozimi'])),
+        duration: normalizeText(getValue(prescription, ['duration', 'kohezgjatja'])),
+        instructions: normalizeNullableText(getValue(prescription, ['instructions', 'udhezime'])),
         createdAt: normalizeText(getValue(prescription, ['createdAt', 'created_at'])),
         updatedAt: normalizeText(getValue(prescription, ['updatedAt', 'updated_at'])),
     };
@@ -103,9 +104,16 @@ export const MedicalRecordsApi = {
         .get(`${BASE}${buildMedicalRecordsQuery(params)}`)
         .then((r) => normalizeList(r.data, normalizeMedicalRecord)),
     get: (id) => api.core.get(`${BASE}/${id}`).then((r) => normalizeMedicalRecord(r.data)),
-    listPrescriptions: (id) => api.core
-        .get(`${BASE}/${id}/prescriptions`)
+    listPrescriptions: (medicalRecordId) => api.core
+        .get(`${PRESCRIPTIONS_BASE}?medicalRecordId=${encodeURIComponent(medicalRecordId)}`)
         .then((r) => normalizeList(r.data, normalizePrescription)),
+    createPrescription: (payload) => api.core
+        .post(PRESCRIPTIONS_BASE, payload)
+        .then((r) => normalizePrescription(r.data)),
+    updatePrescription: (id, payload) => api.core
+        .put(`${PRESCRIPTIONS_BASE}/${id}`, payload)
+        .then((r) => normalizePrescription(r.data)),
+    removePrescription: (id) => api.core.delete(`${PRESCRIPTIONS_BASE}/${id}`).then(() => undefined),
     create: (payload) => api.core.post(BASE, payload).then((r) => normalizeMedicalRecord(r.data)),
     update: (id, payload) => api.core.put(`${BASE}/${id}`, payload).then((r) => normalizeMedicalRecord(r.data)),
     remove: (id) => api.core.delete(`${BASE}/${id}`).then(() => undefined),

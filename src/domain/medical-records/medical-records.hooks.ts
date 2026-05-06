@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { MedicalRecordsApi } from './medical-records.api';
 import type {
+  CreatePrescriptionDTO,
   CreateMedicalRecordDTO,
   MedicalRecord,
   Prescription,
+  UpdatePrescriptionDTO,
   UpdateMedicalRecordDTO,
 } from './medical-records.types';
 
@@ -14,7 +16,8 @@ export const medicalRecordsKeys = {
   details: () => [...medicalRecordsKeys.all, 'detail'] as const,
   detail: (id: string) => [...medicalRecordsKeys.details(), id] as const,
   prescriptions: () => [...medicalRecordsKeys.all, 'prescriptions'] as const,
-  prescriptionList: (id: string) => [...medicalRecordsKeys.prescriptions(), id] as const,
+  prescriptionList: (medicalRecordId: string) =>
+    [...medicalRecordsKeys.prescriptions(), medicalRecordId] as const,
 };
 
 export function useMedicalRecords(patientId: string) {
@@ -75,6 +78,47 @@ export function useDeleteMedicalRecord() {
       queryClient.removeQueries({ queryKey: medicalRecordsKeys.detail(id) });
       queryClient.removeQueries({ queryKey: medicalRecordsKeys.prescriptionList(id) });
       queryClient.invalidateQueries({ queryKey: medicalRecordsKeys.all });
+    },
+  });
+}
+
+export function useCreatePrescription() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: CreatePrescriptionDTO) => MedicalRecordsApi.createPrescription(payload),
+    onSuccess: (prescription: Prescription) => {
+      queryClient.invalidateQueries({
+        queryKey: medicalRecordsKeys.prescriptionList(prescription.medicalRecordId),
+      });
+    },
+  });
+}
+
+export function useUpdatePrescription() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: UpdatePrescriptionDTO }) =>
+      MedicalRecordsApi.updatePrescription(id, payload),
+    onSuccess: (prescription: Prescription) => {
+      queryClient.invalidateQueries({
+        queryKey: medicalRecordsKeys.prescriptionList(prescription.medicalRecordId),
+      });
+    },
+  });
+}
+
+export function useDeletePrescription() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, medicalRecordId }: { id: string; medicalRecordId: string }) =>
+      MedicalRecordsApi.removePrescription(id).then(() => medicalRecordId),
+    onSuccess: (medicalRecordId: string) => {
+      queryClient.invalidateQueries({
+        queryKey: medicalRecordsKeys.prescriptionList(medicalRecordId),
+      });
     },
   });
 }

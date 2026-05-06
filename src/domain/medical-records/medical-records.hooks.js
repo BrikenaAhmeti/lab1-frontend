@@ -7,7 +7,7 @@ export const medicalRecordsKeys = {
     details: () => [...medicalRecordsKeys.all, 'detail'],
     detail: (id) => [...medicalRecordsKeys.details(), id],
     prescriptions: () => [...medicalRecordsKeys.all, 'prescriptions'],
-    prescriptionList: (id) => [...medicalRecordsKeys.prescriptions(), id],
+    prescriptionList: (medicalRecordId) => [...medicalRecordsKeys.prescriptions(), medicalRecordId],
 };
 export function useMedicalRecords(patientId) {
     return useQuery({
@@ -58,6 +58,39 @@ export function useDeleteMedicalRecord() {
             queryClient.removeQueries({ queryKey: medicalRecordsKeys.detail(id) });
             queryClient.removeQueries({ queryKey: medicalRecordsKeys.prescriptionList(id) });
             queryClient.invalidateQueries({ queryKey: medicalRecordsKeys.all });
+        },
+    });
+}
+export function useCreatePrescription() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (payload) => MedicalRecordsApi.createPrescription(payload),
+        onSuccess: (prescription) => {
+            queryClient.invalidateQueries({
+                queryKey: medicalRecordsKeys.prescriptionList(prescription.medicalRecordId),
+            });
+        },
+    });
+}
+export function useUpdatePrescription() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, payload }) => MedicalRecordsApi.updatePrescription(id, payload),
+        onSuccess: (prescription) => {
+            queryClient.invalidateQueries({
+                queryKey: medicalRecordsKeys.prescriptionList(prescription.medicalRecordId),
+            });
+        },
+    });
+}
+export function useDeletePrescription() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, medicalRecordId }) => MedicalRecordsApi.removePrescription(id).then(() => medicalRecordId),
+        onSuccess: (medicalRecordId) => {
+            queryClient.invalidateQueries({
+                queryKey: medicalRecordsKeys.prescriptionList(medicalRecordId),
+            });
         },
     });
 }

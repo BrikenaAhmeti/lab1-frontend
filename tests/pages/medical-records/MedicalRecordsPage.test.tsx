@@ -9,6 +9,10 @@ const mockUsePatients = vi.fn();
 const mockUsePatient = vi.fn();
 const mockUseMedicalRecords = vi.fn();
 const mockUseDeleteMedicalRecord = vi.fn();
+const mockUseMedicalRecordPrescriptions = vi.fn();
+const mockUseCreatePrescription = vi.fn();
+const mockUseUpdatePrescription = vi.fn();
+const mockUseDeletePrescription = vi.fn();
 
 vi.mock('@/domain/patients/patients.hooks', () => ({
   usePatients: () => mockUsePatients(),
@@ -18,12 +22,10 @@ vi.mock('@/domain/patients/patients.hooks', () => ({
 vi.mock('@/domain/medical-records/medical-records.hooks', () => ({
   useMedicalRecords: (patientId: string) => mockUseMedicalRecords(patientId),
   useDeleteMedicalRecord: () => mockUseDeleteMedicalRecord(),
-  useMedicalRecordPrescriptions: () => ({
-    data: [],
-    isLoading: false,
-    error: null,
-    refetch: vi.fn(),
-  }),
+  useMedicalRecordPrescriptions: () => mockUseMedicalRecordPrescriptions(),
+  useCreatePrescription: () => mockUseCreatePrescription(),
+  useUpdatePrescription: () => mockUseUpdatePrescription(),
+  useDeletePrescription: () => mockUseDeletePrescription(),
 }));
 
 const createUser = (roles: string[]) => ({
@@ -154,6 +156,29 @@ describe('MedicalRecordsListPage', () => {
     });
 
     mockUseDeleteMedicalRecord.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+      variables: null,
+    });
+
+    mockUseMedicalRecordPrescriptions.mockReturnValue({
+      data: [],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    mockUseCreatePrescription.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+
+    mockUseUpdatePrescription.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
+
+    mockUseDeletePrescription.mockReturnValue({
       mutateAsync: vi.fn(),
       isPending: false,
       variables: null,
