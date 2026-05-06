@@ -1,0 +1,128 @@
+{
+  "list": {
+    "title": "Krankenakten",
+    "description": "Prüfen Sie die Patientengeschichte und verwalten Sie klinische Notizen.",
+    "resultsTitle": "Verlauf der Krankenakten",
+    "resultsDescription": "Wählen Sie einen Patienten aus, um dessen Krankenakten zu sehen.",
+    "results": "{{count}} Einträge für {{patient}}",
+    "refreshing": "Krankenakten werden aktualisiert..."
+  },
+  "filters": {
+    "title": "Patientenauswahl",
+    "description": "Suchen Sie Patienten und laden Sie deren Krankenakten.",
+    "patientPlaceholder": "Patient auswählen",
+    "patientSearchPlaceholder": "Patienten nach Namen suchen"
+  },
+  "details": {
+    "deleteConfirm": "Diesen Krankenakt löschen?",
+    "notFoundTitle": "Krankenakt nicht gefunden",
+    "notFoundDescription": "Dieser Krankenakt ist nicht mehr verfügbar."
+  },
+  "form": {
+    "createTitle": "Krankenakt erstellen",
+    "createDescription": "Fügen Sie einen neuen klinischen Eintrag für den ausgewählten Patienten hinzu.",
+    "editTitle": "Krankenakt bearbeiten",
+    "editDescription": "Aktualisieren Sie den ausgewählten Krankenakt.",
+    "formTitle": "Krankenakt-Formular",
+    "formDescription": "Füllen Sie die Details des Krankenakts unten aus.",
+    "patientSearchPlaceholder": "Patientenoptionen durchsuchen",
+    "patientPlaceholder": "Patient auswählen",
+    "doctorPlaceholder": "Arzt auswählen",
+    "prescriptionsPlaceholder": "Falls nötig, eine kurze Verschreibungsnotiz hinzufügen"
+  },
+  "actions": {
+    "create": "Eintrag erstellen",
+    "viewAll": "Alle Einträge anzeigen",
+    "viewPatient": "Patient anzeigen",
+    "viewPatients": "Patienten anzeigen",
+    "viewDoctors": "Ärzte anzeigen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Eintrag speichern",
+    "update": "Eintrag aktualisieren",
+    "cancel": "Abbrechen",
+    "back": "Zurück",
+    "retry": "Erneut versuchen",
+    "showPrescriptions": "Verschreibungen anzeigen",
+    "hidePrescriptions": "Verschreibungen ausblenden"
+  },
+  "fields": {
+    "patientSearch": "Patientensuche",
+    "patient": "Patient",
+    "doctor": "Arzt",
+    "diagnosis": "Diagnose",
+    "treatment": "Behandlung",
+    "prescriptionsText": "Verschreibungsnotizen",
+    "recordDate": "Eintragsdatum",
+    "medicine": "Medikament",
+    "dosage": "Dosierung",
+    "duration": "Dauer",
+    "instructions": "Anweisungen"
+  },
+  "labels": {
+    "selectedPatient": "ausgewählten Patienten",
+    "loadingPatients": "Patienten werden geladen...",
+    "loadingDoctors": "Ärzte werden geladen...",
+    "notAvailable": "Nicht verfügbar",
+    "noPrescriptionsText": "Keine Verschreibungsnotizen hinzugefügt.",
+    "noInstructions": "Keine Anweisungen hinzugefügt."
+  },
+  "states": {
+    "loadingTitle": "Krankenakten werden geladen",
+    "loadingDescription": "Bitte warten Sie einen Moment.",
+    "loadingRecordTitle": "Krankenakt wird geladen",
+    "loadingRecordDescription": "Bitte warten Sie einen Moment.",
+    "loadingOptionsTitle": "Formularoptionen werden geladen",
+    "loadingOptionsDescription": "Bitte warten Sie, während Patienten und Ärzte geladen werden.",
+    "selectPatientTitle": "Patient auswählen",
+    "selectPatientDescription": "Wählen Sie oben einen Patienten aus, um dessen Krankenakten zu sehen.",
+    "emptyTitle": "Keine Krankenakten gefunden",
+    "emptyDescription": "Dieser Patient hat noch keine Krankenakten.",
+    "emptyPatientsTitle": "Keine Patienten verfügbar",
+    "emptyPatientsDescription": "Erstellen Sie zuerst einen Patienten, bevor Sie Krankenakten hinzufügen.",
+    "emptyDoctorsTitle": "Keine Ärzte verfügbar",
+    "emptyDoctorsDescription": "Erstellen Sie zuerst einen Arzt, bevor Sie Krankenakten hinzufügen.",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Verboten",
+    "forbiddenDescription": "Sie haben keine Berechtigung für diese Ressource.",
+    "writeForbiddenTitle": "Schreibzugriff erforderlich",
+    "writeForbiddenDescription": "Nur Ärzte und Admins können Krankenakten erstellen oder bearbeiten.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDescription": "Die Daten der Krankenakten konnten nicht geladen werden."
+  },
+  "errors": {
+    "list": "Die Liste der Krankenakten konnte nicht geladen werden.",
+    "details": "Dieser Krankenakt konnte nicht geladen werden.",
+    "save": "Der Krankenakt konnte nicht gespeichert werden.",
+    "delete": "Der Krankenakt konnte nicht gelöscht werden.",
+    "prescriptions": "Die verknüpften Verschreibungen konnten nicht geladen werden.",
+    "patients": "Die Patientenoptionen konnten nicht geladen werden.",
+    "doctors": "Die Arztoptionen konnten nicht geladen werden.",
+    "invalidPatient": "Wählen Sie einen gültigen Patienten aus, um fortzufahren.",
+    "invalidData": "Bitte prüfen Sie die Angaben und versuchen Sie es erneut.",
+    "writeForbidden": "Sie haben keine Berechtigung, Krankenakten zu ändern.",
+    "notFound": "Der Krankenakt wurde nicht gefunden."
+  },
+  "messages": {
+    "created": "Krankenakt erfolgreich erstellt.",
+    "updated": "Krankenakt erfolgreich aktualisiert.",
+    "deleted": "Krankenakt erfolgreich gelöscht."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich.",
+    "date": "Verwenden Sie YYYY-MM-DD."
+  },
+  "prescriptions": {
+    "title": "Verknüpfte Verschreibungen",
+    "loading": "Verschreibungen werden geladen...",
+    "empty": "Für diesen Eintrag wurden keine verknüpften Verschreibungen gefunden."
+  },
+  "related": {
+    "patientTitle": "Krankengeschichte",
+    "count": "{{count}} verknüpfte Einträge",
+    "loading": "Krankengeschichte wird geladen...",
+    "emptyTitle": "Noch keine Krankengeschichte",
+    "emptyDescription": "Krankenakten erscheinen hier, sobald sie erstellt wurden."
+  }
+}

@@ -25,10 +25,12 @@ import DepartmentFormPage from '@/pages/Dashboard/departments/form';
 import NursesListPage from '@/pages/Dashboard/nurses';
 import NurseDetailsPage from '@/pages/Dashboard/nurses/details';
 import NurseFormPage from '@/pages/Dashboard/nurses/form';
+import MedicalRecordsListPage from '@/pages/Dashboard/medical-records';
+import MedicalRecordFormPage from '@/pages/Dashboard/medical-records/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
 
 const moduleRoutes = moduleNavigation
-  .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'nurses'].includes(item.key))
+  .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'medicalRecords', 'nurses'].includes(item.key))
   .map((item) => ({
     path: item.path,
     element: <ModulePage moduleKey={item.key} />,
@@ -107,6 +109,14 @@ export const router = createBrowserRouter([
               { path: 'new', element: <NurseFormPage /> },
               { path: ':id', element: <NurseDetailsPage /> },
               { path: ':id/edit', element: <NurseFormPage /> },
+            ],
+          },
+          {
+            path: 'medical-records',
+            children: [
+              { index: true, element: <MedicalRecordsListPage /> },
+              { path: 'new', element: <MedicalRecordFormPage /> },
+              { path: ':id/edit', element: <MedicalRecordFormPage /> },
             ],
           },
           ...moduleRoutes,

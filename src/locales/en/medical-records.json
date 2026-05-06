@@ -1,0 +1,128 @@
+{
+  "list": {
+    "title": "Medical Records",
+    "description": "Review patient history and manage clinical notes.",
+    "resultsTitle": "Medical record history",
+    "resultsDescription": "Choose a patient to review their medical record history.",
+    "results": "{{count}} records for {{patient}}",
+    "refreshing": "Refreshing medical records..."
+  },
+  "filters": {
+    "title": "Patient selection",
+    "description": "Search patients and load their medical records.",
+    "patientPlaceholder": "Select patient",
+    "patientSearchPlaceholder": "Search patients by name"
+  },
+  "details": {
+    "deleteConfirm": "Delete this medical record?",
+    "notFoundTitle": "Medical record not found",
+    "notFoundDescription": "This medical record is no longer available."
+  },
+  "form": {
+    "createTitle": "Create medical record",
+    "createDescription": "Add a new clinical entry for the selected patient.",
+    "editTitle": "Edit medical record",
+    "editDescription": "Update the selected medical record.",
+    "formTitle": "Medical record form",
+    "formDescription": "Fill in the medical record details below.",
+    "patientSearchPlaceholder": "Search patient options",
+    "patientPlaceholder": "Select patient",
+    "doctorPlaceholder": "Select doctor",
+    "prescriptionsPlaceholder": "Add a short prescriptions note if needed"
+  },
+  "actions": {
+    "create": "Create record",
+    "viewAll": "View all records",
+    "viewPatient": "View patient",
+    "viewPatients": "View patients",
+    "viewDoctors": "View doctors",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save record",
+    "update": "Update record",
+    "cancel": "Cancel",
+    "back": "Back",
+    "retry": "Try again",
+    "showPrescriptions": "Show prescriptions",
+    "hidePrescriptions": "Hide prescriptions"
+  },
+  "fields": {
+    "patientSearch": "Patient search",
+    "patient": "Patient",
+    "doctor": "Doctor",
+    "diagnosis": "Diagnosis",
+    "treatment": "Treatment",
+    "prescriptionsText": "Prescription notes",
+    "recordDate": "Record date",
+    "medicine": "Medicine",
+    "dosage": "Dosage",
+    "duration": "Duration",
+    "instructions": "Instructions"
+  },
+  "labels": {
+    "selectedPatient": "selected patient",
+    "loadingPatients": "Loading patients...",
+    "loadingDoctors": "Loading doctors...",
+    "notAvailable": "Not available",
+    "noPrescriptionsText": "No prescription notes added.",
+    "noInstructions": "No instructions added."
+  },
+  "states": {
+    "loadingTitle": "Loading medical records",
+    "loadingDescription": "Please wait a moment.",
+    "loadingRecordTitle": "Loading medical record",
+    "loadingRecordDescription": "Please wait a moment.",
+    "loadingOptionsTitle": "Loading form options",
+    "loadingOptionsDescription": "Please wait while patients and doctors are loaded.",
+    "selectPatientTitle": "Select a patient",
+    "selectPatientDescription": "Choose a patient above to view their medical record history.",
+    "emptyTitle": "No medical records found",
+    "emptyDescription": "This patient does not have any medical records yet.",
+    "emptyPatientsTitle": "No patients available",
+    "emptyPatientsDescription": "Create a patient before adding medical records.",
+    "emptyDoctorsTitle": "No doctors available",
+    "emptyDoctorsDescription": "Create a doctor before adding medical records.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "writeForbiddenTitle": "Write access required",
+    "writeForbiddenDescription": "Only doctors and admins can create or edit medical records.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load medical record data."
+  },
+  "errors": {
+    "list": "We could not load the medical records list.",
+    "details": "We could not load this medical record.",
+    "save": "We could not save the medical record.",
+    "delete": "We could not delete the medical record.",
+    "prescriptions": "We could not load the linked prescriptions.",
+    "patients": "We could not load patient options.",
+    "doctors": "We could not load doctor options.",
+    "invalidPatient": "Select a valid patient to continue.",
+    "invalidData": "Please check the medical record details and try again.",
+    "writeForbidden": "You do not have permission to change medical records.",
+    "notFound": "The medical record could not be found."
+  },
+  "messages": {
+    "created": "Medical record created successfully.",
+    "updated": "Medical record updated successfully.",
+    "deleted": "Medical record deleted successfully."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "date": "Use YYYY-MM-DD."
+  },
+  "prescriptions": {
+    "title": "Linked prescriptions",
+    "loading": "Loading prescriptions...",
+    "empty": "No linked prescriptions were found for this record."
+  },
+  "related": {
+    "patientTitle": "Medical history",
+    "count": "{{count}} linked records",
+    "loading": "Loading medical history...",
+    "emptyTitle": "No medical history yet",
+    "emptyDescription": "Medical records will appear here after they are created."
+  }
+}

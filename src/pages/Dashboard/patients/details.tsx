@@ -7,6 +7,7 @@ import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 import RelatedAppointmentsCard from '@/pages/Dashboard/appointments/related-card';
+import RelatedMedicalRecordsCard from '@/pages/Dashboard/medical-records/related-card';
 import { useState } from 'react';
 import PatientStateCard from './state-card';
 
@@ -149,6 +150,8 @@ export default function PatientDetailsPage() {
           ))}
         </div>
       </Card>
+
+      <RelatedMedicalRecordsCard patientId={patient.id} />
 
       <RelatedAppointmentsCard patientId={patient.id} />
     </section>
