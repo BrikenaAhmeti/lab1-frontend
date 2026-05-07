@@ -1,0 +1,112 @@
+{
+  "list": {
+    "title": "Rooms",
+    "description": "Review room capacity and availability across departments.",
+    "resultsTitle": "Room records",
+    "resultsDescription": "Browse the rooms available in the hospital.",
+    "results": "{{count}} rooms available",
+    "refreshing": "Refreshing rooms..."
+  },
+  "details": {
+    "deleteConfirm": "Delete this room?",
+    "notFoundTitle": "Room not found",
+    "notFoundDescription": "This room record is no longer available."
+  },
+  "form": {
+    "createTitle": "Create room",
+    "createDescription": "Add a new hospital room.",
+    "editTitle": "Edit room",
+    "editDescription": "Update the selected room.",
+    "formTitle": "Room form",
+    "formDescription": "Fill in the room details below.",
+    "departmentPlaceholder": "Select department",
+    "typePlaceholder": "Select room type"
+  },
+  "filters": {
+    "title": "Filters",
+    "description": "Filter rooms by department, type, or availability.",
+    "allDepartments": "All departments",
+    "allTypes": "All room types"
+  },
+  "actions": {
+    "create": "Create room",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save room",
+    "update": "Update room",
+    "cancel": "Cancel",
+    "back": "Back",
+    "retry": "Try again",
+    "clear": "Clear filters",
+    "showAll": "All rooms",
+    "showAvailable": "Available only",
+    "viewDepartments": "View departments"
+  },
+  "fields": {
+    "roomNumber": "Room number",
+    "department": "Department",
+    "type": "Type",
+    "status": "Status",
+    "capacity": "Capacity",
+    "activeAdmissionsCount": "Active admissions count",
+    "availableCapacity": "Available capacity",
+    "occupiedSummary": "Occupied"
+  },
+  "labels": {
+    "noDepartment": "No department assigned.",
+    "notAvailable": "Not available",
+    "loadingDepartments": "Loading departments...",
+    "occupiedSummary": "Occupied: {{occupied}} / {{capacity}}",
+    "availableSummary": "Available: {{count}}"
+  },
+  "states": {
+    "loadingTitle": "Loading rooms",
+    "loadingDescription": "Please wait a moment.",
+    "loadingRoomTitle": "Loading room",
+    "loadingRoomDescription": "Please wait a moment.",
+    "loadingOptionsTitle": "Loading form options",
+    "loadingOptionsDescription": "Please wait while departments are loaded.",
+    "emptyTitle": "No rooms found",
+    "emptyDescription": "Create a room to get started.",
+    "emptyFilteredTitle": "No rooms match these filters",
+    "emptyFilteredDescription": "Try another filter combination or clear the filters.",
+    "emptyDepartmentsTitle": "No departments available",
+    "emptyDepartmentsDescription": "Create a department before adding rooms.",
+    "manageForbiddenTitle": "Read-only access",
+    "manageForbiddenDescription": "Only admins can create or edit rooms.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load room data."
+  },
+  "errors": {
+    "list": "We could not load the rooms list.",
+    "details": "We could not load this room.",
+    "save": "We could not save the room.",
+    "delete": "We could not delete the room.",
+    "departments": "We could not load the departments for this screen."
+  },
+  "messages": {
+    "created": "Room created successfully.",
+    "updated": "Room updated successfully.",
+    "deleted": "Room deleted successfully."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "capacity": "Capacity must be greater than 0."
+  },
+  "types": {
+    "GENERAL": "General",
+    "ICU": "ICU",
+    "SURGERY": "Surgery",
+    "EMERGENCY": "Emergency",
+    "PEDIATRIC": "Pediatric"
+  },
+  "statuses": {
+    "AVAILABLE": "Available",
+    "OCCUPIED": "Occupied",
+    "UNDER_MAINTENANCE": "Maintenance"
+  }
+}

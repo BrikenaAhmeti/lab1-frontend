@@ -22,6 +22,8 @@ import DoctorFormPage from '@/pages/Dashboard/doctors/form';
 import DepartmentsListPage from '@/pages/Dashboard/departments';
 import DepartmentDetailsPage from '@/pages/Dashboard/departments/details';
 import DepartmentFormPage from '@/pages/Dashboard/departments/form';
+import RoomsListPage from '@/pages/Dashboard/rooms';
+import RoomFormPage from '@/pages/Dashboard/rooms/form';
 import NursesListPage from '@/pages/Dashboard/nurses';
 import NurseDetailsPage from '@/pages/Dashboard/nurses/details';
 import NurseFormPage from '@/pages/Dashboard/nurses/form';
@@ -30,7 +32,7 @@ import MedicalRecordFormPage from '@/pages/Dashboard/medical-records/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
 
 const moduleRoutes = moduleNavigation
-  .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'medicalRecords', 'nurses'].includes(item.key))
+  .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'medicalRecords', 'rooms', 'nurses'].includes(item.key))
   .map((item) => ({
     path: item.path,
     element: <ModulePage moduleKey={item.key} />,
@@ -100,6 +102,14 @@ export const router = createBrowserRouter([
               { path: 'new', element: <DepartmentFormPage /> },
               { path: ':id', element: <DepartmentDetailsPage /> },
               { path: ':id/edit', element: <DepartmentFormPage /> },
+            ],
+          },
+          {
+            path: 'rooms',
+            children: [
+              { index: true, element: <RoomsListPage /> },
+              { path: 'new', element: <RoomFormPage /> },
+              { path: ':id/edit', element: <RoomFormPage /> },
             ],
           },
           {

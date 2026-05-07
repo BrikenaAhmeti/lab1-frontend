@@ -1,0 +1,112 @@
+{
+  "list": {
+    "title": "Zimmer",
+    "description": "Prüfen Sie Zimmerkapazität und Verfügbarkeit nach Abteilung.",
+    "resultsTitle": "Zimmer",
+    "resultsDescription": "Durchsuchen Sie die verfügbaren Zimmer des Krankenhauses.",
+    "results": "{{count}} Zimmer verfügbar",
+    "refreshing": "Zimmer werden aktualisiert..."
+  },
+  "details": {
+    "deleteConfirm": "Dieses Zimmer löschen?",
+    "notFoundTitle": "Zimmer nicht gefunden",
+    "notFoundDescription": "Dieser Zimmereintrag ist nicht mehr verfügbar."
+  },
+  "form": {
+    "createTitle": "Zimmer erstellen",
+    "createDescription": "Fügen Sie ein neues Krankenhauszimmer hinzu.",
+    "editTitle": "Zimmer bearbeiten",
+    "editDescription": "Aktualisieren Sie das ausgewählte Zimmer.",
+    "formTitle": "Zimmerformular",
+    "formDescription": "Füllen Sie die Zimmereingaben unten aus.",
+    "departmentPlaceholder": "Abteilung auswählen",
+    "typePlaceholder": "Zimmertyp auswählen"
+  },
+  "filters": {
+    "title": "Filter",
+    "description": "Filtern Sie Zimmer nach Abteilung, Typ oder Verfügbarkeit.",
+    "allDepartments": "Alle Abteilungen",
+    "allTypes": "Alle Zimmertypen"
+  },
+  "actions": {
+    "create": "Zimmer erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Zimmer speichern",
+    "update": "Zimmer aktualisieren",
+    "cancel": "Abbrechen",
+    "back": "Zurück",
+    "retry": "Erneut versuchen",
+    "clear": "Filter zurücksetzen",
+    "showAll": "Alle Zimmer",
+    "showAvailable": "Nur verfügbar",
+    "viewDepartments": "Abteilungen ansehen"
+  },
+  "fields": {
+    "roomNumber": "Zimmernummer",
+    "department": "Abteilung",
+    "type": "Typ",
+    "status": "Status",
+    "capacity": "Kapazität",
+    "activeAdmissionsCount": "Aktive Aufnahmen",
+    "availableCapacity": "Freie Kapazität",
+    "occupiedSummary": "Belegt"
+  },
+  "labels": {
+    "noDepartment": "Keine Abteilung zugewiesen.",
+    "notAvailable": "Nicht verfügbar",
+    "loadingDepartments": "Abteilungen werden geladen...",
+    "occupiedSummary": "Belegt: {{occupied}} / {{capacity}}",
+    "availableSummary": "Frei: {{count}}"
+  },
+  "states": {
+    "loadingTitle": "Zimmer werden geladen",
+    "loadingDescription": "Bitte warten Sie einen Moment.",
+    "loadingRoomTitle": "Zimmer wird geladen",
+    "loadingRoomDescription": "Bitte warten Sie einen Moment.",
+    "loadingOptionsTitle": "Formularoptionen werden geladen",
+    "loadingOptionsDescription": "Bitte warten Sie, während die Abteilungen geladen werden.",
+    "emptyTitle": "Keine Zimmer gefunden",
+    "emptyDescription": "Erstellen Sie ein Zimmer, um zu beginnen.",
+    "emptyFilteredTitle": "Keine Zimmer passen zu diesen Filtern",
+    "emptyFilteredDescription": "Probieren Sie andere Filter oder setzen Sie die Filter zurück.",
+    "emptyDepartmentsTitle": "Keine Abteilungen verfügbar",
+    "emptyDepartmentsDescription": "Erstellen Sie zuerst eine Abteilung, bevor Sie Zimmer hinzufügen.",
+    "manageForbiddenTitle": "Nur Lesezugriff",
+    "manageForbiddenDescription": "Nur Admins können Zimmer erstellen oder bearbeiten.",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Zugriff verweigert",
+    "forbiddenDescription": "Sie haben keine Berechtigung für diese Ressource.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDescription": "Die Zimmerdaten konnten nicht geladen werden."
+  },
+  "errors": {
+    "list": "Die Zimmerliste konnte nicht geladen werden.",
+    "details": "Dieses Zimmer konnte nicht geladen werden.",
+    "save": "Das Zimmer konnte nicht gespeichert werden.",
+    "delete": "Das Zimmer konnte nicht gelöscht werden.",
+    "departments": "Die Abteilungen für diesen Bereich konnten nicht geladen werden."
+  },
+  "messages": {
+    "created": "Zimmer erfolgreich erstellt.",
+    "updated": "Zimmer erfolgreich aktualisiert.",
+    "deleted": "Zimmer erfolgreich gelöscht."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich.",
+    "capacity": "Die Kapazität muss größer als 0 sein."
+  },
+  "types": {
+    "GENERAL": "Allgemein",
+    "ICU": "Intensivstation",
+    "SURGERY": "Chirurgie",
+    "EMERGENCY": "Notaufnahme",
+    "PEDIATRIC": "Pädiatrie"
+  },
+  "statuses": {
+    "AVAILABLE": "Verfügbar",
+    "OCCUPIED": "Belegt",
+    "UNDER_MAINTENANCE": "Wartung"
+  }
+}

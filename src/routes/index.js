@@ -22,6 +22,8 @@ import DoctorFormPage from '@/pages/Dashboard/doctors/form';
 import DepartmentsListPage from '@/pages/Dashboard/departments';
 import DepartmentDetailsPage from '@/pages/Dashboard/departments/details';
 import DepartmentFormPage from '@/pages/Dashboard/departments/form';
+import RoomsListPage from '@/pages/Dashboard/rooms';
+import RoomFormPage from '@/pages/Dashboard/rooms/form';
 import NursesListPage from '@/pages/Dashboard/nurses';
 import NurseDetailsPage from '@/pages/Dashboard/nurses/details';
 import NurseFormPage from '@/pages/Dashboard/nurses/form';
@@ -29,7 +31,7 @@ import MedicalRecordsListPage from '@/pages/Dashboard/medical-records';
 import MedicalRecordFormPage from '@/pages/Dashboard/medical-records/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
 const moduleRoutes = moduleNavigation
-    .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'medicalRecords', 'nurses'].includes(item.key))
+    .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'medicalRecords', 'rooms', 'nurses'].includes(item.key))
     .map((item) => ({
     path: item.path,
     element: _jsx(ModulePage, { moduleKey: item.key }),
@@ -98,6 +100,14 @@ export const router = createBrowserRouter([
                             { path: 'new', element: _jsx(DepartmentFormPage, {}) },
                             { path: ':id', element: _jsx(DepartmentDetailsPage, {}) },
                             { path: ':id/edit', element: _jsx(DepartmentFormPage, {}) },
+                        ],
+                    },
+                    {
+                        path: 'rooms',
+                        children: [
+                            { index: true, element: _jsx(RoomsListPage, {}) },
+                            { path: 'new', element: _jsx(RoomFormPage, {}) },
+                            { path: ':id/edit', element: _jsx(RoomFormPage, {}) },
                         ],
                     },
                     {
