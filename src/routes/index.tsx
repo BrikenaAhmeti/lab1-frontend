@@ -26,6 +26,7 @@ import RoomsListPage from '@/pages/Dashboard/rooms';
 import RoomDetailsPage from '@/pages/Dashboard/rooms/details';
 import RoomFormPage from '@/pages/Dashboard/rooms/form';
 import AdmissionsPage from '@/pages/Dashboard/admissions';
+import InvoicesPage from '@/pages/Dashboard/invoices';
 import NursesListPage from '@/pages/Dashboard/nurses';
 import NurseDetailsPage from '@/pages/Dashboard/nurses/details';
 import NurseFormPage from '@/pages/Dashboard/nurses/form';
@@ -34,7 +35,7 @@ import MedicalRecordFormPage from '@/pages/Dashboard/medical-records/form';
 import { moduleNavigation } from '@/config/moduleNavigation';
 
 const moduleRoutes = moduleNavigation
-  .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'medicalRecords', 'rooms', 'admissions', 'nurses'].includes(item.key))
+  .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'medicalRecords', 'rooms', 'admissions', 'invoices', 'nurses'].includes(item.key))
   .map((item) => ({
     path: item.path,
     element: <ModulePage moduleKey={item.key} />,
@@ -118,6 +119,10 @@ export const router = createBrowserRouter([
           {
             path: 'admissions',
             element: <AdmissionsPage />,
+          },
+          {
+            path: 'invoices',
+            element: <InvoicesPage />,
           },
           {
             path: 'nurses',

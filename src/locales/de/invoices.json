@@ -1,0 +1,92 @@
+{
+  "list": {
+    "title": "Rechnungen",
+    "description": "Verfolgen Sie Abrechnungen, Zahlungsupdates und den Gesamtumsatz.",
+    "resultsTitle": "Rechnungsliste",
+    "resultsDescription": "Prüfen Sie Rechnungen und halten Sie den Zahlungsstatus aktuell.",
+    "refreshing": "Rechnungen werden aktualisiert..."
+  },
+  "summary": {
+    "title": "Gesamtumsatz",
+    "description": "Umsatz aus dem Rechnungs-Statistikendpunkt.",
+    "loading": "Umsatz wird geladen..."
+  },
+  "filters": {
+    "title": "Filter",
+    "description": "Filtern Sie Rechnungen nach Zahlungsstatus.",
+    "statusLabel": "Status",
+    "allStatuses": "Alle Status"
+  },
+  "form": {
+    "title": "Rechnung erstellen",
+    "description": "Erstellen Sie eine neue Rechnung für einen Patienten.",
+    "submit": "Rechnung erstellen",
+    "selectPatient": "Patient auswählen"
+  },
+  "table": {
+    "id": "Rechnungs-ID",
+    "patient": "Patient",
+    "amount": "Betrag",
+    "date": "Datum",
+    "status": "Status",
+    "actions": "Aktionen",
+    "noActions": "Keine Aktionen"
+  },
+  "fields": {
+    "patient": "Patient",
+    "amount": "Betrag",
+    "date": "Datum",
+    "description": "Beschreibung"
+  },
+  "statuses": {
+    "PENDING": "Offen",
+    "PAID": "Bezahlt",
+    "CANCELLED": "Storniert"
+  },
+  "actions": {
+    "retry": "Erneut versuchen",
+    "clear": "Filter löschen",
+    "markPaid": "Als bezahlt markieren",
+    "cancel": "Rechnung stornieren"
+  },
+  "messages": {
+    "created": "Rechnung wurde erfolgreich erstellt.",
+    "paid": "Rechnung wurde als bezahlt markiert.",
+    "cancelled": "Rechnung wurde erfolgreich storniert."
+  },
+  "errors": {
+    "list": "Rechnungen konnten nicht geladen werden.",
+    "save": "Die Rechnung konnte nicht gespeichert werden.",
+    "pay": "Die Rechnung konnte nicht als bezahlt markiert werden.",
+    "cancel": "Die Rechnung konnte nicht storniert werden.",
+    "stats": "Die Umsatzübersicht konnte nicht geladen werden.",
+    "patients": "Patienten konnten nicht geladen werden."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich.",
+    "amount": "Geben Sie einen Betrag größer als 0 ein.",
+    "date": "Geben Sie ein gültiges Datum ein."
+  },
+  "states": {
+    "loadingTitle": "Rechnungen werden geladen",
+    "loadingDescription": "Bitte warten Sie, während die Rechnungsdaten geladen werden.",
+    "emptyTitle": "Noch keine Rechnungen",
+    "emptyDescription": "Erstellen Sie die erste Rechnung, um die Abrechnung zu verfolgen.",
+    "emptyFilteredTitle": "Keine Rechnungen für diesen Filter",
+    "emptyFilteredDescription": "Versuchen Sie einen anderen Status oder löschen Sie den Filter.",
+    "errorTitle": "Rechnungen konnten nicht geladen werden",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Zugriff verweigert",
+    "forbiddenDescription": "Sie haben keine Berechtigung, auf Rechnungen zuzugreifen."
+  },
+  "details": {
+    "payConfirm": "Diese Rechnung als bezahlt markieren?",
+    "cancelConfirm": "Diese Rechnung stornieren?"
+  },
+  "labels": {
+    "loadingPatients": "Patienten werden geladen...",
+    "notAvailable": "Nicht verfügbar",
+    "viewOnly": "Nur Ansicht"
+  }
+}

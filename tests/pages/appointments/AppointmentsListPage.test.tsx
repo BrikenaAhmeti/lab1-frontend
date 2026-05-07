@@ -146,7 +146,7 @@ describe('AppointmentsListPage', () => {
     expect(screen.getByText('Lena Morris')).toBeInTheDocument();
     expect(screen.getByText('Noah Stone')).toBeInTheDocument();
 
-    const cancelButtons = screen.getAllByRole('button', { name: 'actions.cancelAppointment' });
+    const cancelButtons = screen.getAllByRole('button', { name: 'Cancel Appointment' });
 
     expect(cancelButtons[0]).toBeEnabled();
     expect(cancelButtons[1]).toBeDisabled();
@@ -157,6 +157,6 @@ describe('AppointmentsListPage', () => {
       expect(cancelMock).toHaveBeenCalledWith('appointment-1');
     });
 
-    expect(screen.getByText('messages.cancelled')).toBeInTheDocument();
+    expect(screen.getByText('Appointment cancelled successfully.')).toBeInTheDocument();
   });
 });

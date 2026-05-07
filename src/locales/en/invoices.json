@@ -1,0 +1,92 @@
+{
+  "list": {
+    "title": "Invoices",
+    "description": "Track billing, payment updates, and total revenue.",
+    "resultsTitle": "Invoice list",
+    "resultsDescription": "Review invoices and keep payment status up to date.",
+    "refreshing": "Refreshing invoices..."
+  },
+  "summary": {
+    "title": "Total revenue",
+    "description": "Revenue returned from the invoices stats endpoint.",
+    "loading": "Loading revenue..."
+  },
+  "filters": {
+    "title": "Filters",
+    "description": "Filter invoices by payment status.",
+    "statusLabel": "Status",
+    "allStatuses": "All statuses"
+  },
+  "form": {
+    "title": "Create invoice",
+    "description": "Add a new invoice for a patient.",
+    "submit": "Create invoice",
+    "selectPatient": "Select a patient"
+  },
+  "table": {
+    "id": "Invoice ID",
+    "patient": "Patient",
+    "amount": "Amount",
+    "date": "Date",
+    "status": "Status",
+    "actions": "Actions",
+    "noActions": "No actions"
+  },
+  "fields": {
+    "patient": "Patient",
+    "amount": "Amount",
+    "date": "Date",
+    "description": "Description"
+  },
+  "statuses": {
+    "PENDING": "Pending",
+    "PAID": "Paid",
+    "CANCELLED": "Cancelled"
+  },
+  "actions": {
+    "retry": "Retry",
+    "clear": "Clear filter",
+    "markPaid": "Mark as paid",
+    "cancel": "Cancel invoice"
+  },
+  "messages": {
+    "created": "Invoice created successfully.",
+    "paid": "Invoice marked as paid.",
+    "cancelled": "Invoice cancelled successfully."
+  },
+  "errors": {
+    "list": "Unable to load invoices.",
+    "save": "Unable to save the invoice.",
+    "pay": "Unable to mark the invoice as paid.",
+    "cancel": "Unable to cancel the invoice.",
+    "stats": "Unable to load the revenue summary.",
+    "patients": "Unable to load patients."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "amount": "Enter an amount greater than 0.",
+    "date": "Enter a valid date."
+  },
+  "states": {
+    "loadingTitle": "Loading invoices",
+    "loadingDescription": "Please wait while invoice data is loading.",
+    "emptyTitle": "No invoices yet",
+    "emptyDescription": "Create the first invoice to start tracking billing.",
+    "emptyFilteredTitle": "No invoices match this filter",
+    "emptyFilteredDescription": "Try another status or clear the filter.",
+    "errorTitle": "Unable to load invoices",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Access denied",
+    "forbiddenDescription": "You do not have permission to access invoices."
+  },
+  "details": {
+    "payConfirm": "Mark this invoice as paid?",
+    "cancelConfirm": "Cancel this invoice?"
+  },
+  "labels": {
+    "loadingPatients": "Loading patients...",
+    "notAvailable": "Not available",
+    "viewOnly": "View only"
+  }
+}

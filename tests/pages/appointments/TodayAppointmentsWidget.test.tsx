@@ -73,11 +73,11 @@ describe('TodayAppointmentsWidget', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('widget.title')).toBeInTheDocument();
-    expect(screen.getByText('widget.countLabel')).toBeInTheDocument();
+    expect(screen.getByText("Today's appointments")).toBeInTheDocument();
+    expect(screen.getByText('Appointments today')).toBeInTheDocument();
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('Lena Morris')).toBeInTheDocument();
     expect(screen.getByText('Noah Stone')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'actions.viewToday' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: "View today's appointments" })).toBeInTheDocument();
   });
 });

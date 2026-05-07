@@ -107,23 +107,23 @@ describe('AppointmentFormPage', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByLabelText('fields.patient'), {
+    fireEvent.change(screen.getByLabelText('Patient'), {
       target: { value: 'patient-1' },
     });
-    fireEvent.change(screen.getByLabelText('fields.doctor'), {
+    fireEvent.change(screen.getByLabelText('Doctor'), {
       target: { value: 'doctor-1' },
     });
-    fireEvent.change(screen.getByLabelText('fields.date'), {
+    fireEvent.change(screen.getByLabelText('Date'), {
       target: { value: '2099-10-10' },
     });
-    fireEvent.change(screen.getByLabelText('fields.time'), {
+    fireEvent.change(screen.getByLabelText('Time'), {
       target: { value: '10:30' },
     });
-    fireEvent.change(screen.getByLabelText('fields.notes'), {
+    fireEvent.change(screen.getByLabelText('Notes'), {
       target: { value: ' Bring reports ' },
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'actions.save' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save appointment' }));
 
     await waitFor(() => {
       expect(createAppointmentMock).toHaveBeenCalledWith({
