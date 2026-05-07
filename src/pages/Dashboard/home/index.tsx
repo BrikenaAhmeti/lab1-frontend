@@ -1,27 +1,9 @@
-import { formatMoney } from '@/config/currencies';
 import { useUsers } from '@/hooks/useUsers';
+import ActiveAdmissionsWidget from '@/pages/Dashboard/admissions/active-widget';
 import TodayAppointmentsWidget from '@/pages/Dashboard/appointments/today-widget';
+import AvailableRoomsWidget from '@/pages/Dashboard/rooms/available-widget';
 import Badge from '@/ui/atoms/Badge';
 import Card from '@/ui/atoms/Card';
-
-type DashboardMetric = {
-  title: string;
-  value: string;
-  change: string;
-};
-
-const metrics: DashboardMetric[] = [
-  {
-    title: 'Available Rooms',
-    value: '18',
-    change: '12 ICU, 6 General',
-  },
-  {
-    title: 'Admitted Patients',
-    value: '76',
-    change: '+4 active admissions',
-  },
-];
 
 const Home = () => {
   const { data, isLoading, error } = useUsers();
@@ -44,22 +26,12 @@ const Home = () => {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        {metrics.map((metric) => (
-          <Card key={metric.title} className="h-full">
-            <p className="text-sm text-muted-foreground">{metric.title}</p>
-            <p className="mt-2 text-3xl font-bold text-foreground">{metric.value}</p>
-            <p className="mt-1 text-xs font-medium text-primary">{metric.change}</p>
-          </Card>
-        ))}
+        <AvailableRoomsWidget />
+        <ActiveAdmissionsWidget />
       </div>
 
       <div className="grid gap-4 xl:grid-cols-2">
         <TodayAppointmentsWidget />
-
-        <Card title="Revenue Snapshot" description="Billing activity aligned with today's admissions.">
-          <p className="text-3xl font-bold text-foreground">{formatMoney(12345.67)}</p>
-          <p className="mt-2 text-sm text-muted-foreground">Invoices and patient admissions are synchronized.</p>
-        </Card>
       </div>
 
       <Card

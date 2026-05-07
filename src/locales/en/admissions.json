@@ -1,0 +1,103 @@
+{
+  "page": {
+    "title": "Admissions",
+    "description": "Manage active stays, room assignments, and discharge flow."
+  },
+  "form": {
+    "title": "Admit patient",
+    "description": "Create a new admission using the current room capacity.",
+    "patientPlaceholder": "Select patient",
+    "patientSearchPlaceholder": "Search patients by name or phone",
+    "roomPlaceholder": "Select room",
+    "admissionDateHint": "Leave blank to use the current date."
+  },
+  "filters": {
+    "title": "Filters",
+    "description": "Filter admissions by status.",
+    "allStatuses": "All statuses"
+  },
+  "list": {
+    "title": "Admissions list",
+    "description": "Review admitted patients and discharge status.",
+    "results": "{{count}} admissions",
+    "refreshing": "Refreshing admissions..."
+  },
+  "details": {
+    "dischargeConfirm": "Discharge this patient?"
+  },
+  "actions": {
+    "create": "Admit patient",
+    "discharge": "Discharge",
+    "retry": "Try again",
+    "clear": "Clear filters",
+    "reset": "Reset",
+    "viewRoom": "View room",
+    "viewPatients": "View patients",
+    "viewRooms": "View rooms",
+    "viewActive": "View active admissions"
+  },
+  "fields": {
+    "patientSearch": "Patient search",
+    "patient": "Patient",
+    "patientName": "Patient name",
+    "room": "Room",
+    "admissionDate": "Admission date",
+    "status": "Status"
+  },
+  "labels": {
+    "notAvailable": "Not available",
+    "noDepartment": "No department assigned.",
+    "roomAvailability": "Available: {{available}} / {{capacity}}",
+    "roomFull": "Full",
+    "roomMaintenance": "Under maintenance"
+  },
+  "states": {
+    "loadingTitle": "Loading admissions",
+    "loadingDescription": "Please wait a moment.",
+    "loadingOptionsTitle": "Loading admission options",
+    "loadingOptionsDescription": "Please wait while patients and rooms are loaded.",
+    "emptyTitle": "No admissions found",
+    "emptyDescription": "Create an admission to get started.",
+    "emptyFilteredTitle": "No admissions match this filter",
+    "emptyFilteredDescription": "Try another filter or clear the filter.",
+    "emptyPatientsTitle": "No patients available",
+    "emptyPatientsDescription": "Create a patient before starting an admission.",
+    "emptyRoomsTitle": "No rooms available",
+    "emptyRoomsDescription": "Create a room before starting an admission.",
+    "noCapacityDescription": "Rooms with no capacity or under maintenance cannot be selected.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load admission data."
+  },
+  "errors": {
+    "list": "We could not load the admissions list.",
+    "save": "We could not save the admission.",
+    "discharge": "We could not discharge this patient.",
+    "patients": "We could not load the patients for this screen.",
+    "rooms": "We could not load the rooms for this screen.",
+    "active": "We could not load the active admissions."
+  },
+  "messages": {
+    "created": "Patient admitted successfully.",
+    "discharged": "Patient discharged successfully."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "date": "Enter a valid date."
+  },
+  "statuses": {
+    "ACTIVE": "Active",
+    "DISCHARGED": "Discharged"
+  },
+  "widget": {
+    "title": "Admitted patients",
+    "description": "Patients currently assigned to active admissions.",
+    "countLabel": "Active admissions",
+    "loading": "Loading active admissions...",
+    "emptyTitle": "No active admissions",
+    "emptyDescription": "There are no active admissions right now."
+  }
+}

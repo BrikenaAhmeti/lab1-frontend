@@ -10,6 +10,24 @@ export type RoomDepartment = {
   location: string;
 };
 
+export type RoomAdmissionPatient = {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+};
+
+export type RoomCurrentAdmission = {
+  id: string;
+  patientId?: string;
+  roomId?: string;
+  status?: string;
+  admissionDate?: string;
+  admittedAt?: string;
+  createdAt?: string;
+  patient?: RoomAdmissionPatient | null;
+  [key: string]: unknown;
+};
+
 export type Room = {
   id: string;
   roomNumber: string;
@@ -20,6 +38,7 @@ export type Room = {
   activeAdmissionsCount: number;
   availableCapacity: number;
   department?: RoomDepartment | null;
+  currentAdmissions?: RoomCurrentAdmission[];
   createdAt?: string;
   updatedAt?: string;
 };

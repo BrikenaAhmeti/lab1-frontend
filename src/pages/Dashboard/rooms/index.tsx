@@ -238,6 +238,13 @@ export default function RoomsListPage() {
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button
                   size="sm"
+                  variant="outline"
+                  onClick={() => navigate(`/app/rooms/${room.id}`)}
+                >
+                  {t('actions.view')}
+                </Button>
+                <Button
+                  size="sm"
                   variant="secondary"
                   onClick={() => navigate(`/app/rooms/${room.id}/edit`)}
                 >
@@ -252,7 +259,17 @@ export default function RoomsListPage() {
                   {t('actions.delete')}
                 </Button>
               </div>
-            ) : null}
+            ) : (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => navigate(`/app/rooms/${room.id}`)}
+                >
+                  {t('actions.view')}
+                </Button>
+              </div>
+            )}
           </div>
         ))}
       </div>

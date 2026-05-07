@@ -4,13 +4,19 @@
     "description": "Review room capacity and availability across departments.",
     "resultsTitle": "Room records",
     "resultsDescription": "Browse the rooms available in the hospital.",
-    "results": "{{count}} rooms available",
+    "results": "{{count}} rooms",
     "refreshing": "Refreshing rooms..."
   },
   "details": {
+    "title": "Room details",
+    "description": "Review room information and current admissions.",
     "deleteConfirm": "Delete this room?",
     "notFoundTitle": "Room not found",
-    "notFoundDescription": "This room record is no longer available."
+    "notFoundDescription": "This room record is no longer available.",
+    "currentAdmissionsTitle": "Current admissions",
+    "currentAdmissionsDescription": "{{count}} active admissions in this room.",
+    "noAdmissionsTitle": "No active admissions",
+    "noAdmissionsDescription": "There are no active admissions assigned to this room."
   },
   "form": {
     "createTitle": "Create room",
@@ -30,6 +36,7 @@
   },
   "actions": {
     "create": "Create room",
+    "view": "View",
     "edit": "Edit",
     "delete": "Delete",
     "save": "Save room",
@@ -40,17 +47,21 @@
     "clear": "Clear filters",
     "showAll": "All rooms",
     "showAvailable": "Available only",
-    "viewDepartments": "View departments"
+    "viewDepartments": "View departments",
+    "viewDepartment": "View department",
+    "viewAvailable": "View available rooms"
   },
   "fields": {
     "roomNumber": "Room number",
     "department": "Department",
+    "departmentLocation": "Department location",
     "type": "Type",
     "status": "Status",
     "capacity": "Capacity",
     "activeAdmissionsCount": "Active admissions count",
     "availableCapacity": "Available capacity",
-    "occupiedSummary": "Occupied"
+    "occupiedSummary": "Occupied",
+    "admissionDate": "Admission date"
   },
   "labels": {
     "noDepartment": "No department assigned.",
@@ -86,7 +97,8 @@
     "details": "We could not load this room.",
     "save": "We could not save the room.",
     "delete": "We could not delete the room.",
-    "departments": "We could not load the departments for this screen."
+    "departments": "We could not load the departments for this screen.",
+    "available": "We could not load the available rooms."
   },
   "messages": {
     "created": "Room created successfully.",
@@ -108,5 +120,13 @@
     "AVAILABLE": "Available",
     "OCCUPIED": "Occupied",
     "UNDER_MAINTENANCE": "Maintenance"
+  },
+  "widget": {
+    "title": "Available rooms",
+    "description": "Current room capacity that can still accept admissions.",
+    "countLabel": "Rooms ready for admission",
+    "loading": "Loading available rooms...",
+    "emptyTitle": "No available rooms",
+    "emptyDescription": "All rooms are currently full or unavailable."
   }
 }

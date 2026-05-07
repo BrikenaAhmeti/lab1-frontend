@@ -4,13 +4,19 @@
     "description": "Prüfen Sie Zimmerkapazität und Verfügbarkeit nach Abteilung.",
     "resultsTitle": "Zimmer",
     "resultsDescription": "Durchsuchen Sie die verfügbaren Zimmer des Krankenhauses.",
-    "results": "{{count}} Zimmer verfügbar",
+    "results": "{{count}} Zimmer",
     "refreshing": "Zimmer werden aktualisiert..."
   },
   "details": {
+    "title": "Zimmerdetails",
+    "description": "Prüfen Sie Zimmerinformationen und aktuelle Aufnahmen.",
     "deleteConfirm": "Dieses Zimmer löschen?",
     "notFoundTitle": "Zimmer nicht gefunden",
-    "notFoundDescription": "Dieser Zimmereintrag ist nicht mehr verfügbar."
+    "notFoundDescription": "Dieser Zimmereintrag ist nicht mehr verfügbar.",
+    "currentAdmissionsTitle": "Aktuelle Aufnahmen",
+    "currentAdmissionsDescription": "{{count}} aktive Aufnahmen in diesem Zimmer.",
+    "noAdmissionsTitle": "Keine aktiven Aufnahmen",
+    "noAdmissionsDescription": "Diesem Zimmer sind derzeit keine aktiven Aufnahmen zugeordnet."
   },
   "form": {
     "createTitle": "Zimmer erstellen",
@@ -30,6 +36,7 @@
   },
   "actions": {
     "create": "Zimmer erstellen",
+    "view": "Ansehen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
     "save": "Zimmer speichern",
@@ -40,17 +47,21 @@
     "clear": "Filter zurücksetzen",
     "showAll": "Alle Zimmer",
     "showAvailable": "Nur verfügbar",
-    "viewDepartments": "Abteilungen ansehen"
+    "viewDepartments": "Abteilungen ansehen",
+    "viewDepartment": "Abteilung ansehen",
+    "viewAvailable": "Verfügbare Zimmer ansehen"
   },
   "fields": {
     "roomNumber": "Zimmernummer",
     "department": "Abteilung",
+    "departmentLocation": "Standort der Abteilung",
     "type": "Typ",
     "status": "Status",
     "capacity": "Kapazität",
     "activeAdmissionsCount": "Aktive Aufnahmen",
     "availableCapacity": "Freie Kapazität",
-    "occupiedSummary": "Belegt"
+    "occupiedSummary": "Belegt",
+    "admissionDate": "Aufnahmedatum"
   },
   "labels": {
     "noDepartment": "Keine Abteilung zugewiesen.",
@@ -86,7 +97,8 @@
     "details": "Dieses Zimmer konnte nicht geladen werden.",
     "save": "Das Zimmer konnte nicht gespeichert werden.",
     "delete": "Das Zimmer konnte nicht gelöscht werden.",
-    "departments": "Die Abteilungen für diesen Bereich konnten nicht geladen werden."
+    "departments": "Die Abteilungen für diesen Bereich konnten nicht geladen werden.",
+    "available": "Die verfügbaren Zimmer konnten nicht geladen werden."
   },
   "messages": {
     "created": "Zimmer erfolgreich erstellt.",
@@ -108,5 +120,13 @@
     "AVAILABLE": "Verfügbar",
     "OCCUPIED": "Belegt",
     "UNDER_MAINTENANCE": "Wartung"
+  },
+  "widget": {
+    "title": "Verfügbare Zimmer",
+    "description": "Aktuelle Zimmerkapazität für neue Aufnahmen.",
+    "countLabel": "Zimmer bereit für Aufnahmen",
+    "loading": "Verfügbare Zimmer werden geladen...",
+    "emptyTitle": "Keine verfügbaren Zimmer",
+    "emptyDescription": "Alle Zimmer sind derzeit voll oder nicht verfügbar."
   }
 }

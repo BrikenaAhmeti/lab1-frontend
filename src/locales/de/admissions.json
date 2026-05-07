@@ -1,0 +1,103 @@
+{
+  "page": {
+    "title": "Aufnahmen",
+    "description": "Verwalten Sie aktive Aufenthalte, Zimmerzuweisungen und Entlassungen."
+  },
+  "form": {
+    "title": "Patient aufnehmen",
+    "description": "Erstellen Sie eine neue Aufnahme anhand der aktuellen Zimmerkapazität.",
+    "patientPlaceholder": "Patient auswählen",
+    "patientSearchPlaceholder": "Patienten nach Name oder Telefon suchen",
+    "roomPlaceholder": "Zimmer auswählen",
+    "admissionDateHint": "Leer lassen, um das aktuelle Datum zu verwenden."
+  },
+  "filters": {
+    "title": "Filter",
+    "description": "Filtern Sie Aufnahmen nach Status.",
+    "allStatuses": "Alle Status"
+  },
+  "list": {
+    "title": "Aufnahmeliste",
+    "description": "Prüfen Sie aufgenommene Patienten und Entlassungsstatus.",
+    "results": "{{count}} Aufnahmen",
+    "refreshing": "Aufnahmen werden aktualisiert..."
+  },
+  "details": {
+    "dischargeConfirm": "Diesen Patienten entlassen?"
+  },
+  "actions": {
+    "create": "Patient aufnehmen",
+    "discharge": "Entlassen",
+    "retry": "Erneut versuchen",
+    "clear": "Filter zurücksetzen",
+    "reset": "Zurücksetzen",
+    "viewRoom": "Zimmer ansehen",
+    "viewPatients": "Patienten ansehen",
+    "viewRooms": "Zimmer ansehen",
+    "viewActive": "Aktive Aufnahmen ansehen"
+  },
+  "fields": {
+    "patientSearch": "Patientensuche",
+    "patient": "Patient",
+    "patientName": "Patientenname",
+    "room": "Zimmer",
+    "admissionDate": "Aufnahmedatum",
+    "status": "Status"
+  },
+  "labels": {
+    "notAvailable": "Nicht verfügbar",
+    "noDepartment": "Keine Abteilung zugewiesen.",
+    "roomAvailability": "Frei: {{available}} / {{capacity}}",
+    "roomFull": "Voll",
+    "roomMaintenance": "In Wartung"
+  },
+  "states": {
+    "loadingTitle": "Aufnahmen werden geladen",
+    "loadingDescription": "Bitte warten Sie einen Moment.",
+    "loadingOptionsTitle": "Aufnahmeoptionen werden geladen",
+    "loadingOptionsDescription": "Bitte warten Sie, während Patienten und Zimmer geladen werden.",
+    "emptyTitle": "Keine Aufnahmen gefunden",
+    "emptyDescription": "Erstellen Sie eine Aufnahme, um zu beginnen.",
+    "emptyFilteredTitle": "Keine Aufnahmen passen zu diesem Filter",
+    "emptyFilteredDescription": "Probieren Sie einen anderen Filter oder setzen Sie den Filter zurück.",
+    "emptyPatientsTitle": "Keine Patienten verfügbar",
+    "emptyPatientsDescription": "Erstellen Sie zuerst einen Patienten, bevor Sie eine Aufnahme starten.",
+    "emptyRoomsTitle": "Keine Zimmer verfügbar",
+    "emptyRoomsDescription": "Erstellen Sie zuerst ein Zimmer, bevor Sie eine Aufnahme starten.",
+    "noCapacityDescription": "Zimmer ohne Kapazität oder in Wartung können nicht ausgewählt werden.",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Zugriff verweigert",
+    "forbiddenDescription": "Sie haben keine Berechtigung für diese Ressource.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDescription": "Die Aufnahmedaten konnten nicht geladen werden."
+  },
+  "errors": {
+    "list": "Die Aufnahmeliste konnte nicht geladen werden.",
+    "save": "Die Aufnahme konnte nicht gespeichert werden.",
+    "discharge": "Der Patient konnte nicht entlassen werden.",
+    "patients": "Die Patienten für diesen Bereich konnten nicht geladen werden.",
+    "rooms": "Die Zimmer für diesen Bereich konnten nicht geladen werden.",
+    "active": "Die aktiven Aufnahmen konnten nicht geladen werden."
+  },
+  "messages": {
+    "created": "Patient erfolgreich aufgenommen.",
+    "discharged": "Patient erfolgreich entlassen."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich.",
+    "date": "Geben Sie ein gültiges Datum ein."
+  },
+  "statuses": {
+    "ACTIVE": "Aktiv",
+    "DISCHARGED": "Entlassen"
+  },
+  "widget": {
+    "title": "Aufgenommene Patienten",
+    "description": "Patienten mit aktuell aktiven Aufnahmen.",
+    "countLabel": "Aktive Aufnahmen",
+    "loading": "Aktive Aufnahmen werden geladen...",
+    "emptyTitle": "Keine aktiven Aufnahmen",
+    "emptyDescription": "Zurzeit gibt es keine aktiven Aufnahmen."
+  }
+}
