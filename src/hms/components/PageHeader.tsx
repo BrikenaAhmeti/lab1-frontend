@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 
 type PageHeaderProps = {
   title: string;
@@ -6,7 +6,7 @@ type PageHeaderProps = {
   action?: ReactNode;
 };
 
-export default function PageHeader({ title, description, action }: PageHeaderProps) {
+function PageHeader({ title, description, action }: PageHeaderProps) {
   return (
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div className="max-w-2xl">
@@ -17,3 +17,5 @@ export default function PageHeader({ title, description, action }: PageHeaderPro
     </div>
   );
 }
+
+export default memo(PageHeader);

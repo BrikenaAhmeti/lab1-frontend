@@ -8,7 +8,7 @@ import { commonCopy } from '../copy';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { formatPersonName } from '../lib/utils';
-import { moduleConfigs, moduleOrder } from '../modules';
+import { moduleOrder, moduleRouteMeta } from '../module-meta';
 
 export default function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -57,7 +57,7 @@ export default function AppLayout() {
             {moduleOrder.map((key) => (
               <NavLink
                 key={key}
-                to={`/${moduleConfigs[key].path}`}
+                to={`/${moduleRouteMeta[key].path}`}
                 className={({ isActive }) =>
                   clsx(
                     'block rounded-2xl px-4 py-3 text-sm font-medium transition',
@@ -66,7 +66,7 @@ export default function AppLayout() {
                 }
                 onClick={closeSidebar}
               >
-                {t(moduleConfigs[key].label)}
+                {t(moduleRouteMeta[key].label)}
               </NavLink>
             ))}
           </nav>

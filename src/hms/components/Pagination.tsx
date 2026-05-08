@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import Button from '@/ui/atoms/Button';
 import Select from '@/ui/atoms/Select';
 import { commonCopy } from '../copy';
@@ -13,7 +14,7 @@ type PaginationProps = {
   onLimitChange: (limit: number) => void;
 };
 
-export default function Pagination({
+function Pagination({
   page,
   totalPages,
   total,
@@ -68,3 +69,5 @@ export default function Pagination({
     </div>
   );
 }
+
+export default memo(Pagination);

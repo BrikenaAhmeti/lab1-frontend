@@ -5,6 +5,7 @@ export default function AuthHero() {
         <img
           src="/images/auth/auth-container.png"
           alt="HotelWorld AI"
+          loading="lazy"
           className="h-full w-full object-cover"
         />
 

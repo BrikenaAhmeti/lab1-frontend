@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import Button from '@/ui/atoms/Button';
@@ -85,31 +85,37 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const sortBy = searchParams.get('sortBy') || config.defaultSortBy;
   const order = (searchParams.get('order') as SortOrder | null) || config.defaultOrder || 'DESC';
 
-  const filterValues = config.filters.reduce<Record<string, string>>((values, filter) => {
-    values[filter.name] = searchParams.get(filter.name) || '';
-    return values;
-  }, {});
+  const filterValues = useMemo(
+    () => {
+      const params = new URLSearchParams(searchParamsKey);
+
+      return config.filters.reduce<Record<string, string>>((values, filter) => {
+        values[filter.name] = params.get(filter.name) || '';
+        return values;
+      }, {});
+    },
+    [config.filters, searchParamsKey]
+  );
 
   useEffect(() => {
-    const nextFilters = config.filters.reduce<Record<string, string>>((values, filter) => {
-      values[filter.name] = searchParams.get(filter.name) || '';
-      return values;
-    }, {});
+    setDraftFilters(filterValues);
+  }, [filterValues, moduleKey]);
 
-    setDraftFilters(nextFilters);
-  }, [config.filters, moduleKey, searchParams, searchParamsKey]);
-
-  const listParams = {
-    page,
-    limit,
-    sortBy,
-    order,
-    ...Object.fromEntries(Object.entries(filterValues).filter(([, value]) => value)),
-  };
+  const listParams = useMemo(
+    () => ({
+      page,
+      limit,
+      sortBy,
+      order,
+      ...Object.fromEntries(Object.entries(filterValues).filter(([, value]) => value)),
+    }),
+    [filterValues, limit, order, page, sortBy]
+  );
 
   const listQuery = useQuery({
     queryKey: [moduleKey, listParams],
     queryFn: () => config.service.list(listParams),
+    staleTime: 30_000,
   });
 
   useEffect(() => {
@@ -130,9 +136,10 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     queryKey: [moduleKey, 'detail', formState.item?.id],
     queryFn: () => config.service.get(String(formState.item?.id)),
     enabled: formState.open && formState.mode === 'edit' && Boolean(formState.item?.id),
+    staleTime: 30_000,
   });
 
-  const referenceKeys = getReferenceOptions(moduleKey);
+  const referenceKeys = useMemo(() => getReferenceOptions(moduleKey), [moduleKey]);
   const referenceQueries = useQueries({
     queries: referenceKeys.map((key) => ({
       queryKey: ['reference', key],
@@ -156,15 +163,20 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
           label: referenceConfig.getLabel(item),
         }));
       },
+      staleTime: 5 * 60_000,
     })),
   });
 
-  const references = referenceKeys.reduce<Record<string, ReferenceOption[]>>((values, key, index) => {
-    values[key] = ((referenceQueries[index]?.data || []) as ReferenceOption[]).filter(
-      (option: ReferenceOption) => option.label
-    );
-    return values;
-  }, {});
+  const references = useMemo(
+    () =>
+      referenceKeys.reduce<Record<string, ReferenceOption[]>>((values, key, index) => {
+        values[key] = ((referenceQueries[index]?.data || []) as ReferenceOption[]).filter(
+          (option: ReferenceOption) => option.label
+        );
+        return values;
+      }, {}),
+    [referenceKeys, referenceQueries]
+  );
 
   const saveMutation = useMutation({
     mutationFn: async (values: any) => {
@@ -218,41 +230,84 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
 
   const currentItem = formState.mode === 'edit' ? detailQuery.data || formState.item : formState.item;
 
-  const openCreateModal = () => {
+  const openCreateModal = useCallback(() => {
     setFormState({ open: true, mode: 'create', item: null });
-  };
+  }, []);
 
-  const openEditModal = (item: any) => {
+  const openEditModal = useCallback((item: any) => {
     setFormState({ open: true, mode: 'edit', item });
-  };
+  }, []);
 
-  const submitFilters = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const updateSearchParams = useCallback(
+    (values: Record<string, string | number | null>) => {
+      setSearchParams(buildNextSearchParams(searchParams, values));
+    },
+    [searchParams, setSearchParams]
+  );
 
-    setSearchParams(
-      buildNextSearchParams(searchParams, {
+  const submitFilters = useCallback(
+    (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
+
+      updateSearchParams({
         page: 1,
         ...Object.fromEntries(
           Object.entries(draftFilters).map(([key, value]) => [key, value.trim() ? value.trim() : null])
         ),
-      })
-    );
-  };
+      });
+    },
+    [draftFilters, updateSearchParams]
+  );
 
-  const clearFilters = () => {
+  const clearFilters = useCallback(() => {
     const cleared = config.filters.reduce<Record<string, string>>((values, filter) => {
       values[filter.name] = '';
       return values;
     }, {});
 
     setDraftFilters(cleared);
-    setSearchParams(
-      buildNextSearchParams(searchParams, {
+    updateSearchParams({
+      page: 1,
+      ...Object.fromEntries(config.filters.map((filter) => [filter.name, null])),
+    });
+  }, [config.filters, updateSearchParams]);
+
+  const renderActions = useCallback(
+    (item: any) => (
+      <div className="flex flex-wrap gap-2">
+        {can(config.permissions?.edit) ? (
+          <Button size="sm" variant="outline" onClick={() => openEditModal(item)}>
+            {t(commonCopy.edit)}
+          </Button>
+        ) : null}
+        {can(config.permissions?.delete) ? (
+          <Button size="sm" variant="danger" onClick={() => setDeleteItem(item)}>
+            {t(commonCopy.delete)}
+          </Button>
+        ) : null}
+      </div>
+    ),
+    [can, config.permissions?.delete, config.permissions?.edit, openEditModal, t]
+  );
+
+  const handlePageChange = useCallback(
+    (nextPage: number) => {
+      updateSearchParams({
+        page: nextPage,
+      });
+    },
+    [updateSearchParams]
+  );
+
+  const handleLimitChange = useCallback(
+    (nextLimit: number) => {
+      updateSearchParams({
+        limit: nextLimit,
         page: 1,
-        ...Object.fromEntries(config.filters.map((filter) => [filter.name, null])),
-      })
-    );
-  };
+      });
+    },
+    [updateSearchParams]
+  );
 
   const hasForbiddenError = listQuery.error && (listQuery.error as any)?.response?.status === 403;
   const hasUnauthorizedError = listQuery.error && (listQuery.error as any)?.response?.status === 401;
@@ -324,12 +379,10 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
             label={t(commonCopy.sortBy)}
             value={sortBy}
             onChange={(event) =>
-              setSearchParams(
-                buildNextSearchParams(searchParams, {
-                  sortBy: event.target.value,
-                  page: 1,
-                })
-              )
+              updateSearchParams({
+                sortBy: event.target.value,
+                page: 1,
+              })
             }
           >
             {config.sortOptions.map((sortOption) => (
@@ -343,12 +396,10 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
             label={t(commonCopy.order)}
             value={order}
             onChange={(event) =>
-              setSearchParams(
-                buildNextSearchParams(searchParams, {
-                  order: event.target.value,
-                  page: 1,
-                })
-              )
+              updateSearchParams({
+                order: event.target.value,
+                page: 1,
+              })
             }
           >
             <option value="ASC">{t(commonCopy.ascending)}</option>
@@ -390,20 +441,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
               rows={listQuery.data?.data || []}
               columns={config.columns}
               loading={listQuery.isLoading}
-              actions={(item) => (
-                <div className="flex flex-wrap gap-2">
-                  {can(config.permissions?.edit) ? (
-                    <Button size="sm" variant="outline" onClick={() => openEditModal(item)}>
-                      {t(commonCopy.edit)}
-                    </Button>
-                  ) : null}
-                  {can(config.permissions?.delete) ? (
-                    <Button size="sm" variant="danger" onClick={() => setDeleteItem(item)}>
-                      {t(commonCopy.delete)}
-                    </Button>
-                  ) : null}
-                </div>
-              )}
+              actions={renderActions}
             />
           </Card>
 
@@ -413,21 +451,8 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
             total={listQuery.data?.total || 0}
             limit={limit}
             limitOptions={config.listPageSizeOptions || [10, 20, 50]}
-            onPageChange={(nextPage) =>
-              setSearchParams(
-                buildNextSearchParams(searchParams, {
-                  page: nextPage,
-                })
-              )
-            }
-            onLimitChange={(nextLimit) =>
-              setSearchParams(
-                buildNextSearchParams(searchParams, {
-                  limit: nextLimit,
-                  page: 1,
-                })
-              )
-            }
+            onPageChange={handlePageChange}
+            onLimitChange={handleLimitChange}
           />
         </>
       )}

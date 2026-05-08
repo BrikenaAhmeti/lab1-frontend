@@ -30,6 +30,7 @@ export default function SignInPage() {
           src="/assets/admin/header-icon.svg"
           className="h-10 w-auto object-contain"
           alt="HotelWorld AI"
+          loading="lazy"
         />
       </div>
 

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import type { ColumnConfig } from '../types';
 import { commonCopy } from '../copy';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -10,7 +10,7 @@ type DataTableProps = {
   actions?: (item: any) => ReactNode;
 };
 
-export default function DataTable({ rows, columns, loading = false, actions }: DataTableProps) {
+function DataTable({ rows, columns, loading = false, actions }: DataTableProps) {
   const { language, t } = useLanguage();
 
   if (loading) {
@@ -54,3 +54,5 @@ export default function DataTable({ rows, columns, loading = false, actions }: D
     </div>
   );
 }
+
+export default memo(DataTable);

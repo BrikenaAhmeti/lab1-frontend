@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Card from '@/ui/atoms/Card';
 import { commonCopy } from '../copy';
@@ -6,6 +7,18 @@ import { fetchArrayWithFallback } from '../lib/api';
 import { formatDate, formatPersonName, getValue } from '../lib/utils';
 import EmptyState from '../components/EmptyState';
 import PageHeader from '../components/PageHeader';
+
+const DASHBOARD_QUERY_STALE_TIME = 60_000;
+
+const LoadingList = memo(function LoadingList() {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="h-16 animate-pulse rounded-2xl bg-muted" />
+      ))}
+    </div>
+  );
+});
 
 async function getTodayAppointments() {
   return fetchArrayWithFallback(['/api/dashboard/appointments/today', '/api/appointments/today']);
@@ -24,30 +37,36 @@ export default function DashboardPage() {
   const todayAppointments = useQuery({
     queryKey: ['dashboard', 'appointments-today'],
     queryFn: getTodayAppointments,
+    staleTime: DASHBOARD_QUERY_STALE_TIME,
   });
   const availableRooms = useQuery({
     queryKey: ['dashboard', 'available-rooms'],
     queryFn: getAvailableRooms,
+    staleTime: DASHBOARD_QUERY_STALE_TIME,
   });
   const activeAdmissions = useQuery({
     queryKey: ['dashboard', 'active-admissions'],
     queryFn: getActiveAdmissions,
+    staleTime: DASHBOARD_QUERY_STALE_TIME,
   });
 
-  const summaryCards = [
-    {
-      title: t(commonCopy.todayAppointments),
-      value: todayAppointments.data?.length ?? 0,
-    },
-    {
-      title: t(commonCopy.availableRooms),
-      value: availableRooms.data?.length ?? 0,
-    },
-    {
-      title: t(commonCopy.activeAdmissions),
-      value: activeAdmissions.data?.length ?? 0,
-    },
-  ];
+  const summaryCards = useMemo(
+    () => [
+      {
+        title: t(commonCopy.todayAppointments),
+        value: todayAppointments.data?.length ?? 0,
+      },
+      {
+        title: t(commonCopy.availableRooms),
+        value: availableRooms.data?.length ?? 0,
+      },
+      {
+        title: t(commonCopy.activeAdmissions),
+        value: activeAdmissions.data?.length ?? 0,
+      },
+    ],
+    [activeAdmissions.data?.length, availableRooms.data?.length, t, todayAppointments.data?.length]
+  );
 
   return (
     <div className="space-y-6">
@@ -64,11 +83,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 xl:grid-cols-3">
         <Card title={t(commonCopy.todayAppointments)}>
           {todayAppointments.isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="h-16 animate-pulse rounded-2xl bg-muted" />
-              ))}
-            </div>
+            <LoadingList />
           ) : todayAppointments.data?.length ? (
             <div className="space-y-3">
               {todayAppointments.data.map((appointment: any) => (
@@ -93,11 +108,7 @@ export default function DashboardPage() {
 
         <Card title={t(commonCopy.availableRooms)}>
           {availableRooms.isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="h-16 animate-pulse rounded-2xl bg-muted" />
-              ))}
-            </div>
+            <LoadingList />
           ) : availableRooms.data?.length ? (
             <div className="space-y-3">
               {availableRooms.data.map((room: any) => (
@@ -119,11 +130,7 @@ export default function DashboardPage() {
 
         <Card title={t(commonCopy.activeAdmissions)}>
           {activeAdmissions.isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, index) => (
-                <div key={index} className="h-16 animate-pulse rounded-2xl bg-muted" />
-              ))}
-            </div>
+            <LoadingList />
           ) : activeAdmissions.data?.length ? (
             <div className="space-y-3">
               {activeAdmissions.data.map((admission: any) => (

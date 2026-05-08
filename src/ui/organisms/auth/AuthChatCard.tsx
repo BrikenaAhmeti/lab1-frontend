@@ -10,6 +10,7 @@ export default function AuthChatCard() {
             alt="agent"
             className="w-10 h-10 rounded-full object-cover"
             src="/assets/agents/sage-agent-icon.svg"
+            loading="lazy"
           />
           <div className="font-semibold text-lg">
             Leo <span className="font-normal opacity-90">— AI Search Engine</span>

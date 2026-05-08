@@ -52,6 +52,7 @@ export default function DesignSystemPage() {
               <img
                 src="/medsphere-logo.png"
                 alt="Medsphere logo"
+                loading="lazy"
                 className="mx-auto h-auto w-full max-w-60 object-contain"
               />
               <div className="mt-4 space-y-2">
