@@ -19,7 +19,10 @@ export default function AppLayout() {
   const activeNavigation = useMemo(
     () =>
       moduleNavigation.find(
-        (item) => location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)
+        (item) =>
+          item.to === '/app'
+            ? location.pathname === item.to
+            : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)
       ),
     [location.pathname]
   );
@@ -81,7 +84,7 @@ export default function AppLayout() {
                   <NavLink
                     key={item.to}
                     to={item.to}
-                    end
+                    end={item.to === '/app'}
                     className={({ isActive }) =>
                       clsx(
                         'block rounded-xl border px-3.5 py-3 text-sm font-semibold transition-colors',

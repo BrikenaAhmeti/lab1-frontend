@@ -1,0 +1,93 @@
+{
+  "list": {
+    "title": "Prescriptions",
+    "description": "Manage prescriptions linked to patient medical records.",
+    "resultsTitle": "Prescription records",
+    "resultsDescription": "Select a patient and medical record to review prescriptions.",
+    "refreshing": "Refreshing prescriptions..."
+  },
+  "filters": {
+    "title": "Medical record selection",
+    "description": "Choose a patient and one of their medical records before managing prescriptions.",
+    "patientPlaceholder": "Select patient",
+    "recordPlaceholder": "Select medical record",
+    "patientSearchPlaceholder": "Search patients by name"
+  },
+  "form": {
+    "createTitle": "Create prescription",
+    "editTitle": "Edit prescription",
+    "description": "Fill in the prescription details below.",
+    "instructionsPlaceholder": "Add instructions if needed"
+  },
+  "actions": {
+    "create": "Create prescription",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save prescription",
+    "update": "Update prescription",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "viewPatient": "View patient",
+    "viewRecords": "View records"
+  },
+  "fields": {
+    "patientSearch": "Patient search",
+    "patient": "Patient",
+    "record": "Medical record",
+    "medicine": "Medicine",
+    "dosage": "Dosage",
+    "duration": "Duration",
+    "instructions": "Instructions",
+    "diagnosis": "Diagnosis",
+    "recordDate": "Record date",
+    "updatedAt": "Updated at"
+  },
+  "labels": {
+    "loadingPatients": "Loading patients...",
+    "loadingRecords": "Loading medical records...",
+    "noInstructions": "No instructions added.",
+    "notAvailable": "Not available",
+    "viewOnly": "View only"
+  },
+  "states": {
+    "selectPatientTitle": "Select a patient",
+    "selectPatientDescription": "Choose a patient above to load their medical records.",
+    "selectRecordTitle": "Select a medical record",
+    "selectRecordDescription": "Choose a medical record to review and manage prescriptions.",
+    "loadingTitle": "Loading prescriptions",
+    "loadingDescription": "Please wait a moment.",
+    "emptyTitle": "No prescriptions found",
+    "emptyDescription": "This medical record does not have any prescriptions yet.",
+    "emptyRecordsTitle": "No medical records found",
+    "emptyRecordsDescription": "Create a medical record before adding prescriptions.",
+    "unauthorizedTitle": "Unauthorized",
+    "unauthorizedDescription": "Your session is not authorized for this request.",
+    "forbiddenTitle": "Forbidden",
+    "forbiddenDescription": "You do not have permission to access this resource.",
+    "writeForbiddenTitle": "Write access required",
+    "writeForbiddenDescription": "Only doctors and admins can create or edit prescriptions.",
+    "errorTitle": "Something went wrong",
+    "errorDescription": "We could not load prescription data."
+  },
+  "errors": {
+    "list": "We could not load the prescriptions list.",
+    "save": "We could not save the prescription.",
+    "delete": "We could not delete the prescription.",
+    "patients": "We could not load patient options.",
+    "records": "We could not load medical record options.",
+    "invalidData": "Please check the prescription details and try again.",
+    "notFound": "The prescription or medical record could not be found.",
+    "writeForbidden": "You do not have permission to change prescriptions."
+  },
+  "messages": {
+    "created": "Prescription created successfully.",
+    "updated": "Prescription updated successfully.",
+    "deleted": "Prescription deleted successfully."
+  },
+  "validation": {
+    "required": "This field is required."
+  },
+  "details": {
+    "deleteConfirm": "Delete this prescription?"
+  }
+}

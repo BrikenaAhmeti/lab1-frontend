@@ -1,0 +1,53 @@
+{
+  "title": "Krankenhaus-Dashboard",
+  "description": "Überwachen Sie wichtige Krankenhausaktivitäten mit Live-Betriebsdaten.",
+  "badge": "Live-Übersicht",
+  "summary": {
+    "appointmentsToday": "Termine heute",
+    "availableRooms": "Verfügbare Zimmer",
+    "admittedPatients": "Aufgenommene Patienten",
+    "totalPatients": "Patienten gesamt",
+    "totalDoctors": "Ärzte gesamt",
+    "pendingInvoices": "Offene Rechnungssumme",
+    "loading": "Wird geladen...",
+    "unavailable": "Nicht verfügbar",
+    "error": "Die Dashboard-Zusammenfassung konnte nicht geladen werden."
+  },
+  "sections": {
+    "appointmentsTitle": "Termine heute",
+    "appointmentsDescription": "Geplante Besuche aus dem Dashboard-Service.",
+    "admissionsTitle": "Aktive Aufnahmen",
+    "admissionsDescription": "Patienten, die aktuell im Krankenhaus aufgenommen sind.",
+    "refreshing": "Dashboard-Daten werden aktualisiert..."
+  },
+  "actions": {
+    "retry": "Erneut versuchen",
+    "viewAppointments": "Termine ansehen",
+    "viewAdmissions": "Aufnahmen ansehen",
+    "viewPatients": "Patienten ansehen"
+  },
+  "fields": {
+    "time": "Uhrzeit",
+    "patient": "Patient",
+    "doctor": "Arzt",
+    "specialization": "Fachgebiet",
+    "status": "Status",
+    "room": "Zimmer",
+    "department": "Abteilung",
+    "admittedOn": "Aufgenommen am",
+    "daysAdmitted": "Aufnahmetage"
+  },
+  "states": {
+    "loading": "Dashboard-Daten werden geladen...",
+    "appointmentsEmptyTitle": "Keine Termine für heute",
+    "appointmentsEmptyDescription": "Der heutige Plan ist aktuell frei.",
+    "admissionsEmptyTitle": "Keine aktiven Aufnahmen",
+    "admissionsEmptyDescription": "Zurzeit gibt es keine aktiven Aufnahmen.",
+    "appointmentsError": "Die heutigen Termine konnten nicht geladen werden.",
+    "admissionsError": "Die aktiven Aufnahmen konnten nicht geladen werden."
+  },
+  "labels": {
+    "notAvailable": "Nicht verfügbar",
+    "days": "{{count}} Tage"
+  }
+}

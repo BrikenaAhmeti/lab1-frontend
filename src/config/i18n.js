@@ -17,12 +17,16 @@ import enAppointments from '@/locales/en/appointments.json';
 import deAppointments from '@/locales/de/appointments.json';
 import enMedicalRecords from '@/locales/en/medical-records.json';
 import deMedicalRecords from '@/locales/de/medical-records.json';
+import enPrescriptions from '@/locales/en/prescriptions.json';
+import dePrescriptions from '@/locales/de/prescriptions.json';
 import enRooms from '@/locales/en/rooms.json';
 import deRooms from '@/locales/de/rooms.json';
 import enAdmissions from '@/locales/en/admissions.json';
 import deAdmissions from '@/locales/de/admissions.json';
 import enInvoices from '@/locales/en/invoices.json';
 import deInvoices from '@/locales/de/invoices.json';
+import enDashboard from '@/locales/en/dashboard.json';
+import deDashboard from '@/locales/de/dashboard.json';
 const resources = {
     en: {
         common: enCommon,
@@ -33,9 +37,11 @@ const resources = {
         nurses: enNurses,
         appointments: enAppointments,
         medicalRecords: enMedicalRecords,
+        prescriptions: enPrescriptions,
         rooms: enRooms,
         admissions: enAdmissions,
         invoices: enInvoices,
+        dashboard: enDashboard,
     },
     de: {
         common: deCommon,
@@ -46,9 +52,11 @@ const resources = {
         nurses: deNurses,
         appointments: deAppointments,
         medicalRecords: deMedicalRecords,
+        prescriptions: dePrescriptions,
         rooms: deRooms,
         admissions: deAdmissions,
         invoices: deInvoices,
+        dashboard: deDashboard,
     },
 };
 i18n
@@ -58,7 +66,7 @@ i18n
     resources,
     fallbackLng: 'en',
     supportedLngs: ['en', 'de'],
-    ns: ['common', 'transactions', 'patients', 'doctors', 'departments', 'nurses', 'appointments', 'medicalRecords', 'rooms', 'admissions', 'invoices'],
+    ns: ['common', 'transactions', 'patients', 'doctors', 'departments', 'nurses', 'appointments', 'medicalRecords', 'prescriptions', 'rooms', 'admissions', 'invoices', 'dashboard'],
     defaultNS: 'common',
     load: 'languageOnly',
     detection: {

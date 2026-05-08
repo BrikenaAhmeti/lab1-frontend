@@ -30,6 +30,10 @@
     "system": "System"
   },
   "navigation": {
+    "dashboard": {
+      "label": "Dashboard",
+      "description": "Live-Krankenhausübersicht und Tagesbetrieb"
+    },
     "patients": {
       "label": "Patienten",
       "description": "Patientenakten und aktive Behandlungspläne"
@@ -49,6 +53,10 @@
     "medicalRecords": {
       "label": "Krankenakten",
       "description": "Klinische Notizen, Verlauf und Dokumentation"
+    },
+    "prescriptions": {
+      "label": "Verschreibungen",
+      "description": "Medikamentenanordnungen zu Krankenakten"
     },
     "rooms": {
       "label": "Zimmer",

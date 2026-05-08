@@ -32,9 +32,22 @@ import NurseDetailsPage from '@/pages/Dashboard/nurses/details';
 import NurseFormPage from '@/pages/Dashboard/nurses/form';
 import MedicalRecordsListPage from '@/pages/Dashboard/medical-records';
 import MedicalRecordFormPage from '@/pages/Dashboard/medical-records/form';
+import PrescriptionsPage from '@/pages/Dashboard/prescriptions';
 import { moduleNavigation } from '@/config/moduleNavigation';
 const moduleRoutes = moduleNavigation
-    .filter((item) => !['patients', 'doctors', 'departments', 'appointments', 'medicalRecords', 'rooms', 'admissions', 'invoices', 'nurses'].includes(item.key))
+    .filter((item) => ![
+    'dashboard',
+    'patients',
+    'doctors',
+    'departments',
+    'appointments',
+    'medicalRecords',
+    'prescriptions',
+    'rooms',
+    'admissions',
+    'invoices',
+    'nurses',
+].includes(item.key))
     .map((item) => ({
     path: item.path,
     element: _jsx(ModulePage, { moduleKey: item.key }),
@@ -138,6 +151,10 @@ export const router = createBrowserRouter([
                             { path: 'new', element: _jsx(MedicalRecordFormPage, {}) },
                             { path: ':id/edit', element: _jsx(MedicalRecordFormPage, {}) },
                         ],
+                    },
+                    {
+                        path: 'prescriptions',
+                        element: _jsx(PrescriptionsPage, {}),
                     },
                     ...moduleRoutes,
                     { path: 'transactions', element: _jsx(TransactionsPageRTK, {}) },

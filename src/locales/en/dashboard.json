@@ -1,0 +1,53 @@
+{
+  "title": "Hospital Dashboard",
+  "description": "Monitor key hospital activity with live operational data.",
+  "badge": "Live overview",
+  "summary": {
+    "appointmentsToday": "Today's appointments",
+    "availableRooms": "Available rooms",
+    "admittedPatients": "Admitted patients",
+    "totalPatients": "Total patients",
+    "totalDoctors": "Total doctors",
+    "pendingInvoices": "Pending invoices amount",
+    "loading": "Loading...",
+    "unavailable": "Unavailable",
+    "error": "We could not load the dashboard summary."
+  },
+  "sections": {
+    "appointmentsTitle": "Today's Appointments",
+    "appointmentsDescription": "Scheduled visits loaded from the dashboard service.",
+    "admissionsTitle": "Active Admissions",
+    "admissionsDescription": "Patients who are currently admitted in the hospital.",
+    "refreshing": "Refreshing dashboard data..."
+  },
+  "actions": {
+    "retry": "Try again",
+    "viewAppointments": "View appointments",
+    "viewAdmissions": "View admissions",
+    "viewPatients": "View patients"
+  },
+  "fields": {
+    "time": "Time",
+    "patient": "Patient",
+    "doctor": "Doctor",
+    "specialization": "Specialization",
+    "status": "Status",
+    "room": "Room",
+    "department": "Department",
+    "admittedOn": "Admitted on",
+    "daysAdmitted": "Days admitted"
+  },
+  "states": {
+    "loading": "Loading dashboard data...",
+    "appointmentsEmptyTitle": "No appointments for today",
+    "appointmentsEmptyDescription": "Today's schedule is currently clear.",
+    "admissionsEmptyTitle": "No active admissions",
+    "admissionsEmptyDescription": "There are no active admissions right now.",
+    "appointmentsError": "We could not load today's appointments.",
+    "admissionsError": "We could not load active admissions."
+  },
+  "labels": {
+    "notAvailable": "Not available",
+    "days": "{{count}} days"
+  }
+}

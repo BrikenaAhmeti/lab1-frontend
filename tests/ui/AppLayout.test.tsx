@@ -91,6 +91,8 @@ describe('AppLayout', () => {
     expect(screen.getByText('MEDSPHERE')).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: /language/i })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /theme/i })).toBeInTheDocument();
+    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getByText('Prescriptions')).toBeInTheDocument();
   });
 
   it('keeps the same single-sidebar layout for admin roles', () => {

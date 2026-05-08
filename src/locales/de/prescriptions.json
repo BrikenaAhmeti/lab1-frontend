@@ -1,0 +1,93 @@
+{
+  "list": {
+    "title": "Verschreibungen",
+    "description": "Verwalten Sie Verschreibungen, die mit Krankenakten verknüpft sind.",
+    "resultsTitle": "Verschreibungsdaten",
+    "resultsDescription": "Wählen Sie einen Patienten und eine Krankenakte aus, um Verschreibungen zu prüfen.",
+    "refreshing": "Verschreibungen werden aktualisiert..."
+  },
+  "filters": {
+    "title": "Krankenaktenauswahl",
+    "description": "Wählen Sie einen Patienten und eine seiner Krankenakten, bevor Sie Verschreibungen verwalten.",
+    "patientPlaceholder": "Patient auswählen",
+    "recordPlaceholder": "Krankenakte auswählen",
+    "patientSearchPlaceholder": "Patienten nach Namen suchen"
+  },
+  "form": {
+    "createTitle": "Verschreibung erstellen",
+    "editTitle": "Verschreibung bearbeiten",
+    "description": "Füllen Sie die Verschreibungsdetails unten aus.",
+    "instructionsPlaceholder": "Bei Bedarf Anweisungen hinzufügen"
+  },
+  "actions": {
+    "create": "Verschreibung erstellen",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "save": "Verschreibung speichern",
+    "update": "Verschreibung aktualisieren",
+    "cancel": "Abbrechen",
+    "retry": "Erneut versuchen",
+    "viewPatient": "Patient ansehen",
+    "viewRecords": "Akten ansehen"
+  },
+  "fields": {
+    "patientSearch": "Patientensuche",
+    "patient": "Patient",
+    "record": "Krankenakte",
+    "medicine": "Medikament",
+    "dosage": "Dosierung",
+    "duration": "Dauer",
+    "instructions": "Anweisungen",
+    "diagnosis": "Diagnose",
+    "recordDate": "Akten-Datum",
+    "updatedAt": "Aktualisiert am"
+  },
+  "labels": {
+    "loadingPatients": "Patienten werden geladen...",
+    "loadingRecords": "Krankenakten werden geladen...",
+    "noInstructions": "Keine Anweisungen hinzugefügt.",
+    "notAvailable": "Nicht verfügbar",
+    "viewOnly": "Nur Ansicht"
+  },
+  "states": {
+    "selectPatientTitle": "Patient auswählen",
+    "selectPatientDescription": "Wählen Sie oben einen Patienten aus, um seine Krankenakten zu laden.",
+    "selectRecordTitle": "Krankenakte auswählen",
+    "selectRecordDescription": "Wählen Sie eine Krankenakte aus, um Verschreibungen zu prüfen und zu verwalten.",
+    "loadingTitle": "Verschreibungen werden geladen",
+    "loadingDescription": "Bitte warten Sie einen Moment.",
+    "emptyTitle": "Keine Verschreibungen gefunden",
+    "emptyDescription": "Für diese Krankenakte gibt es noch keine Verschreibungen.",
+    "emptyRecordsTitle": "Keine Krankenakten gefunden",
+    "emptyRecordsDescription": "Erstellen Sie eine Krankenakte, bevor Sie Verschreibungen hinzufügen.",
+    "unauthorizedTitle": "Nicht autorisiert",
+    "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
+    "forbiddenTitle": "Verboten",
+    "forbiddenDescription": "Sie haben keine Berechtigung für diesen Bereich.",
+    "writeForbiddenTitle": "Schreibzugriff erforderlich",
+    "writeForbiddenDescription": "Nur Ärzte und Admins dürfen Verschreibungen erstellen oder bearbeiten.",
+    "errorTitle": "Etwas ist schiefgelaufen",
+    "errorDescription": "Die Verschreibungsdaten konnten nicht geladen werden."
+  },
+  "errors": {
+    "list": "Die Verschreibungsliste konnte nicht geladen werden.",
+    "save": "Die Verschreibung konnte nicht gespeichert werden.",
+    "delete": "Die Verschreibung konnte nicht gelöscht werden.",
+    "patients": "Die Patientenoptionen konnten nicht geladen werden.",
+    "records": "Die Krankenaktenoptionen konnten nicht geladen werden.",
+    "invalidData": "Bitte prüfen Sie die Verschreibungsdetails und versuchen Sie es erneut.",
+    "notFound": "Die Verschreibung oder Krankenakte konnte nicht gefunden werden.",
+    "writeForbidden": "Sie haben keine Berechtigung, Verschreibungen zu ändern."
+  },
+  "messages": {
+    "created": "Verschreibung erfolgreich erstellt.",
+    "updated": "Verschreibung erfolgreich aktualisiert.",
+    "deleted": "Verschreibung erfolgreich gelöscht."
+  },
+  "validation": {
+    "required": "Dieses Feld ist erforderlich."
+  },
+  "details": {
+    "deleteConfirm": "Diese Verschreibung löschen?"
+  }
+}

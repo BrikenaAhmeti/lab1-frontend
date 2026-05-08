@@ -1,5 +1,12 @@
 export const moduleNavigation = [
   {
+    key: 'dashboard',
+    path: '',
+    to: '/app',
+    labelKey: 'navigation.dashboard.label',
+    descriptionKey: 'navigation.dashboard.description',
+  },
+  {
     key: 'patients',
     path: 'patients',
     to: '/app/patients',
@@ -33,6 +40,13 @@ export const moduleNavigation = [
     to: '/app/medical-records',
     labelKey: 'navigation.medicalRecords.label',
     descriptionKey: 'navigation.medicalRecords.description',
+  },
+  {
+    key: 'prescriptions',
+    path: 'prescriptions',
+    to: '/app/prescriptions',
+    labelKey: 'navigation.prescriptions.label',
+    descriptionKey: 'navigation.prescriptions.description',
   },
   {
     key: 'rooms',
