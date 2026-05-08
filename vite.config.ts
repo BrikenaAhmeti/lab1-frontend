@@ -1,4 +1,3 @@
-// vite.config.ts
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import path from 'node:path';
@@ -11,7 +10,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./tests/setup.ts'],
+    setupFiles: ['./src/hms/test/setup.ts'],
+    include: ['./src/hms/**/*.test.ts', './src/hms/**/*.test.tsx'],
   },
   server: {
     port: 3001

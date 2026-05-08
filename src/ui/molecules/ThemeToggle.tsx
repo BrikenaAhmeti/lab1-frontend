@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import { useTranslation } from 'react-i18next';
+import { commonCopy } from '@/hms/copy';
+import { useLanguage } from '@/hms/contexts/LanguageContext';
 import { useThemeMode } from '@/hooks/useThemeMode';
 
 type ThemeToggleProps = {
@@ -7,27 +8,27 @@ type ThemeToggleProps = {
 };
 
 export default function ThemeToggle({ compact = false }: ThemeToggleProps) {
-  const { t } = useTranslation('common');
+  const { t } = useLanguage();
   const { mode, setMode } = useThemeMode();
   const isDark =
     mode === 'dark' ||
     (mode === 'system' &&
       typeof document !== 'undefined' &&
       document.documentElement.classList.contains('dark'));
-  const themeLabel = t(isDark ? 'themeOptions.dark' : 'themeOptions.light');
+  const themeLabel = t(isDark ? commonCopy.dark : commonCopy.light);
 
   return (
     <div className="min-w-0">
       {!compact ? (
         <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          {t('theme')}
+          {t(commonCopy.theme)}
         </span>
       ) : (
-        <span className="sr-only">{t('theme')}</span>
+        <span className="sr-only">{t(commonCopy.theme)}</span>
       )}
       <button
         type="button"
-        aria-label={`${t('theme')}: ${themeLabel}`}
+        aria-label={`${t(commonCopy.theme)}: ${themeLabel}`}
         aria-pressed={isDark}
         className={clsx(
           'flex h-9 w-full items-center justify-between rounded-xl border border-border/70 bg-background/90 text-left transition hover:border-primary/30 hover:bg-muted/35',

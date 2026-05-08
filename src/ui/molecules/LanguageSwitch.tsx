@@ -1,42 +1,27 @@
 import clsx from 'clsx';
-import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import i18n from 'i18next';
+import { commonCopy } from '@/hms/copy';
+import { useLanguage } from '@/hms/contexts/LanguageContext';
 
 const langs = [
-  { code: 'en', shortLabel: 'EN', labelKey: 'languageOptions.en' },
-  { code: 'de', shortLabel: 'DE', labelKey: 'languageOptions.de' },
+  { code: 'en', shortLabel: 'EN', label: 'English' },
+  { code: 'sq', shortLabel: 'SQ', label: 'Shqip' },
 ];
-
-const resolveLanguage = () => {
-  const current = (i18n.resolvedLanguage ?? i18n.language ?? 'en').toLowerCase();
-  return current.startsWith('de') ? 'de' : 'en';
-};
 
 type LanguageSwitchProps = {
   compact?: boolean;
 };
 
 const LanguageSwitch = ({ compact = false }: LanguageSwitchProps) => {
-  const { t } = useTranslation('common');
-  const [activeLanguage, setActiveLanguage] = useState(resolveLanguage);
-
-  useEffect(() => {
-    const onLanguageChanged = (lng: string) => setActiveLanguage(lng.toLowerCase().startsWith('de') ? 'de' : 'en');
-    i18n.on('languageChanged', onLanguageChanged);
-    return () => {
-      i18n.off('languageChanged', onLanguageChanged);
-    };
-  }, []);
+  const { language, setLanguage, t } = useLanguage();
 
   return (
     <label className="block min-w-0" htmlFor="sidebar-language">
       {!compact ? (
         <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          {t('language')}
+          {t(commonCopy.language)}
         </span>
       ) : (
-        <span className="sr-only">{t('language')}</span>
+        <span className="sr-only">{t(commonCopy.language)}</span>
       )}
       <div className="relative">
         <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center text-muted-foreground">
@@ -49,18 +34,18 @@ const LanguageSwitch = ({ compact = false }: LanguageSwitchProps) => {
         </span>
         <select
           id="sidebar-language"
-          aria-label={t('language')}
+          aria-label={t(commonCopy.language)}
           className={clsx(
             'h-9 w-full appearance-none rounded-xl border border-border/70 bg-background/90 pr-8 text-xs font-semibold text-foreground outline-none transition',
             compact ? 'pl-7' : 'pl-8',
             'focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring/35'
           )}
-          value={activeLanguage}
-          onChange={(event) => i18n.changeLanguage(event.target.value)}
+          value={language}
+          onChange={(event) => setLanguage(event.target.value as 'en' | 'sq')}
         >
-          {langs.map((language) => (
-            <option key={language.code} value={language.code}>
-              {compact ? language.shortLabel : `${language.shortLabel} - ${t(language.labelKey)}`}
+          {langs.map((item) => (
+            <option key={item.code} value={item.code}>
+              {compact ? item.shortLabel : `${item.shortLabel} - ${item.label}`}
             </option>
           ))}
         </select>
