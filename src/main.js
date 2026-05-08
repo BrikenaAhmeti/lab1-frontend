@@ -1,14 +1,9 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
-import React from 'react';
+import { jsx as _jsx } from "react/jsx-runtime";
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
-import { Provider } from 'react-redux';
-import { store } from '@/app/store';
 import '@/index.css';
-import '@/config/i18n';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { applyTheme, getInitialTheme } from '@/config/theme';
+import AppProviders from '@/hms/providers/AppProviders';
 import App from './App';
 applyTheme(getInitialTheme());
-const queryClient = new QueryClient();
-ReactDOM.createRoot(document.getElementById('root')).render(_jsx(React.StrictMode, { children: _jsx(Provider, { store: store, children: _jsxs(QueryClientProvider, { client: queryClient, children: [_jsx(App, {}), _jsx(ReactQueryDevtools, { initialIsOpen: false })] }) }) }));
+ReactDOM.createRoot(document.getElementById('root')).render(_jsx(StrictMode, { children: _jsx(AppProviders, { children: _jsx(App, {}) }) }));
