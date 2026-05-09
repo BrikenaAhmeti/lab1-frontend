@@ -3,11 +3,14 @@ const BASE = '/auth';
 const USERS_BASE = `${BASE}/users`;
 const ROLES_BASE = `${BASE}/roles`;
 export const AuthApi = {
-    register: (payload) => api.core.post(`${BASE}/register`, payload).then((r) => r.data),
-    login: (payload) => api.core.post(`${BASE}/login`, payload).then((r) => r.data),
-    refresh: (payload) => api.core.post(`${BASE}/refresh`, payload).then((r) => r.data),
-    logout: (payload) => api.core.post(`${BASE}/logout`, payload).then(() => undefined),
-    me: () => api.core.get(`${BASE}/me`).then((r) => r.data),
+    register: (payload) => api.core.post(`${BASE}/register`, payload, { withCredentials: true }).then((r) => r.data),
+    login: (payload) => api.core.post(`${BASE}/login`, payload, { withCredentials: true }).then((r) => r.data),
+    refresh: () => api.core.post(`${BASE}/refresh`, undefined, { withCredentials: true }).then((r) => r.data),
+    logout: () => api.core.post(`${BASE}/logout`, undefined, { withCredentials: true }).then(() => undefined),
+    logoutAll: () => api.core.post(`${BASE}/logout-all`, undefined, { withCredentials: true }).then(() => undefined),
+    me: (accessToken) => api.core.get(`${BASE}/me`, {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    }).then((r) => r.data),
 };
 export const AuthAdminApi = {
     listUsers: () => api.core.get(USERS_BASE).then((r) => r.data),
@@ -36,6 +39,5 @@ export const AuthAdminApi = {
 export function tokensFromAuthResponse(payload) {
     return {
         accessToken: payload.accessToken,
-        refreshToken: payload.refreshToken,
     };
 }

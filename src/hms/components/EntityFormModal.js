@@ -8,7 +8,9 @@ import Select from '@/ui/atoms/Select';
 import Textarea from '@/ui/atoms/Textarea';
 import { commonCopy } from '../copy';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getFieldInputValue } from '../lib/utils';
+import { getErrorMessage, getFieldInputValue } from '../lib/utils';
+import EmptyState from './EmptyState';
+import ListSkeleton from './ListSkeleton';
 import Modal from './Modal';
 function getDefaultValues(config, item) {
     const defaults = { ...(config.createDefaults || {}) };
@@ -17,7 +19,7 @@ function getDefaultValues(config, item) {
     });
     return defaults;
 }
-export default function EntityFormModal({ open, mode, config, item, references, loading, saving, onClose, onSubmit, }) {
+export default function EntityFormModal({ open, mode, config, item, references, loading, error, saving, onClose, onRetry, onSubmit, }) {
     const { t } = useLanguage();
     const form = useForm({
         resolver: zodResolver(config.schema),
@@ -28,7 +30,7 @@ export default function EntityFormModal({ open, mode, config, item, references, 
     }, [config, form, item, open]);
     const title = mode === 'create' ? t(commonCopy.createRecord) : t(commonCopy.editRecord);
     const description = t(config.singular);
-    return (_jsx(Modal, { open: open, title: `${title}: ${description}`, onClose: onClose, children: loading ? (_jsx("div", { className: "space-y-3", children: Array.from({ length: 4 }).map((_, index) => (_jsx("div", { className: "h-14 animate-pulse rounded-2xl bg-muted" }, index))) })) : (_jsxs("form", { className: "space-y-4", onSubmit: form.handleSubmit(async (values) => onSubmit(values)), children: [_jsx("div", { className: "grid gap-4 md:grid-cols-2", children: config.fields.map((field) => {
+    return (_jsx(Modal, { open: open, title: `${title}: ${description}`, onClose: onClose, children: loading ? (_jsx(ListSkeleton, { items: 4, itemClassName: "h-14" })) : error ? (_jsx(EmptyState, { compact: true, tone: "error", title: t(commonCopy.errorTitle), description: getErrorMessage(error, t), action: onRetry ? (_jsx(Button, { variant: "outline", onClick: onRetry, children: t(commonCopy.retry) })) : null })) : (_jsxs("form", { className: "space-y-4", onSubmit: form.handleSubmit(async (values) => onSubmit(values)), children: [_jsx("div", { className: "grid gap-4 md:grid-cols-2", children: config.fields.map((field) => {
                         const error = String(form.formState.errors[field.name]?.message || '');
                         const options = field.source
                             ? references[field.source] || []

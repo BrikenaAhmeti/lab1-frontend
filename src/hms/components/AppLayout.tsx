@@ -12,7 +12,7 @@ import { moduleOrder, moduleRouteMeta } from '../module-meta';
 
 export default function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, logoutAll } = useAuth();
   const { t } = useLanguage();
   const fullName = formatPersonName(user);
 
@@ -88,6 +88,15 @@ export default function AppLayout() {
               }}
             >
               {t(commonCopy.signOut)}
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={async () => {
+                await logoutAll();
+                closeSidebar();
+              }}
+            >
+              {t(commonCopy.signOutAll)}
             </Button>
           </div>
         </aside>

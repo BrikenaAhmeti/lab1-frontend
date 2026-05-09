@@ -4,15 +4,10 @@ import { authApi, configureApiClient } from '../lib/api';
 import { getErrorMessage, normalizeRoles, normalizeUser } from '../lib/utils';
 export const REFRESH_TOKEN_KEY = 'refreshToken';
 const AuthContext = createContext(null);
-function getStoredRefreshToken() {
-    return sessionStorage.getItem(REFRESH_TOKEN_KEY) || '';
-}
-function storeRefreshToken(refreshToken) {
-    if (refreshToken) {
-        sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+function clearLegacyRefreshToken() {
+    if (typeof window === 'undefined') {
+        return;
     }
-}
-function clearStoredRefreshToken() {
     sessionStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 export function AuthProvider({ children }) {
@@ -22,12 +17,11 @@ export function AuthProvider({ children }) {
     const clearSession = () => {
         setUser(null);
         setAccessToken('');
-        clearStoredRefreshToken();
+        clearLegacyRefreshToken();
     };
     const applySession = (payload) => {
-        setUser(normalizeUser(payload.user));
+        setUser((currentUser) => (payload.user ? normalizeUser(payload.user) : currentUser));
         setAccessToken(payload.accessToken);
-        storeRefreshToken(payload.refreshToken);
     };
     const handleRefreshFailure = useCallback(() => {
         clearSession();
@@ -38,7 +32,6 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         configureApiClient({
             getAccessToken: () => accessToken,
-            getRefreshToken: getStoredRefreshToken,
             onRefreshSuccess: applySession,
             onRefreshFailure: handleRefreshFailure,
         });
@@ -46,17 +39,12 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         let cancelled = false;
         const restoreSession = async () => {
-            const refreshToken = getStoredRefreshToken();
-            if (!refreshToken) {
-                if (!cancelled) {
-                    setReady(true);
-                }
-                return;
-            }
+            clearLegacyRefreshToken();
             try {
-                const payload = await authApi.refresh(refreshToken);
+                const payload = await authApi.refresh();
+                const sessionUser = payload.user ?? (await authApi.me(payload.accessToken));
                 if (!cancelled) {
-                    applySession(payload);
+                    applySession({ ...payload, user: sessionUser });
                 }
             }
             catch {
@@ -77,14 +65,20 @@ export function AuthProvider({ children }) {
     }, []);
     const login = async (values) => {
         const payload = await authApi.login(values);
-        applySession(payload);
+        const sessionUser = payload.user ?? (await authApi.me(payload.accessToken));
+        applySession({ ...payload, user: sessionUser });
     };
     const logout = async () => {
-        const refreshToken = getStoredRefreshToken();
         try {
-            if (refreshToken) {
-                await authApi.logout(refreshToken);
-            }
+            await authApi.logout();
+        }
+        finally {
+            clearSession();
+        }
+    };
+    const logoutAll = async () => {
+        try {
+            await authApi.logoutAll();
         }
         finally {
             clearSession();
@@ -107,6 +101,7 @@ export function AuthProvider({ children }) {
             isAuthenticated: Boolean(user && accessToken),
             login,
             logout,
+            logoutAll,
             can,
             errorMessage: getErrorMessage,
         }, children: children }));

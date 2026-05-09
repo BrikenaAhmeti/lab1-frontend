@@ -2,6 +2,7 @@ import { memo, type ReactNode } from 'react';
 import type { ColumnConfig } from '../types';
 import { commonCopy } from '../copy';
 import { useLanguage } from '../contexts/LanguageContext';
+import TableSkeleton from './TableSkeleton';
 
 type DataTableProps = {
   rows: any[];
@@ -14,13 +15,7 @@ function DataTable({ rows, columns, loading = false, actions }: DataTableProps) 
   const { language, t } = useLanguage();
 
   if (loading) {
-    return (
-      <div className="space-y-3">
-        {Array.from({ length: 5 }).map((_, index) => (
-          <div key={index} className="h-14 animate-pulse rounded-2xl bg-muted" />
-        ))}
-      </div>
-    );
+    return <TableSkeleton columns={columns.length + (actions ? 1 : 0)} />;
   }
 
   return (

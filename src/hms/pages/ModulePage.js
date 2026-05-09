@@ -35,14 +35,16 @@ function buildNextSearchParams(current, values) {
     });
     return next;
 }
-function collectReferenceKeys(moduleKey) {
+function collectReferenceKeys(moduleKey, scope = 'all') {
     const config = moduleConfigs[moduleKey];
     const keys = new Set();
-    config.filters.forEach((filter) => {
-        if (filter.source) {
-            keys.add(filter.source);
-        }
-    });
+    if (scope === 'all') {
+        config.filters.forEach((filter) => {
+            if (filter.source) {
+                keys.add(filter.source);
+            }
+        });
+    }
     config.fields.forEach((field) => {
         if (field.source) {
             keys.add(field.source);
@@ -111,6 +113,8 @@ export default function ModulePage({ moduleKey }) {
         staleTime: 30_000,
     });
     const referenceKeys = useMemo(() => getReferenceOptions(moduleKey), [moduleKey]);
+    const formReferenceKeys = useMemo(() => collectReferenceKeys(moduleKey, 'fields'), [moduleKey]);
+    const formReferenceKeySet = useMemo(() => new Set(formReferenceKeys), [formReferenceKeys]);
     const referenceQueries = useQueries({
         queries: referenceKeys.map((key) => ({
             queryKey: ['reference', key],
@@ -136,6 +140,11 @@ export default function ModulePage({ moduleKey }) {
         values[key] = (referenceQueries[index]?.data || []).filter((option) => option.label);
         return values;
     }, {}), [referenceKeys, referenceQueries]);
+    const formReferenceError = formState.open &&
+        referenceQueries.find((query, index) => formReferenceKeySet.has(referenceKeys[index]) && query.error)?.error;
+    const formReferenceLoading = formState.open &&
+        formReferenceKeySet.size > 0 &&
+        referenceQueries.some((query, index) => formReferenceKeySet.has(referenceKeys[index]) && query.isLoading && !query.data);
     const saveMutation = useMutation({
         mutationFn: async (values) => {
             const payload = config.cleanPayload
@@ -153,7 +162,7 @@ export default function ModulePage({ moduleKey }) {
             showToast(formState.mode === 'edit' ? t(commonCopy.updateSuccess) : t(commonCopy.createSuccess), 'success');
         },
         onError: (error) => {
-            showToast(getErrorMessage(error), 'error');
+            showToast(getErrorMessage(error, t), 'error');
         },
     });
     const deleteMutation = useMutation({
@@ -172,7 +181,7 @@ export default function ModulePage({ moduleKey }) {
             showToast(t(commonCopy.deleteSuccess), 'success');
         },
         onError: (error) => {
-            showToast(getErrorMessage(error), 'error');
+            showToast(getErrorMessage(error, t), 'error');
         },
     });
     const currentItem = formState.mode === 'edit' ? detailQuery.data || formState.item : formState.item;
@@ -182,9 +191,20 @@ export default function ModulePage({ moduleKey }) {
     const openEditModal = useCallback((item) => {
         setFormState({ open: true, mode: 'edit', item });
     }, []);
+    const closeFormModal = useCallback(() => {
+        setFormState({ open: false, mode: 'create', item: null });
+    }, []);
     const updateSearchParams = useCallback((values) => {
         setSearchParams(buildNextSearchParams(searchParams, values));
     }, [searchParams, setSearchParams]);
+    const retryFormState = useCallback(async () => {
+        if (formState.mode === 'edit' && formState.item?.id) {
+            await detailQuery.refetch();
+        }
+        await Promise.all(referenceQueries
+            .filter((_, index) => formReferenceKeySet.has(referenceKeys[index]))
+            .map((query) => query.refetch()));
+    }, [detailQuery, formReferenceKeySet, formState.item?.id, formState.mode, referenceKeys, referenceQueries]);
     const submitFilters = useCallback((event) => {
         event.preventDefault();
         updateSearchParams({
@@ -217,6 +237,7 @@ export default function ModulePage({ moduleKey }) {
     }, [updateSearchParams]);
     const hasForbiddenError = listQuery.error && listQuery.error?.response?.status === 403;
     const hasUnauthorizedError = listQuery.error && listQuery.error?.response?.status === 401;
+    const emptyAction = can(config.permissions?.create) ? (_jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) })) : null;
     return (_jsxs("div", { className: "space-y-6", children: [_jsx(PageHeader, { title: t(config.label), description: t(config.description), action: _jsx(RoleGuard, { allow: config.permissions?.create, children: _jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) }) }) }), _jsx(Card, { title: t(commonCopy.filters), description: t(commonCopy.results), children: _jsxs("form", { className: "grid gap-4 md:grid-cols-2 xl:grid-cols-4", onSubmit: submitFilters, children: [config.filters.map((filter) => {
                             const referenceOptions = filter.source ? references[filter.source] || [] : [];
                             const options = filter.source
@@ -241,9 +262,9 @@ export default function ModulePage({ moduleKey }) {
                             }), children: config.sortOptions.map((sortOption) => (_jsx("option", { value: sortOption.value, children: t(sortOption.label) }, sortOption.value))) }), _jsxs(Select, { label: t(commonCopy.order), value: order, onChange: (event) => updateSearchParams({
                                 order: event.target.value,
                                 page: 1,
-                            }), children: [_jsx("option", { value: "ASC", children: t(commonCopy.ascending) }), _jsx("option", { value: "DESC", children: t(commonCopy.descending) })] }), _jsxs("div", { className: "flex flex-wrap gap-3 md:col-span-2 xl:col-span-2 xl:items-end", children: [_jsx(Button, { type: "submit", children: t(commonCopy.search) }), _jsx(Button, { type: "button", variant: "outline", onClick: clearFilters, children: t(commonCopy.clear) })] })] }) }), hasUnauthorizedError ? (_jsx(EmptyState, { title: t(commonCopy.unauthorizedTitle), description: t(commonCopy.unauthorizedDescription) })) : hasForbiddenError ? (_jsx(EmptyState, { title: t(commonCopy.forbiddenTitle), description: t(commonCopy.forbiddenDescription) })) : listQuery.error ? (_jsx(EmptyState, { title: t(commonCopy.emptyTitle), description: getErrorMessage(listQuery.error), action: _jsx(Button, { variant: "outline", onClick: () => listQuery.refetch(), children: t(commonCopy.retry) }) })) : !listQuery.data?.data.length && !listQuery.isLoading ? (_jsx(EmptyState, { title: t(commonCopy.emptyTitle), description: t(commonCopy.emptyDescription) })) : (_jsxs(_Fragment, { children: [_jsx(Card, { title: t(commonCopy.results), children: _jsx(DataTable, { rows: listQuery.data?.data || [], columns: config.columns, loading: listQuery.isLoading, actions: renderActions }) }), _jsx(Pagination, { page: page, totalPages: listQuery.data?.totalPages || 1, total: listQuery.data?.total || 0, limit: limit, limitOptions: config.listPageSizeOptions || [10, 20, 50], onPageChange: handlePageChange, onLimitChange: handleLimitChange })] })), _jsx(EntityFormModal, { open: formState.open, mode: formState.mode, config: config, item: currentItem, references: references, loading: detailQuery.isLoading, saving: saveMutation.isPending, onClose: () => setFormState({ open: false, mode: 'create', item: null }), onSubmit: async (values) => {
-                    await saveMutation.mutateAsync(values);
-                } }), _jsx(DeleteModal, { open: Boolean(deleteItem), itemTitle: deleteItem ? config.getItemTitle?.(deleteItem) || String(deleteItem.id) : '', deleting: deleteMutation.isPending, onClose: () => setDeleteItem(null), onConfirm: async () => {
-                    await deleteMutation.mutateAsync(deleteItem);
+                            }), children: [_jsx("option", { value: "ASC", children: t(commonCopy.ascending) }), _jsx("option", { value: "DESC", children: t(commonCopy.descending) })] }), _jsxs("div", { className: "flex flex-wrap gap-3 md:col-span-2 xl:col-span-2 xl:items-end", children: [_jsx(Button, { type: "submit", children: t(commonCopy.search) }), _jsx(Button, { type: "button", variant: "outline", onClick: clearFilters, children: t(commonCopy.clear) })] })] }) }), hasUnauthorizedError ? (_jsx(EmptyState, { tone: "locked", title: t(commonCopy.unauthorizedTitle), description: t(commonCopy.unauthorizedDescription) })) : hasForbiddenError ? (_jsx(EmptyState, { tone: "locked", title: t(commonCopy.forbiddenTitle), description: t(commonCopy.forbiddenDescription) })) : listQuery.error ? (_jsx(EmptyState, { tone: "error", title: t(commonCopy.errorTitle), description: getErrorMessage(listQuery.error, t), action: _jsx(Button, { variant: "outline", onClick: () => listQuery.refetch(), children: t(commonCopy.retry) }) })) : !listQuery.data?.data.length && !listQuery.isLoading ? (_jsx(EmptyState, { title: t(commonCopy.emptyTitle), description: t(commonCopy.emptyDescription), action: emptyAction })) : (_jsxs(_Fragment, { children: [_jsx(Card, { title: t(commonCopy.results), children: _jsx(DataTable, { rows: listQuery.data?.data || [], columns: config.columns, loading: listQuery.isLoading, actions: renderActions }) }), _jsx(Pagination, { page: page, totalPages: listQuery.data?.totalPages || 1, total: listQuery.data?.total || 0, limit: limit, limitOptions: config.listPageSizeOptions || [10, 20, 50], onPageChange: handlePageChange, onLimitChange: handleLimitChange })] })), _jsx(EntityFormModal, { open: formState.open, mode: formState.mode, config: config, item: currentItem, references: references, loading: detailQuery.isLoading || formReferenceLoading, error: detailQuery.error || formReferenceError, saving: saveMutation.isPending, onClose: closeFormModal, onRetry: retryFormState, onSubmit: (values) => {
+                    saveMutation.mutate(values);
+                } }), _jsx(DeleteModal, { open: Boolean(deleteItem), itemTitle: deleteItem ? config.getItemTitle?.(deleteItem) || String(deleteItem.id) : '', deleting: deleteMutation.isPending, onClose: () => setDeleteItem(null), onConfirm: () => {
+                    deleteMutation.mutate(deleteItem);
                 } })] }));
 }

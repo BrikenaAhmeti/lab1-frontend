@@ -7,7 +7,7 @@ export type SignInResponse = {
       metadata: {
         chatId: string;
         accessToken: string;
-        refreshToken: string;
+        refreshToken?: string;
         user: any;
       };
       chatData: any;

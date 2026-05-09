@@ -56,14 +56,12 @@ export const sendSignInMessage = createAsyncThunk(
             const data = await signInWithAgent(payload);
 
             const metadata = data?.data?.data?.metadata;
-            if (metadata?.accessToken && metadata?.refreshToken) {
-                // store tokens in your existing auth slice
+            if (metadata?.accessToken && metadata?.user) {
                 dispatch(
                     setSession({
                         user: metadata.user,
                         tokens: {
                             accessToken: metadata.accessToken,
-                            refreshToken: metadata.refreshToken,
                         },
                     })
                 );

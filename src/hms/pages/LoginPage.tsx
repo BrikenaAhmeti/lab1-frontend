@@ -89,7 +89,7 @@ export default function LoginPage() {
                   showToast(t(commonCopy.loginSuccess), 'success');
                   navigate(redirectTo, { replace: true });
                 } catch (error) {
-                  showToast(errorMessage(error), 'error');
+                  showToast(errorMessage(error, t), 'error');
                 }
               })}
             >

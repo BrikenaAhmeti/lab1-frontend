@@ -1,9 +1,11 @@
-export function toAuthSession(payload) {
+export function toAuthSession(payload, user = payload.user) {
+    if (!user) {
+        throw new Error('User is required to create an auth session');
+    }
     return {
-        user: payload.user,
+        user,
         tokens: {
             accessToken: payload.accessToken,
-            refreshToken: payload.refreshToken,
         },
     };
 }

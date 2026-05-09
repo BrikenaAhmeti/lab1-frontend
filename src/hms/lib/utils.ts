@@ -1,4 +1,5 @@
-import type { FormFieldConfig, Language, PaginatedResponse, User } from '../types';
+import { commonCopy } from '../copy';
+import type { FormFieldConfig, Language, LocalizedText, PaginatedResponse, User } from '../types';
 
 export function buildQueryString(params: Record<string, any>) {
   const query = new URLSearchParams();
@@ -85,7 +86,7 @@ export function normalizeArrayResponse(payload: any) {
   return [];
 }
 
-export function getErrorMessage(error: any) {
+function getApiMessage(error: any) {
   const message = error?.response?.data?.message;
 
   if (Array.isArray(message)) {
@@ -96,11 +97,77 @@ export function getErrorMessage(error: any) {
     return message;
   }
 
-  if (typeof error?.message === 'string' && error.message.trim()) {
-    return error.message;
+  return '';
+}
+
+function isTechnicalMessage(message: string) {
+  const normalized = message.trim().toLowerCase();
+
+  return (
+    normalized === 'network error' ||
+    normalized === 'failed to fetch' ||
+    normalized.startsWith('request failed with status code') ||
+    normalized.includes('timeout') ||
+    normalized.includes('econn') ||
+    normalized.includes('err_network')
+  );
+}
+
+function resolveCopy(value: LocalizedText, translate?: (value: LocalizedText) => string) {
+  return translate ? translate(value) : value.en;
+}
+
+export function getErrorMessage(error: any, translate?: (value: LocalizedText) => string) {
+  const apiMessage = getApiMessage(error);
+  const status = Number(error?.response?.status || 0);
+  const rawMessage = String(error?.message || '').trim();
+  const isTimeout = error?.code === 'ECONNABORTED' || /timeout/i.test(rawMessage);
+
+  if (status === 429 && apiMessage.toLowerCase().includes('too many login attempts')) {
+    return resolveCopy(commonCopy.loginRateLimitError, translate);
   }
 
-  return 'Something went wrong.';
+  if (apiMessage) {
+    return apiMessage;
+  }
+
+  if (status === 401) {
+    return resolveCopy(commonCopy.unauthorizedDescription, translate);
+  }
+
+  if (status === 403) {
+    return resolveCopy(commonCopy.forbiddenDescription, translate);
+  }
+
+  if (status === 404) {
+    return resolveCopy(commonCopy.notFoundError, translate);
+  }
+
+  if (status === 409) {
+    return resolveCopy(commonCopy.conflictError, translate);
+  }
+
+  if (status === 400 || status === 422) {
+    return resolveCopy(commonCopy.validationError, translate);
+  }
+
+  if (status >= 500) {
+    return resolveCopy(commonCopy.serverError, translate);
+  }
+
+  if (isTimeout) {
+    return resolveCopy(commonCopy.timeoutError, translate);
+  }
+
+  if (!error?.response) {
+    return resolveCopy(commonCopy.networkError, translate);
+  }
+
+  if (rawMessage && !isTechnicalMessage(rawMessage)) {
+    return rawMessage;
+  }
+
+  return resolveCopy(commonCopy.genericError, translate);
 }
 
 export function formatPersonName(item: any) {

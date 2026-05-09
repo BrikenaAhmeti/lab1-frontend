@@ -1,3 +1,4 @@
+import { commonCopy } from '../copy';
 export function buildQueryString(params) {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -65,7 +66,7 @@ export function normalizeArrayResponse(payload) {
     }
     return [];
 }
-export function getErrorMessage(error) {
+function getApiMessage(error) {
     const message = error?.response?.data?.message;
     if (Array.isArray(message)) {
         return message.join(', ');
@@ -73,10 +74,59 @@ export function getErrorMessage(error) {
     if (typeof message === 'string' && message.trim()) {
         return message;
     }
-    if (typeof error?.message === 'string' && error.message.trim()) {
-        return error.message;
+    return '';
+}
+function isTechnicalMessage(message) {
+    const normalized = message.trim().toLowerCase();
+    return (normalized === 'network error' ||
+        normalized === 'failed to fetch' ||
+        normalized.startsWith('request failed with status code') ||
+        normalized.includes('timeout') ||
+        normalized.includes('econn') ||
+        normalized.includes('err_network'));
+}
+function resolveCopy(value, translate) {
+    return translate ? translate(value) : value.en;
+}
+export function getErrorMessage(error, translate) {
+    const apiMessage = getApiMessage(error);
+    const status = Number(error?.response?.status || 0);
+    const rawMessage = String(error?.message || '').trim();
+    const isTimeout = error?.code === 'ECONNABORTED' || /timeout/i.test(rawMessage);
+    if (status === 429 && apiMessage.toLowerCase().includes('too many login attempts')) {
+        return resolveCopy(commonCopy.loginRateLimitError, translate);
     }
-    return 'Something went wrong.';
+    if (apiMessage) {
+        return apiMessage;
+    }
+    if (status === 401) {
+        return resolveCopy(commonCopy.unauthorizedDescription, translate);
+    }
+    if (status === 403) {
+        return resolveCopy(commonCopy.forbiddenDescription, translate);
+    }
+    if (status === 404) {
+        return resolveCopy(commonCopy.notFoundError, translate);
+    }
+    if (status === 409) {
+        return resolveCopy(commonCopy.conflictError, translate);
+    }
+    if (status === 400 || status === 422) {
+        return resolveCopy(commonCopy.validationError, translate);
+    }
+    if (status >= 500) {
+        return resolveCopy(commonCopy.serverError, translate);
+    }
+    if (isTimeout) {
+        return resolveCopy(commonCopy.timeoutError, translate);
+    }
+    if (!error?.response) {
+        return resolveCopy(commonCopy.networkError, translate);
+    }
+    if (rawMessage && !isTechnicalMessage(rawMessage)) {
+        return rawMessage;
+    }
+    return resolveCopy(commonCopy.genericError, translate);
 }
 export function formatPersonName(item) {
     const firstName = getValue(item, 'first_name', 'firstName');

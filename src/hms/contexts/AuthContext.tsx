@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { authApi, configureApiClient } from '../lib/api';
 import { getErrorMessage, normalizeRoles, normalizeUser } from '../lib/utils';
-import type { AuthPayload, User } from '../types';
+import type { AuthPayload, LocalizedText, User } from '../types';
 
 export const REFRESH_TOKEN_KEY = 'refreshToken';
 
@@ -12,23 +12,18 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   login: (values: { identifier: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
+  logoutAll: () => Promise<void>;
   can: (roles?: string[]) => boolean;
-  errorMessage: (error: any) => string;
+  errorMessage: (error: any, translate?: (value: LocalizedText) => string) => string;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function getStoredRefreshToken() {
-  return sessionStorage.getItem(REFRESH_TOKEN_KEY) || '';
-}
-
-function storeRefreshToken(refreshToken: string) {
-  if (refreshToken) {
-    sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+function clearLegacyRefreshToken() {
+  if (typeof window === 'undefined') {
+    return;
   }
-}
 
-function clearStoredRefreshToken() {
   sessionStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
@@ -40,13 +35,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const clearSession = () => {
     setUser(null);
     setAccessToken('');
-    clearStoredRefreshToken();
+    clearLegacyRefreshToken();
   };
 
   const applySession = (payload: AuthPayload) => {
-    setUser(normalizeUser(payload.user));
+    setUser((currentUser) => (payload.user ? normalizeUser(payload.user) : currentUser));
     setAccessToken(payload.accessToken);
-    storeRefreshToken(payload.refreshToken);
   };
 
   const handleRefreshFailure = useCallback(() => {
@@ -60,7 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     configureApiClient({
       getAccessToken: () => accessToken,
-      getRefreshToken: getStoredRefreshToken,
       onRefreshSuccess: applySession,
       onRefreshFailure: handleRefreshFailure,
     });
@@ -70,20 +63,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
 
     const restoreSession = async () => {
-      const refreshToken = getStoredRefreshToken();
-
-      if (!refreshToken) {
-        if (!cancelled) {
-          setReady(true);
-        }
-        return;
-      }
+      clearLegacyRefreshToken();
 
       try {
-        const payload = await authApi.refresh(refreshToken);
+        const payload = await authApi.refresh();
+        const sessionUser = payload.user ?? (await authApi.me(payload.accessToken));
 
         if (!cancelled) {
-          applySession(payload);
+          applySession({ ...payload, user: sessionUser });
         }
       } catch {
         if (!cancelled) {
@@ -105,16 +92,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (values: { identifier: string; password: string }) => {
     const payload = await authApi.login(values);
-    applySession(payload);
+    const sessionUser = payload.user ?? (await authApi.me(payload.accessToken));
+    applySession({ ...payload, user: sessionUser });
   };
 
   const logout = async () => {
-    const refreshToken = getStoredRefreshToken();
-
     try {
-      if (refreshToken) {
-        await authApi.logout(refreshToken);
-      }
+      await authApi.logout();
+    } finally {
+      clearSession();
+    }
+  };
+
+  const logoutAll = async () => {
+    try {
+      await authApi.logoutAll();
     } finally {
       clearSession();
     }
@@ -143,6 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: Boolean(user && accessToken),
         login,
         logout,
+        logoutAll,
         can,
         errorMessage: getErrorMessage,
       }}

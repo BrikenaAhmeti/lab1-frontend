@@ -10,22 +10,20 @@ export const apiClient = axios.create({
 
 const authClient = axios.create({
   baseURL,
+  withCredentials: true,
 });
 
 let getAccessToken = () => '';
-let getRefreshToken = () => '';
 let onRefreshSuccess: (payload: AuthPayload) => void = () => {};
 let onRefreshFailure = () => {};
 let refreshRequest: Promise<AuthPayload> | null = null;
 
 export function configureApiClient(config: {
   getAccessToken: () => string;
-  getRefreshToken: () => string;
   onRefreshSuccess: (payload: AuthPayload) => void;
   onRefreshFailure: () => void;
 }) {
   getAccessToken = config.getAccessToken;
-  getRefreshToken = config.getRefreshToken;
   onRefreshSuccess = config.onRefreshSuccess;
   onRefreshFailure = config.onRefreshFailure;
 }
@@ -52,18 +50,11 @@ apiClient.interceptors.response.use(
       throw error;
     }
 
-    const refreshToken = getRefreshToken();
-
-    if (!refreshToken) {
-      onRefreshFailure();
-      throw error;
-    }
-
     originalRequest._retry = true;
 
     if (!refreshRequest) {
       refreshRequest = authClient
-        .post<AuthPayload>('/auth/refresh', { refreshToken })
+        .post<AuthPayload>('/auth/refresh')
         .then((response) => response.data)
         .finally(() => {
           refreshRequest = null;
@@ -88,15 +79,20 @@ export const authApi = {
     const response = await authClient.post<AuthPayload>('/auth/login', payload);
     return response.data;
   },
-  refresh: async (refreshToken: string) => {
-    const response = await authClient.post<AuthPayload>('/auth/refresh', { refreshToken });
+  refresh: async () => {
+    const response = await authClient.post<AuthPayload>('/auth/refresh');
     return response.data;
   },
-  logout: async (refreshToken: string) => {
-    await authClient.post('/auth/logout', { refreshToken });
+  logout: async () => {
+    await authClient.post('/auth/logout');
   },
-  me: async () => {
-    const response = await apiClient.get('/auth/me');
+  logoutAll: async () => {
+    await authClient.post('/auth/logout-all');
+  },
+  me: async (accessToken?: string) => {
+    const response = await apiClient.get('/auth/me', {
+      headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+    });
     return response.data;
   },
 };

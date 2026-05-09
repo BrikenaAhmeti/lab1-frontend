@@ -6,15 +6,14 @@ export const apiClient = axios.create({
 });
 const authClient = axios.create({
     baseURL,
+    withCredentials: true,
 });
 let getAccessToken = () => '';
-let getRefreshToken = () => '';
 let onRefreshSuccess = () => { };
 let onRefreshFailure = () => { };
 let refreshRequest = null;
 export function configureApiClient(config) {
     getAccessToken = config.getAccessToken;
-    getRefreshToken = config.getRefreshToken;
     onRefreshSuccess = config.onRefreshSuccess;
     onRefreshFailure = config.onRefreshFailure;
 }
@@ -33,15 +32,10 @@ apiClient.interceptors.response.use((response) => response, async (error) => {
     if (!isUnauthorized || originalRequest?._retry || isRefreshCall) {
         throw error;
     }
-    const refreshToken = getRefreshToken();
-    if (!refreshToken) {
-        onRefreshFailure();
-        throw error;
-    }
     originalRequest._retry = true;
     if (!refreshRequest) {
         refreshRequest = authClient
-            .post('/auth/refresh', { refreshToken })
+            .post('/auth/refresh')
             .then((response) => response.data)
             .finally(() => {
             refreshRequest = null;
@@ -64,15 +58,20 @@ export const authApi = {
         const response = await authClient.post('/auth/login', payload);
         return response.data;
     },
-    refresh: async (refreshToken) => {
-        const response = await authClient.post('/auth/refresh', { refreshToken });
+    refresh: async () => {
+        const response = await authClient.post('/auth/refresh');
         return response.data;
     },
-    logout: async (refreshToken) => {
-        await authClient.post('/auth/logout', { refreshToken });
+    logout: async () => {
+        await authClient.post('/auth/logout');
     },
-    me: async () => {
-        const response = await apiClient.get('/auth/me');
+    logoutAll: async () => {
+        await authClient.post('/auth/logout-all');
+    },
+    me: async (accessToken) => {
+        const response = await apiClient.get('/auth/me', {
+            headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+        });
         return response.data;
     },
 };

@@ -38,9 +38,9 @@ export type User = {
 };
 
 export type AuthPayload = {
-  user: any;
+  user?: any;
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
 };
 
 export type PaginatedResponse<T = any> = {

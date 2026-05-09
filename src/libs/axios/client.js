@@ -9,7 +9,9 @@ const shouldSkipRefresh = (cfg) => {
     const url = cfg.url ?? '';
     return (url.includes('/auth/login') ||
         url.includes('/auth/register') ||
-        url.includes('/auth/refresh'));
+        url.includes('/auth/refresh') ||
+        url.includes('/auth/logout') ||
+        url.includes('/auth/logout-all'));
 };
 const redirectToLogin = () => {
     if (typeof window === 'undefined')
@@ -22,12 +24,11 @@ const redirectToLogin = () => {
 const getRefreshPromise = () => {
     if (refreshPromise)
         return refreshPromise;
-    const refreshToken = store.getState().auth.tokens?.refreshToken;
-    if (!refreshToken) {
-        return Promise.reject(new Error('No refresh token'));
-    }
     refreshPromise = axios
-        .post(`${base.core}/auth/refresh`, { refreshToken }, { timeout: 20000 })
+        .post(`${base.core}/auth/refresh`, undefined, {
+        timeout: 20000,
+        withCredentials: true,
+    })
         .then((r) => r.data)
         .finally(() => {
         refreshPromise = null;
@@ -53,7 +54,11 @@ function build(key) {
             orig._retry = true;
             try {
                 const refreshed = await getRefreshPromise();
-                store.dispatch(setSession(toAuthSession(refreshed)));
+                const currentUser = store.getState().auth.user;
+                if (!refreshed.user && !currentUser) {
+                    throw new Error('User is required to restore the session');
+                }
+                store.dispatch(setSession(toAuthSession(refreshed, refreshed.user ?? currentUser ?? undefined)));
                 orig.headers = orig.headers ?? {};
                 orig.headers.Authorization = `Bearer ${refreshed.accessToken}`;
                 return instance(orig);

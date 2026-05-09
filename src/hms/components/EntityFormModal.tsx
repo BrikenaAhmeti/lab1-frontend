@@ -7,8 +7,10 @@ import Select from '@/ui/atoms/Select';
 import Textarea from '@/ui/atoms/Textarea';
 import { commonCopy } from '../copy';
 import { useLanguage } from '../contexts/LanguageContext';
-import { getFieldInputValue } from '../lib/utils';
+import { getErrorMessage, getFieldInputValue } from '../lib/utils';
 import type { ModuleConfig, ReferenceOption } from '../types';
+import EmptyState from './EmptyState';
+import ListSkeleton from './ListSkeleton';
 import Modal from './Modal';
 
 type EntityFormModalProps = {
@@ -18,8 +20,10 @@ type EntityFormModalProps = {
   item: any;
   references: Record<string, ReferenceOption[]>;
   loading: boolean;
+  error?: any;
   saving: boolean;
   onClose: () => void;
+  onRetry?: () => Promise<void> | void;
   onSubmit: (values: any) => Promise<void> | void;
 };
 
@@ -40,8 +44,10 @@ export default function EntityFormModal({
   item,
   references,
   loading,
+  error,
   saving,
   onClose,
+  onRetry,
   onSubmit,
 }: EntityFormModalProps) {
   const { t } = useLanguage();
@@ -60,11 +66,21 @@ export default function EntityFormModal({
   return (
     <Modal open={open} title={`${title}: ${description}`} onClose={onClose}>
       {loading ? (
-        <div className="space-y-3">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div key={index} className="h-14 animate-pulse rounded-2xl bg-muted" />
-          ))}
-        </div>
+        <ListSkeleton items={4} itemClassName="h-14" />
+      ) : error ? (
+        <EmptyState
+          compact
+          tone="error"
+          title={t(commonCopy.errorTitle)}
+          description={getErrorMessage(error, t)}
+          action={
+            onRetry ? (
+              <Button variant="outline" onClick={onRetry}>
+                {t(commonCopy.retry)}
+              </Button>
+            ) : null
+          }
+        />
       ) : (
         <form className="space-y-4" onSubmit={form.handleSubmit(async (values) => onSubmit(values))}>
           <div className="grid gap-4 md:grid-cols-2">

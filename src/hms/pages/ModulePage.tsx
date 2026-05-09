@@ -41,15 +41,17 @@ function buildNextSearchParams(current: URLSearchParams, values: Record<string, 
   return next;
 }
 
-function collectReferenceKeys(moduleKey: ModuleKey) {
+function collectReferenceKeys(moduleKey: ModuleKey, scope: 'all' | 'fields' = 'all') {
   const config = moduleConfigs[moduleKey];
   const keys = new Set<string>();
 
-  config.filters.forEach((filter) => {
-    if (filter.source) {
-      keys.add(filter.source);
-    }
-  });
+  if (scope === 'all') {
+    config.filters.forEach((filter) => {
+      if (filter.source) {
+        keys.add(filter.source);
+      }
+    });
+  }
 
   config.fields.forEach((field) => {
     if (field.source) {
@@ -140,6 +142,8 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   });
 
   const referenceKeys = useMemo(() => getReferenceOptions(moduleKey), [moduleKey]);
+  const formReferenceKeys = useMemo(() => collectReferenceKeys(moduleKey, 'fields'), [moduleKey]);
+  const formReferenceKeySet = useMemo(() => new Set(formReferenceKeys), [formReferenceKeys]);
   const referenceQueries = useQueries({
     queries: referenceKeys.map((key) => ({
       queryKey: ['reference', key],
@@ -177,6 +181,13 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
       }, {}),
     [referenceKeys, referenceQueries]
   );
+  const formReferenceError =
+    formState.open &&
+    referenceQueries.find((query, index) => formReferenceKeySet.has(referenceKeys[index]) && query.error)?.error;
+  const formReferenceLoading =
+    formState.open &&
+    formReferenceKeySet.size > 0 &&
+    referenceQueries.some((query, index) => formReferenceKeySet.has(referenceKeys[index]) && query.isLoading && !query.data);
 
   const saveMutation = useMutation({
     mutationFn: async (values: any) => {
@@ -200,7 +211,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
       );
     },
     onError: (error) => {
-      showToast(getErrorMessage(error), 'error');
+      showToast(getErrorMessage(error, t), 'error');
     },
   });
 
@@ -224,7 +235,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
       showToast(t(commonCopy.deleteSuccess), 'success');
     },
     onError: (error) => {
-      showToast(getErrorMessage(error), 'error');
+      showToast(getErrorMessage(error, t), 'error');
     },
   });
 
@@ -238,12 +249,28 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     setFormState({ open: true, mode: 'edit', item });
   }, []);
 
+  const closeFormModal = useCallback(() => {
+    setFormState({ open: false, mode: 'create', item: null });
+  }, []);
+
   const updateSearchParams = useCallback(
     (values: Record<string, string | number | null>) => {
       setSearchParams(buildNextSearchParams(searchParams, values));
     },
     [searchParams, setSearchParams]
   );
+
+  const retryFormState = useCallback(async () => {
+    if (formState.mode === 'edit' && formState.item?.id) {
+      await detailQuery.refetch();
+    }
+
+    await Promise.all(
+      referenceQueries
+        .filter((_, index) => formReferenceKeySet.has(referenceKeys[index]))
+        .map((query) => query.refetch())
+    );
+  }, [detailQuery, formReferenceKeySet, formState.item?.id, formState.mode, referenceKeys, referenceQueries]);
 
   const submitFilters = useCallback(
     (event: React.FormEvent<HTMLFormElement>) => {
@@ -311,6 +338,9 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
 
   const hasForbiddenError = listQuery.error && (listQuery.error as any)?.response?.status === 403;
   const hasUnauthorizedError = listQuery.error && (listQuery.error as any)?.response?.status === 401;
+  const emptyAction = can(config.permissions?.create) ? (
+    <Button onClick={openCreateModal}>{t(commonCopy.createNew)}</Button>
+  ) : null;
 
   return (
     <div className="space-y-6">
@@ -417,15 +447,21 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
 
       {hasUnauthorizedError ? (
         <EmptyState
+          tone="locked"
           title={t(commonCopy.unauthorizedTitle)}
           description={t(commonCopy.unauthorizedDescription)}
         />
       ) : hasForbiddenError ? (
-        <EmptyState title={t(commonCopy.forbiddenTitle)} description={t(commonCopy.forbiddenDescription)} />
+        <EmptyState
+          tone="locked"
+          title={t(commonCopy.forbiddenTitle)}
+          description={t(commonCopy.forbiddenDescription)}
+        />
       ) : listQuery.error ? (
         <EmptyState
-          title={t(commonCopy.emptyTitle)}
-          description={getErrorMessage(listQuery.error)}
+          tone="error"
+          title={t(commonCopy.errorTitle)}
+          description={getErrorMessage(listQuery.error, t)}
           action={
             <Button variant="outline" onClick={() => listQuery.refetch()}>
               {t(commonCopy.retry)}
@@ -433,7 +469,11 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
           }
         />
       ) : !listQuery.data?.data.length && !listQuery.isLoading ? (
-        <EmptyState title={t(commonCopy.emptyTitle)} description={t(commonCopy.emptyDescription)} />
+        <EmptyState
+          title={t(commonCopy.emptyTitle)}
+          description={t(commonCopy.emptyDescription)}
+          action={emptyAction}
+        />
       ) : (
         <>
           <Card title={t(commonCopy.results)}>
@@ -463,11 +503,13 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         config={config}
         item={currentItem}
         references={references}
-        loading={detailQuery.isLoading}
+        loading={detailQuery.isLoading || formReferenceLoading}
+        error={detailQuery.error || formReferenceError}
         saving={saveMutation.isPending}
-        onClose={() => setFormState({ open: false, mode: 'create', item: null })}
-        onSubmit={async (values) => {
-          await saveMutation.mutateAsync(values);
+        onClose={closeFormModal}
+        onRetry={retryFormState}
+        onSubmit={(values) => {
+          saveMutation.mutate(values);
         }}
       />
 
@@ -476,8 +518,8 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         itemTitle={deleteItem ? config.getItemTitle?.(deleteItem) || String(deleteItem.id) : ''}
         deleting={deleteMutation.isPending}
         onClose={() => setDeleteItem(null)}
-        onConfirm={async () => {
-          await deleteMutation.mutateAsync(deleteItem);
+        onConfirm={() => {
+          deleteMutation.mutate(deleteItem);
         }}
       />
     </div>

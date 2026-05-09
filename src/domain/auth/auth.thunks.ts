@@ -1,22 +1,21 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { AuthApi } from './auth.api';
-import type { AuthSession, LoginDTO, RegisterDTO, Tokens } from './types';
+import type { AuthSession, LoginDTO, RegisterDTO } from './types';
 import { toAuthSession } from './types';
 
-type AuthStateShape = {
-  auth: {
-    tokens: Tokens | null;
-  };
-};
+async function createSession(payload: Awaited<ReturnType<typeof AuthApi.login>>) {
+  const user = payload.user ?? (await AuthApi.me(payload.accessToken));
+  return toAuthSession(payload, user);
+}
 
 export const login = createAsyncThunk<AuthSession, LoginDTO>(
   'auth/login',
-  async (payload) => toAuthSession(await AuthApi.login(payload))
+  async (payload) => createSession(await AuthApi.login(payload))
 );
 
 export const register = createAsyncThunk<AuthSession, RegisterDTO>(
   'auth/register',
-  async (payload) => toAuthSession(await AuthApi.register(payload))
+  async (payload) => createSession(await AuthApi.register(payload))
 );
 
 export const fetchMe = createAsyncThunk(
@@ -26,27 +25,28 @@ export const fetchMe = createAsyncThunk(
 
 export const bootstrapAuth = createAsyncThunk<AuthSession | null>(
   'auth/bootstrap',
-  async (_, { getState }) => {
-    const state = getState() as AuthStateShape;
-    const currentTokens = state.auth.tokens;
-
-    if (!currentTokens?.accessToken || !currentTokens.refreshToken) return null;
-
-    const user = await AuthApi.me();
-    const latestTokens = ((getState() as AuthStateShape).auth.tokens ?? currentTokens);
-    return { user, tokens: latestTokens };
+  async () => {
+    const payload = await AuthApi.refresh();
+    return createSession(payload);
   }
 );
 
 export const logout = createAsyncThunk(
   'auth/logout',
-  async (_, { getState }) => {
-    const state = getState() as AuthStateShape;
-    const refreshToken = state.auth.tokens?.refreshToken;
-    if (!refreshToken) return;
-
+  async () => {
     try {
-      await AuthApi.logout({ refreshToken });
+      await AuthApi.logout();
+    } catch {
+      return;
+    }
+  }
+);
+
+export const logoutAll = createAsyncThunk(
+  'auth/logoutAll',
+  async () => {
+    try {
+      await AuthApi.logoutAll();
     } catch {
       return;
     }

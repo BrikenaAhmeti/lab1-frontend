@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { AuthSession, AuthUser, Tokens } from './types';
-import { bootstrapAuth, fetchMe, login, logout, register } from './auth.thunks';
+import { bootstrapAuth, fetchMe, login, logout, logoutAll, register } from './auth.thunks';
 
 type AuthState = {
   user: AuthUser | null;
@@ -14,37 +14,27 @@ type AuthState = {
 const SESSION_STORAGE_KEY = 'auth.session';
 const ROLE_STORAGE_KEY = 'role';
 
-function readStoredSession(): AuthSession | null {
-  const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-  if (!raw) return null;
-
-  try {
-    const parsed = JSON.parse(raw) as AuthSession;
-    const hasAccessToken = !!parsed?.tokens?.accessToken;
-    const hasRefreshToken = !!parsed?.tokens?.refreshToken;
-    const hasUser = !!parsed?.user?.id;
-    if (!hasAccessToken || !hasRefreshToken || !hasUser) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
-
-function persistSession(session: AuthSession) {
-  localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
-  localStorage.setItem(ROLE_STORAGE_KEY, session.user.roles[0] ?? '');
-}
-
 function clearStoredSession() {
   localStorage.removeItem(SESSION_STORAGE_KEY);
   localStorage.removeItem(ROLE_STORAGE_KEY);
 }
 
-const restoredSession = readStoredSession();
+function clearLegacySession() {
+  const raw = localStorage.getItem(SESSION_STORAGE_KEY);
+  if (raw) {
+    clearStoredSession();
+  }
+}
+
+function persistUserRole(session: AuthSession) {
+  localStorage.setItem(ROLE_STORAGE_KEY, session.user.roles[0] ?? '');
+}
+
+clearLegacySession();
 
 const initialState: AuthState = {
-  user: restoredSession?.user ?? null,
-  tokens: restoredSession?.tokens ?? null,
+  user: null,
+  tokens: null,
   finishedGetStarted: false,
   loading: false,
   initialized: false,
@@ -54,7 +44,7 @@ const initialState: AuthState = {
 function applySession(state: AuthState, session: AuthSession) {
   state.user = session.user;
   state.tokens = session.tokens;
-  persistSession(session);
+  persistUserRole(session);
 }
 
 const slice = createSlice({
@@ -116,7 +106,9 @@ const slice = createSlice({
         s.loading = false;
         s.error = null;
         s.user = a.payload;
-        if (s.tokens) persistSession({ user: a.payload, tokens: s.tokens });
+        if (s.tokens) {
+          persistUserRole({ user: a.payload, tokens: s.tokens });
+        }
       })
       .addCase(fetchMe.rejected, (s, a) => {
         s.loading = false;
@@ -155,6 +147,26 @@ const slice = createSlice({
         clearStoredSession();
       })
       .addCase(logout.rejected, (s) => {
+        s.loading = false;
+        s.user = null;
+        s.tokens = null;
+        s.finishedGetStarted = false;
+        s.initialized = true;
+        clearStoredSession();
+      })
+      .addCase(logoutAll.pending, (s) => {
+        s.loading = true;
+      })
+      .addCase(logoutAll.fulfilled, (s) => {
+        s.loading = false;
+        s.user = null;
+        s.tokens = null;
+        s.finishedGetStarted = false;
+        s.error = null;
+        s.initialized = true;
+        clearStoredSession();
+      })
+      .addCase(logoutAll.rejected, (s) => {
         s.loading = false;
         s.user = null;
         s.tokens = null;

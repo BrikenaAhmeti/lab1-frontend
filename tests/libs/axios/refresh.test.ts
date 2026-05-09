@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import axios from 'axios';
 import type { AxiosAdapter, AxiosResponse } from 'axios';
 import { api } from '@/libs/axios/client';
 import { store } from '@/app/store';
-import { setSession, clearSession } from '@/domain/auth/authSlice';
+import { clearSession, setSession } from '@/domain/auth/authSlice';
 import type { AuthUser } from '@/domain/auth/types';
 
 const mockUser: AuthUser = {
@@ -31,7 +31,6 @@ function makeResponse<T>(cfg: any, status: number, data: T): AxiosResponse<T> {
   };
 }
 
-// stable absolute url (handles baseURL + url)
 function fullUrl(cfg: any) {
   const base = (cfg.baseURL ?? '').toString();
   const url = (cfg.url ?? '').toString();
@@ -42,7 +41,6 @@ function fullUrl(cfg: any) {
   }
 }
 
-// create a minimal Axios-like error object that interceptors understand
 function makeAxios401(cfg: any) {
   const res = makeResponse(cfg, 401, {} as any);
   return {
@@ -51,7 +49,9 @@ function makeAxios401(cfg: any) {
     message: 'Request failed with status code 401',
     config: cfg,
     response: res,
-    toJSON() { return {}; }
+    toJSON() {
+      return {};
+    },
   } as any;
 }
 
@@ -61,41 +61,33 @@ describe('axios refresh', () => {
     store.dispatch(clearSession());
   });
 
-  it('retries original request after refresh', async () => {
-    store.dispatch(
-      setSession({ user: mockUser, tokens: { accessToken: 'old', refreshToken: 'ref' } })
-    );
+  it('retries the original request with cookie-based refresh', async () => {
+    store.dispatch(setSession({ user: mockUser, tokens: { accessToken: 'old' } }));
 
     let protectedCalls = 0;
+    const refreshConfigs: any[] = [];
 
-    // INSTANCE adapter
     const originalCoreAdapter = api.core.defaults.adapter as AxiosAdapter | undefined;
     api.core.defaults.adapter = async (cfg) => {
       const url = fullUrl(cfg);
-
       if (url.includes('/protected')) {
         protectedCalls += 1;
-
         if (protectedCalls === 1) {
-          // **reject** with an Axios-like 401 error to trigger the interceptor path
           return Promise.reject(makeAxios401(cfg));
         }
-        // After refresh, succeed
         return makeResponse(cfg, 200, { ok: true } as any);
       }
 
       return makeResponse(cfg, 200, {} as any);
     };
 
-    // GLOBAL adapter (used by axios.post('<core>/auth/refresh'))
     const originalGlobalAdapter = axios.defaults.adapter as AxiosAdapter | undefined;
     axios.defaults.adapter = async (cfg) => {
       const url = fullUrl(cfg);
       if (url.includes('/auth/refresh')) {
+        refreshConfigs.push(cfg);
         return makeResponse(cfg, 200, {
-          user: mockUser,
           accessToken: 'new',
-          refreshToken: 'ref-rotated',
         } as any);
       }
       return makeResponse(cfg, 200, {} as any);
@@ -103,21 +95,20 @@ describe('axios refresh', () => {
 
     const res = await api.core.get('/protected');
 
-    // Assertions
-    expect(protectedCalls).toBe(2); // first 401 + retried once after refresh
-    expect(store.getState().auth.tokens?.accessToken).toBe('new');
-    expect(store.getState().auth.tokens?.refreshToken).toBe('ref-rotated');
-    expect(res?.data?.ok).toBe(true);
+    expect(protectedCalls).toBe(2);
+    expect(refreshConfigs).toHaveLength(1);
+    expect(refreshConfigs[0].withCredentials).toBe(true);
+    expect(String(refreshConfigs[0].data ?? '')).not.toContain('refreshToken');
+    expect(store.getState().auth.user).toEqual(mockUser);
+    expect(store.getState().auth.tokens).toEqual({ accessToken: 'new' });
+    expect(res.data.ok).toBe(true);
 
-    // cleanup
     api.core.defaults.adapter = originalCoreAdapter;
     axios.defaults.adapter = originalGlobalAdapter;
   });
 
   it('handles concurrent 401 responses with a single refresh request', async () => {
-    store.dispatch(
-      setSession({ user: mockUser, tokens: { accessToken: 'expired', refreshToken: 'refresh-1' } })
-    );
+    store.dispatch(setSession({ user: mockUser, tokens: { accessToken: 'expired' } }));
 
     let refreshCalls = 0;
     let protectedCalls = 0;
@@ -142,33 +133,25 @@ describe('axios refresh', () => {
       if (url.includes('/auth/refresh')) {
         refreshCalls += 1;
         return makeResponse(cfg, 200, {
-          user: mockUser,
           accessToken: 'fresh-token',
-          refreshToken: 'refresh-2',
         } as any);
       }
       return makeResponse(cfg, 200, {} as any);
     };
 
-    const [first, second] = await Promise.all([
-      api.core.get('/protected'),
-      api.core.get('/protected'),
-    ]);
+    const [first, second] = await Promise.all([api.core.get('/protected'), api.core.get('/protected')]);
 
     expect(first.data.ok).toBe(true);
     expect(second.data.ok).toBe(true);
     expect(refreshCalls).toBe(1);
-    expect(store.getState().auth.tokens?.accessToken).toBe('fresh-token');
-    expect(store.getState().auth.tokens?.refreshToken).toBe('refresh-2');
+    expect(store.getState().auth.tokens).toEqual({ accessToken: 'fresh-token' });
 
     api.core.defaults.adapter = originalCoreAdapter;
     axios.defaults.adapter = originalGlobalAdapter;
   });
 
   it('clears session and redirects to login when refresh fails', async () => {
-    store.dispatch(
-      setSession({ user: mockUser, tokens: { accessToken: 'expired', refreshToken: 'refresh-1' } })
-    );
+    store.dispatch(setSession({ user: mockUser, tokens: { accessToken: 'expired' } }));
 
     const originalCoreAdapter = api.core.defaults.adapter as AxiosAdapter | undefined;
     api.core.defaults.adapter = async (cfg) => {

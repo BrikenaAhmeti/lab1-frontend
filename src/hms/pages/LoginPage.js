@@ -40,7 +40,7 @@ export default function LoginPage() {
                                         navigate(redirectTo, { replace: true });
                                     }
                                     catch (error) {
-                                        showToast(errorMessage(error), 'error');
+                                        showToast(errorMessage(error, t), 'error');
                                     }
                                 }), children: [_jsx(Input, { label: t(commonCopy.identifier), error: String(form.formState.errors.identifier?.message || ''), ...form.register('identifier') }), _jsx(Input, { type: "password", label: t(commonCopy.password), error: String(form.formState.errors.password?.message || ''), ...form.register('password') }), _jsx(Button, { type: "submit", className: "w-full", loading: form.formState.isSubmitting, children: t(commonCopy.signIn) })] }) })] })] }) }));
 }

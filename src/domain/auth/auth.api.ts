@@ -7,7 +7,6 @@ import type {
   CreateRoleDTO,
   CreateUserDTO,
   LoginDTO,
-  RefreshDTO,
   RegisterDTO,
   Tokens,
   UpdateRoleDTO,
@@ -21,18 +20,32 @@ const ROLES_BASE = `${BASE}/roles`;
 
 export const AuthApi = {
   register: (payload: RegisterDTO) =>
-    api.core.post<AuthTokensResponse>(`${BASE}/register`, payload).then((r) => r.data),
+    api.core
+      .post<AuthTokensResponse>(`${BASE}/register`, payload, { withCredentials: true })
+      .then((r) => r.data),
 
   login: (payload: LoginDTO) =>
-    api.core.post<AuthTokensResponse>(`${BASE}/login`, payload).then((r) => r.data),
+    api.core
+      .post<AuthTokensResponse>(`${BASE}/login`, payload, { withCredentials: true })
+      .then((r) => r.data),
 
-  refresh: (payload: RefreshDTO) =>
-    api.core.post<AuthTokensResponse>(`${BASE}/refresh`, payload).then((r) => r.data),
+  refresh: () =>
+    api.core
+      .post<AuthTokensResponse>(`${BASE}/refresh`, undefined, { withCredentials: true })
+      .then((r) => r.data),
 
-  logout: (payload: RefreshDTO) =>
-    api.core.post<void>(`${BASE}/logout`, payload).then(() => undefined),
+  logout: () =>
+    api.core.post<void>(`${BASE}/logout`, undefined, { withCredentials: true }).then(() => undefined),
 
-  me: () => api.core.get<AuthUser>(`${BASE}/me`).then((r) => r.data),
+  logoutAll: () =>
+    api.core.post<void>(`${BASE}/logout-all`, undefined, { withCredentials: true }).then(() => undefined),
+
+  me: (accessToken?: string) =>
+    api.core
+      .get<AuthUser>(`${BASE}/me`, {
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+      })
+      .then((r) => r.data),
 };
 
 export const AuthAdminApi = {
@@ -92,6 +105,5 @@ export const AuthAdminApi = {
 export function tokensFromAuthResponse(payload: AuthTokensResponse): Tokens {
   return {
     accessToken: payload.accessToken,
-    refreshToken: payload.refreshToken,
   };
 }

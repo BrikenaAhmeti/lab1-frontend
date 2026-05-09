@@ -2,7 +2,6 @@ export type AuthRole = string;
 
 export interface Tokens {
   accessToken: string;
-  refreshToken: string;
 }
 
 export interface AuthUser {
@@ -38,14 +37,11 @@ export interface LoginDTO {
   password: string;
 }
 
-export interface RefreshDTO {
-  refreshToken: string;
-}
+export interface RefreshDTO {}
 
 export interface AuthTokensResponse {
-  user: AuthUser;
+  user?: AuthUser;
   accessToken: string;
-  refreshToken: string;
 }
 
 export interface CreateUserDTO {
@@ -96,12 +92,15 @@ export interface UserRefreshToken {
   ipAddress?: string | null;
 }
 
-export function toAuthSession(payload: AuthTokensResponse): AuthSession {
+export function toAuthSession(payload: AuthTokensResponse, user = payload.user): AuthSession {
+  if (!user) {
+    throw new Error('User is required to create an auth session');
+  }
+
   return {
-    user: payload.user,
+    user,
     tokens: {
       accessToken: payload.accessToken,
-      refreshToken: payload.refreshToken,
     },
   };
 }

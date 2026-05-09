@@ -16,8 +16,8 @@ export function ToastProvider({ children }) {
             setToasts((current) => current.filter((toast) => toast.id !== id));
         }, 3200);
     };
-    return (_jsxs(ToastContext.Provider, { value: { showToast }, children: [children, _jsx("div", { className: "pointer-events-none fixed right-4 top-4 z-[70] flex w-full max-w-sm flex-col gap-3", children: toasts.map((toast) => (_jsx("div", { className: [
-                        'pointer-events-auto rounded-2xl border px-4 py-3 text-sm shadow-panel backdrop-blur',
+    return (_jsxs(ToastContext.Provider, { value: { showToast }, children: [children, _jsx("div", { "aria-atomic": "true", "aria-live": "polite", className: "pointer-events-none fixed left-4 right-4 top-4 z-[70] flex flex-col gap-3 sm:left-auto sm:w-full sm:max-w-sm", children: toasts.map((toast) => (_jsx("div", { role: "status", className: [
+                        'pointer-events-auto rounded-2xl border px-4 py-3 text-sm shadow-panel backdrop-blur transition-all',
                         toast.tone === 'success' && 'border-success/30 bg-success/15 text-success',
                         toast.tone === 'error' && 'border-danger/30 bg-danger/15 text-danger',
                         toast.tone === 'info' && 'border-border bg-card/95 text-foreground',
