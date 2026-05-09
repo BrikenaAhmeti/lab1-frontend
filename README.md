@@ -2,13 +2,38 @@
 
 Healthcare management dashboard built with React, TypeScript, and Vite.
 
+## Getting started
+
+```bash
+npm install
+
+# Optional: set API base URLs (see "Environment variables" below).
+cp .env.example .env
+
+# Start the dev server (http://localhost:3001)
+npm run dev
+```
+
+## Environment variables
+
+Optional environment overrides (Vite). Restart the dev server after changing `.env`:
+
+- Create a `.env` file (see `.env.example` for the format).
+- Supported variables:
+  - `VITE_API_URL` (HMS API, default: `http://localhost:3000`)
+  - `VITE_API_CORE` (default: `http://localhost:3006`)
+  - `VITE_API_DEVICE_INFO` (default: `http://localhost:3006`)
+
 ## Scripts
 
-- `npm run dev` starts the Vite dev server.
-- `npm run build` runs the production build.
+- `npm run dev` starts the Vite dev server (configured for port `3001`).
+- `npm run build` type-checks (`tsc -b`) and creates a production build in `dist/`.
+- `npm run preview` serves the production build locally (run `npm run build` first).
 - `npm run analyze` runs the production build with a chunk report and writes `dist/chunk-report.json`.
-- `npm test` runs the Vitest suite.
-- `npm run lint` runs ESLint on the active app source.
+- `npm run lint` runs ESLint on a targeted set of app sources.
+- `npm test` runs the Vitest suite (CI mode).
+- `npm run test:watch` runs Vitest in watch mode.
+- `npm run test:ui` runs Vitest with the UI runner.
 
 ## Performance Checklist
 
@@ -27,8 +52,8 @@ Measured with `vite build` before and after the route-splitting work.
 | Build | Main JS | Gzip |
 | --- | ---: | ---: |
 | Before | `447.14 kB` | `139.74 kB` |
-| After | `318.76 kB` | `104.24 kB` |
-| Delta | `-128.38 kB` (`-28.7%`) | `-35.50 kB` (`-25.4%`) |
+| After | `320.94 kB` | `105.07 kB` |
+| Delta | `-126.20 kB` (`-28.2%`) | `-34.67 kB` (`-24.8%`) |
 
 ## Bundle Analysis
 
@@ -58,7 +83,7 @@ Shared CRUD route logic is intentionally extracted into shared async chunks such
 
 ## Verification
 
-Latest checks run successfully on May 8, 2026:
+Latest checks run successfully on May 9, 2026:
 
 - `npm run lint`
 - `npm test`
