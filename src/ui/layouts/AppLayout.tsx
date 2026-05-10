@@ -152,19 +152,19 @@ export default function AppLayout() {
         />
       ) : null}
 
-      <div className="relative mx-auto flex min-h-screen max-w-[1600px] gap-4 px-4 py-4 md:px-5">
+      <div className="relative mx-auto flex min-h-screen max-w-[1600px] gap-3 px-3 py-3 md:px-4">
         <aside
           className={clsx(
-            'workspace-shell workspace-sidebar fixed inset-y-4 left-4 z-40 flex w-72 max-w-[calc(100vw-2rem)] flex-col rounded-[34px] border-white/10 text-white shadow-[0_34px_80px_hsl(214_78%_18%/0.34)] transition-transform duration-300 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:self-start lg:translate-x-0',
+            'workspace-shell workspace-sidebar fixed inset-y-3 left-3 z-40 flex w-[280px] max-w-[calc(100vw-1.5rem)] flex-col rounded-[24px] border-white/10 text-white shadow-[0_34px_80px_hsl(214_78%_18%/0.34)] transition-transform duration-300 lg:sticky lg:top-3 lg:h-[calc(100vh-1.5rem)] lg:self-start lg:translate-x-0',
             mobileNavOpen ? 'translate-x-0' : '-translate-x-[112%]'
           )}
         >
-          <div className="flex h-full flex-col p-4">
+          <div className="flex h-full flex-col p-3">
             <div className="flex items-start justify-between gap-3">
               <NavLink
                 to="/app"
                 end
-                className="flex min-w-0 items-center gap-3 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+                className="flex min-w-0 items-center gap-2 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
               >
                 <img
                   src="/medsphere.png"
@@ -172,7 +172,7 @@ export default function AppLayout() {
                   className="h-10 w-auto max-w-[min(100%,200px)] object-contain object-left"
                 />
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-semibold uppercase tracking-[0.32em] text-white/72">
+                  <p className="truncate text-[11px] font-semibold uppercase tracking-[0.28em] text-white/72">
                     MedSphere
                   </p>
                   <p className="truncate text-sm text-sky-50/78">{t('shell.brandSubtitle')}</p>
@@ -191,20 +191,8 @@ export default function AppLayout() {
               </button>
             </div>
 
-            <div className="mt-5 rounded-[28px] border border-white/12 bg-white/10 p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-beat" />
-                <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/72">
-                  {t('shell.brandSubtitle')}
-                </p>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-sky-50/78">
-                {activeNavigation ? t(activeNavigation.descriptionKey) : t('shell.defaultDescription')}
-              </p>
-            </div>
-
-            <nav className="mt-5 flex-1 overflow-y-auto pr-1">
-              <div className="space-y-2">
+            <nav className="mt-4 flex-1 overflow-y-auto pr-1">
+              <div className="space-y-1.5">
                 {moduleNavigation.map((item) => (
                   <NavLink
                     key={item.to}
@@ -212,7 +200,7 @@ export default function AppLayout() {
                     end={item.to === '/app'}
                     className={({ isActive }) =>
                       clsx(
-                        'group flex items-start gap-3 rounded-[24px] border px-3.5 py-3 transition duration-200',
+                        'group flex items-start gap-2.5 rounded-[18px] border px-3 py-2.5 transition duration-200',
                         isActive
                           ? 'border-white/14 bg-[linear-gradient(135deg,hsl(var(--accent)/0.28),hsl(var(--secondary)/0.16),hsl(0_0%_100%/0.08))] shadow-soft'
                           : 'border-transparent hover:border-white/10 hover:bg-white/6'
@@ -223,7 +211,7 @@ export default function AppLayout() {
                       <>
                         <span
                           className={clsx(
-                            'mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition',
+                            'mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border transition',
                             isActive
                               ? 'border-white/14 bg-white/16 text-white'
                               : 'border-white/10 bg-white/8 text-white/70 group-hover:text-white'
@@ -233,7 +221,7 @@ export default function AppLayout() {
                         </span>
                         <span className="min-w-0">
                           <span className="block text-sm font-semibold text-white">{t(item.labelKey)}</span>
-                          <span className="mt-1 block text-xs leading-5 text-sky-50/70">
+                          <span className="mt-0.5 block text-xs leading-5 text-sky-50/70">
                             {t(item.descriptionKey)}
                           </span>
                         </span>
@@ -244,9 +232,9 @@ export default function AppLayout() {
               </div>
             </nav>
 
-            <div className="mt-5 rounded-[30px] border border-white/12 bg-white/10 p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]">
+            <div className="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-3 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]">
               <div className="flex items-center gap-3">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft">
+                <div className="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft">
                   {initials}
                 </div>
                 <div className="min-w-0">
@@ -255,7 +243,7 @@ export default function AppLayout() {
                 </div>
               </div>
 
-              <Button size="sm" variant="outline" className="mt-4 w-full rounded-full border-white/10 bg-white text-primary hover:bg-white/90" onClick={handleLogout}>
+              <Button size="sm" variant="outline" className="mt-3 h-10 w-full rounded-[16px] border-white/10 bg-white text-primary hover:bg-white/90" onClick={handleLogout}>
                 {t('logout')}
               </Button>
             </div>

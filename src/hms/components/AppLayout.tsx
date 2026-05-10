@@ -169,7 +169,7 @@ export default function AppLayout() {
       <div className="landing-orb left-[-12rem] top-[-8rem] h-[24rem] w-[24rem]" />
       <div className="landing-orb bottom-[-14rem] right-[-8rem] h-[26rem] w-[26rem]" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-[1600px] gap-4 px-4 py-4 md:px-5">
+      <div className="relative mx-auto flex min-h-screen max-w-[1600px] gap-3 md:gap-4">
         <button
           type="button"
           aria-label={menuLabel}
@@ -182,21 +182,21 @@ export default function AppLayout() {
 
         <aside
           className={clsx(
-            'workspace-shell workspace-sidebar fixed inset-y-4 left-4 z-50 flex w-[300px] max-w-[calc(100vw-2rem)] flex-col rounded-[34px] border-white/10 text-white shadow-[0_34px_80px_hsl(214_78%_18%/0.34)] transition-transform duration-300 md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:translate-x-0 md:self-start',
+            'workspace-shell workspace-sidebar fixed inset-y-0 left-0 z-50 flex w-[280px] max-w-[calc(100vw-1.5rem)] flex-col rounded-r-[24px] border border-l-0 border-white/10 text-white shadow-[0_34px_80px_hsl(214_78%_18%/0.34)] transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0 md:self-start',
             isSidebarOpen ? 'translate-x-0' : '-translate-x-[112%]'
           )}
         >
-          <div className="flex h-full flex-col p-4">
+          <div className="flex h-full flex-col p-3">
             <div className="flex items-start justify-between gap-3">
               <NavLink
                 to="/dashboard"
                 end
-                className="flex min-w-0 items-center gap-3 rounded-2xl outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring/45"
+                className="flex min-w-0 items-center gap-2 rounded-2xl outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring/45"
                 onClick={closeSidebar}
               >
-                <img src="/medsphere.png" alt="MedSphere logo" className="h-11 w-auto object-contain" />
+                <img src="/medsphere.png" alt="MedSphere logo" className="h-10 w-auto object-contain" />
                 <div className="min-w-0">
-                  <p className="truncate text-xs font-semibold uppercase tracking-[0.32em] text-white/72">
+                  <p className="truncate text-[11px] font-semibold uppercase tracking-[0.28em] text-white/72">
                     MedSphere
                   </p>
                   <p className="truncate text-sm text-sky-50/78">{t(commonCopy.appSubtitle)}</p>
@@ -215,18 +215,8 @@ export default function AppLayout() {
               </button>
             </div>
 
-            <div className="mt-5 rounded-[28px] border border-white/12 bg-white/10 p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-beat" />
-                <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/72">
-                  {t(lt('Live workspace', 'Hapesire aktive'))}
-                </p>
-              </div>
-              <p className="mt-3 text-sm leading-7 text-sky-50/78">{activeItem.description}</p>
-            </div>
-
-            <nav className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
-              <div className="space-y-2">
+            <nav className="mt-4 min-h-0 flex-1 overflow-y-auto pr-1">
+              <div className="space-y-1.5">
                 {navigationItems.map((item) => (
                   <NavLink
                     key={item.to}
@@ -234,7 +224,7 @@ export default function AppLayout() {
                     end={item.to === '/dashboard'}
                     className={({ isActive }) =>
                       clsx(
-                        'group flex items-start gap-3 rounded-[24px] border px-3.5 py-3 transition duration-200',
+                        'group flex items-start gap-2.5 rounded-[18px] border px-3 py-2.5 transition duration-200',
                         isActive
                           ? 'border-white/14 bg-[linear-gradient(135deg,hsl(var(--accent)/0.28),hsl(var(--secondary)/0.16),hsl(0_0%_100%/0.08))] shadow-soft'
                           : 'border-transparent hover:border-white/10 hover:bg-white/6'
@@ -246,7 +236,7 @@ export default function AppLayout() {
                       <>
                         <span
                           className={clsx(
-                            'mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition',
+                            'mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border transition',
                             isActive
                               ? 'border-white/14 bg-white/16 text-white'
                               : 'border-white/10 bg-white/8 text-white/70 group-hover:text-white'
@@ -256,7 +246,7 @@ export default function AppLayout() {
                         </span>
                         <span className="min-w-0">
                           <span className="block text-sm font-semibold text-white">{item.label}</span>
-                          <span className="mt-1 block text-xs leading-5 text-sky-50/70">
+                          <span className="mt-0.5 block text-xs leading-5 text-sky-50/70">
                             {item.description}
                           </span>
                         </span>
@@ -267,9 +257,9 @@ export default function AppLayout() {
               </div>
             </nav>
 
-            <div className="mt-5 rounded-[30px] border border-white/12 bg-white/10 p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]">
+            <div className="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-3 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]">
               <div className="flex items-center gap-3">
-                <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft">
+                <div className="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft">
                   {initials}
                 </div>
                 <div className="min-w-0">
@@ -280,7 +270,7 @@ export default function AppLayout() {
 
               <Button
                 variant="outline"
-                className="mt-4 w-full rounded-full border-white/10 bg-white text-primary hover:bg-white/90"
+                className="mt-3 h-10 w-full rounded-[16px] border-white/10 bg-white text-primary hover:bg-white/90"
                 onClick={async () => {
                   await logout();
                   closeSidebar();
@@ -292,7 +282,7 @@ export default function AppLayout() {
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-4 md:self-start">
+        <div className="flex min-w-0 flex-1 flex-col gap-4 p-3 md:self-start md:p-4 md:pl-0">
           <header className="workspace-shell workspace-topbar sticky top-4 z-30 rounded-[32px] px-4 py-3 shadow-panel md:px-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex min-w-0 items-start gap-3">
