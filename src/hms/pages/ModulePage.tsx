@@ -66,6 +66,10 @@ function getReferenceOptions(moduleKey: ModuleKey) {
   return collectReferenceKeys(moduleKey);
 }
 
+function supportsAction(config: (typeof moduleConfigs)[ModuleKey], action: 'create' | 'edit' | 'delete') {
+  return config.actions?.[action] ?? true;
+}
+
 export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const config = moduleConfigs[moduleKey];
   const [searchParams, setSearchParams] = useSearchParams();
@@ -302,12 +306,12 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const renderActions = useCallback(
     (item: any) => (
       <div className="flex flex-wrap gap-2">
-        {can(config.permissions?.edit) ? (
+        {supportsAction(config, 'edit') && can(config.permissions?.edit) ? (
           <Button size="sm" variant="outline" onClick={() => openEditModal(item)}>
             {t(commonCopy.edit)}
           </Button>
         ) : null}
-        {can(config.permissions?.delete) ? (
+        {supportsAction(config, 'delete') && can(config.permissions?.delete) ? (
           <Button size="sm" variant="danger" onClick={() => setDeleteItem(item)}>
             {t(commonCopy.delete)}
           </Button>
@@ -338,7 +342,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
 
   const hasForbiddenError = listQuery.error && (listQuery.error as any)?.response?.status === 403;
   const hasUnauthorizedError = listQuery.error && (listQuery.error as any)?.response?.status === 401;
-  const emptyAction = can(config.permissions?.create) ? (
+  const emptyAction = supportsAction(config, 'create') && can(config.permissions?.create) ? (
     <Button onClick={openCreateModal}>{t(commonCopy.createNew)}</Button>
   ) : null;
 
@@ -348,9 +352,11 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         title={t(config.label)}
         description={t(config.description)}
         action={
-          <RoleGuard allow={config.permissions?.create}>
-            <Button onClick={openCreateModal}>{t(commonCopy.createNew)}</Button>
-          </RoleGuard>
+          supportsAction(config, 'create') ? (
+            <RoleGuard allow={config.permissions?.create}>
+              <Button onClick={openCreateModal}>{t(commonCopy.createNew)}</Button>
+            </RoleGuard>
+          ) : null
         }
       />
 

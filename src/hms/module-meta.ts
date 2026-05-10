@@ -22,42 +22,42 @@ export const moduleOrder: ModuleKey[] = [
 export const moduleRouteMeta: Record<ModuleKey, ModuleRouteMeta> = {
   patients: {
     path: 'patients',
-    label: lt('Patients', 'Pacientet'),
+    label: lt('Patients', 'Patienten'),
   },
   doctors: {
     path: 'doctors',
-    label: lt('Doctors', 'Mjeket'),
+    label: lt('Doctors', 'Ärzte'),
   },
   departments: {
     path: 'departments',
-    label: lt('Departments', 'Departamentet'),
+    label: lt('Departments', 'Abteilungen'),
   },
   appointments: {
     path: 'appointments',
-    label: lt('Appointments', 'Takimet'),
+    label: lt('Appointments', 'Termine'),
   },
   'medical-records': {
     path: 'medical-records',
-    label: lt('Medical records', 'Kartelat mjekesore'),
+    label: lt('Medical records', 'Krankenakten'),
   },
   prescriptions: {
     path: 'prescriptions',
-    label: lt('Prescriptions', 'Recetat'),
+    label: lt('Prescriptions', 'Rezepte'),
   },
   rooms: {
     path: 'rooms',
-    label: lt('Rooms', 'Dhomat'),
+    label: lt('Rooms', 'Zimmer'),
   },
   admissions: {
     path: 'admissions',
-    label: lt('Admissions', 'Pranimet'),
+    label: lt('Admissions', 'Aufnahmen'),
   },
   invoices: {
     path: 'invoices',
-    label: lt('Invoices', 'Faturat'),
+    label: lt('Invoices', 'Rechnungen'),
   },
   nurses: {
     path: 'nurses',
-    label: lt('Nurses', 'Infermieret'),
+    label: lt('Nurses', 'Pflegekräfte'),
   },
 };

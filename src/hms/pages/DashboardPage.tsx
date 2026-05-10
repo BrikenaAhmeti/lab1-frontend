@@ -131,14 +131,14 @@ export default function DashboardPage() {
               {todayAppointments.data?.map((appointment: any) => (
                 <div key={String(appointment.id)} className="rounded-2xl border border-border bg-background/60 p-4">
                   <p className="font-semibold text-foreground">
-                    {formatPersonName(getValue(appointment, 'patient')) || getValue(appointment, 'patient_name')}
+                    {formatPersonName(getValue(appointment, 'patient')) || getValue(appointment, 'patientName')}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {formatDate(String(getValue(appointment, 'date', 'appointmentDate')), language)} ·{' '}
                     {String(getValue(appointment, 'time', 'appointmentTime'))}
                   </p>
                   <p className="mt-2 text-sm text-foreground">
-                    {formatPersonName(getValue(appointment, 'doctor')) || getValue(appointment, 'doctor_name')}
+                    {formatPersonName(getValue(appointment, 'doctor')) || getValue(appointment, 'doctorName')}
                   </p>
                 </div>
               ))}
@@ -152,7 +152,7 @@ export default function DashboardPage() {
               {availableRooms.data?.map((room: any) => (
                 <div key={String(room.id)} className="rounded-2xl border border-border bg-background/60 p-4">
                   <p className="font-semibold text-foreground">
-                    {String(getValue(room, 'room_number', 'roomNumber'))}
+                    {String(getValue(room, 'roomNumber'))}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">{String(getValue(room, 'type'))}</p>
                   <p className="mt-2 text-sm text-foreground">
@@ -170,16 +170,13 @@ export default function DashboardPage() {
               {activeAdmissions.data?.map((admission: any) => (
                 <div key={String(admission.id)} className="rounded-2xl border border-border bg-background/60 p-4">
                   <p className="font-semibold text-foreground">
-                    {formatPersonName(getValue(admission, 'patient')) || getValue(admission, 'patient_name')}
+                    {formatPersonName(getValue(admission, 'patient')) || getValue(admission, 'patientName')}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {String(getValue(admission, 'room.room_number', 'roomNumber', 'room_id'))}
+                    {String(getValue(admission, 'room.roomNumber', 'roomNumber', 'roomId'))}
                   </p>
                   <p className="mt-2 text-sm text-foreground">
-                    {formatDate(
-                      String(getValue(admission, 'admission_date', 'admitted_at', 'admissionDate', 'admittedAt')),
-                      language
-                    )}
+                    {formatDate(String(getValue(admission, 'admissionDate')), language)}
                   </p>
                 </div>
               ))}

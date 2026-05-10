@@ -1,2 +1,2 @@
-import { createModuleRoutePage } from './createModuleRoutePage';
-export default createModuleRoutePage('medical-records');
+import MedicalRecordsListPage from '@/pages/Dashboard/medical-records';
+export default MedicalRecordsListPage;

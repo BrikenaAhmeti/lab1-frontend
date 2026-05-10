@@ -1,5 +1,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Provider } from 'react-redux';
+import { store } from '@/app/store';
 import { AuthProvider } from '../contexts/AuthContext';
 import { LanguageProvider } from '../contexts/LanguageContext';
 import { ToastProvider } from '../contexts/ToastContext';
@@ -15,5 +17,5 @@ const queryClient = new QueryClient({
     },
 });
 export default function AppProviders({ children }) {
-    return (_jsx(LanguageProvider, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(ToastProvider, { children: _jsx(AuthProvider, { children: children }) }) }) }));
+    return (_jsx(Provider, { store: store, children: _jsx(LanguageProvider, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(ToastProvider, { children: _jsx(AuthProvider, { children: children }) }) }) }) }));
 }

@@ -5,55 +5,55 @@ import { commonCopy, lt } from '../copy';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const headerLinks = [
-  { href: '#features', label: lt('Features', 'Karakteristikat') },
-  { href: '#dashboard', label: lt('Dashboard', 'Paneli') },
-  { href: '#solutions', label: lt('Solutions', 'Zgjidhjet') },
-  { href: '#pricing', label: lt('Pricing', 'Cmimet') },
-  { href: '#page-end', label: lt('Contact', 'Kontakti') },
+  { href: '#features', label: lt('Features', 'Funktionen') },
+  { href: '#dashboard', label: lt('Dashboard', 'Dashboard') },
+  { href: '#solutions', label: lt('Solutions', 'Lösungen') },
+  { href: '#pricing', label: lt('Pricing', 'Preise') },
+  { href: '#page-end', label: lt('Contact', 'Kontakt') },
 ];
 
 const dashboardMenu = [
-  lt('Overview', 'Permbledhje'),
-  lt('Patients', 'Pacientet'),
-  lt('Appointments', 'Terminet'),
-  lt('Analytics', 'Analitika'),
-  lt('Records', 'Kartelat'),
+  lt('Overview', 'Überblick'),
+  lt('Patients', 'Patienten'),
+  lt('Appointments', 'Termine'),
+  lt('Analytics', 'Analysen'),
+  lt('Records', 'Akten'),
 ];
 
 const overviewStats = [
-  { label: lt('Active Patients', 'Pacientet aktive'), value: '2,543', delta: '+12.5%' },
-  { label: lt("Today's Appointments", 'Terminet e sotme'), value: '32', delta: '+8.2%' },
-  { label: lt('Treatments', 'Trajtimet'), value: '1,280', delta: '+15.3%' },
-  { label: lt('Revenue', 'Te ardhurat'), value: '$128,540', delta: '+10.7%' },
+  { label: lt('Active Patients', 'Aktive Patienten'), value: '2,543', delta: '+12.5%' },
+  { label: lt("Today's Appointments", 'Heutige Termine'), value: '32', delta: '+8.2%' },
+  { label: lt('Treatments', 'Behandlungen'), value: '1,280', delta: '+15.3%' },
+  { label: lt('Revenue', 'Umsatz'), value: '$128,540', delta: '+10.7%' },
 ];
 
 const appointmentRows = [
   {
     name: 'John Smith',
-    detail: lt('General checkup', 'Kontroll i pergjithshem'),
+    detail: lt('General checkup', 'Allgemeine Untersuchung'),
     time: '9:00 AM',
-    status: lt('Confirmed', 'Konfirmuar'),
+    status: lt('Confirmed', 'Bestätigt'),
     tone: 'bg-emerald-500/12 text-emerald-700',
   },
   {
     name: 'Emily Davis',
-    detail: lt('Cardiology follow-up', 'Kontroll kardiologjik'),
+    detail: lt('Cardiology follow-up', 'Kardiologische Nachkontrolle'),
     time: '10:30 AM',
-    status: lt('Confirmed', 'Konfirmuar'),
+    status: lt('Confirmed', 'Bestätigt'),
     tone: 'bg-sky-500/12 text-sky-700',
   },
   {
     name: 'Michael Brown',
-    detail: lt('Lab test', 'Test laboratorik'),
+    detail: lt('Lab test', 'Labortest'),
     time: '11:15 AM',
-    status: lt('Pending', 'Ne pritje'),
+    status: lt('Pending', 'Ausstehend'),
     tone: 'bg-amber-500/14 text-amber-700',
   },
   {
     name: 'Sarah Wilson',
-    detail: lt('Consultation', 'Konsulte'),
+    detail: lt('Consultation', 'Beratung'),
     time: '1:30 PM',
-    status: lt('Pending', 'Ne pritje'),
+    status: lt('Pending', 'Ausstehend'),
     tone: 'bg-amber-500/14 text-amber-700',
   },
 ];
@@ -61,126 +61,126 @@ const appointmentRows = [
 const trustSignals = [
   {
     kind: 'shield',
-    title: lt('HIPAA compliant', 'Ne perputhje me HIPAA'),
-    body: lt('Your data is always secure', 'Te dhenat jane gjithmone te sigurta'),
+    title: lt('HIPAA compliant', 'HIPAA-konform'),
+    body: lt('Your data is always secure', 'Ihre Daten sind jederzeit sicher'),
   },
   {
     kind: 'cloud',
-    title: lt('Cloud based', 'I bazuar ne cloud'),
-    body: lt('Access anywhere, anytime', 'Qasje kudo dhe ne cdo kohe'),
+    title: lt('Cloud based', 'Cloudbasiert'),
+    body: lt('Access anywhere, anytime', 'Zugriff überall und jederzeit'),
   },
   {
     kind: 'bolt',
-    title: lt('Real-time insights', 'Pasqyra ne kohe reale'),
-    body: lt('Make smarter decisions', 'Merrni vendime me te zgjuara'),
+    title: lt('Real-time insights', 'Einblicke in Echtzeit'),
+    body: lt('Make smarter decisions', 'Treffen Sie bessere Entscheidungen'),
   },
 ];
 
 const featureCards = [
   {
     kind: 'patients',
-    title: lt('Patient Management', 'Menaxhimi i pacienteve'),
+    title: lt('Patient Management', 'Patientenverwaltung'),
     body: lt(
       'Centralize patient profiles, history, and communication in one place.',
-      'Qendralizoni profilet, historine dhe komunikimin e pacienteve ne nje vend.'
+      'Zentralisieren Sie Patientenprofile, Historie und Kommunikation an einem Ort.'
     ),
   },
   {
     kind: 'appointments',
-    title: lt('Appointments', 'Terminet'),
+    title: lt('Appointments', 'Termine'),
     body: lt(
       'Schedule, manage, and automate appointments with ease.',
-      'Planifikoni, menaxhoni dhe automatizoni terminet me lehtesi.'
+      'Planen, verwalten und automatisieren Sie Termine mit Leichtigkeit.'
     ),
   },
   {
     kind: 'analytics',
-    title: lt('Analytics & Reports', 'Analitika dhe raportet'),
+    title: lt('Analytics & Reports', 'Analysen und Berichte'),
     body: lt(
       'Gain real-time insights and generate custom reports instantly.',
-      'Fitoni pasqyra ne kohe reale dhe krijoni raporte menjehere.'
+      'Gewinnen Sie Einblicke in Echtzeit und erstellen Sie sofort individuelle Berichte.'
     ),
   },
   {
     kind: 'records',
-    title: lt('Secure Records', 'Kartela te sigurta'),
+    title: lt('Secure Records', 'Sichere Akten'),
     body: lt(
       'Store and access medical records securely with role-based access.',
-      'Ruani dhe hapni kartelat mjekesore ne menyre te sigurt me role te kontrolluara.'
+      'Speichern und öffnen Sie Krankenakten sicher mit rollenbasiertem Zugriff.'
     ),
   },
 ];
 
 const scaleStats = [
-  { kind: 'users', value: '12,450+', label: lt('Active Patients', 'Pacientet aktive') },
-  { kind: 'buildings', value: '320+', label: lt('Clinics Supported', 'Klinika te mbeshtetura') },
-  { kind: 'reporting', value: '98,760+', label: lt('Reports Generated', 'Raporte te krijuara') },
-  { kind: 'heart', value: '98.6%', label: lt('Satisfaction Rate', 'Shkalla e kenaqesise') },
+  { kind: 'users', value: '12,450+', label: lt('Active Patients', 'Aktive Patienten') },
+  { kind: 'buildings', value: '320+', label: lt('Clinics Supported', 'Unterstützte Kliniken') },
+  { kind: 'reporting', value: '98,760+', label: lt('Reports Generated', 'Erstellte Berichte') },
+  { kind: 'heart', value: '98.6%', label: lt('Satisfaction Rate', 'Zufriedenheitsrate') },
 ];
 
 const solutionCards = [
   {
     kind: 'workflow',
-    title: lt('Streamline Workflows', 'Thjeshtoni rrjedhat e punes'),
+    title: lt('Streamline Workflows', 'Workflows optimieren'),
     body: lt(
       'Automate routine tasks and reduce administrative burden.',
-      'Automatizoni detyrat rutine dhe ulni ngarkesen administrative.'
+      'Automatisieren Sie Routineaufgaben und reduzieren Sie den Verwaltungsaufwand.'
     ),
   },
   {
     kind: 'visibility',
-    title: lt('Improve Patient Visibility', 'Permiresoni dukshmerine e pacienteve'),
+    title: lt('Improve Patient Visibility', 'Patiententransparenz verbessern'),
     body: lt(
       'Access complete patient information in real time.',
-      'Hapni informacionin e plote te pacienteve ne kohe reale.'
+      'Greifen Sie in Echtzeit auf vollständige Patienteninformationen zu.'
     ),
   },
   {
     kind: 'reporting',
-    title: lt('Faster Reporting', 'Raportim me i shpejte'),
+    title: lt('Faster Reporting', 'Schnellere Berichterstattung'),
     body: lt(
       'Generate accurate reports in just a few clicks.',
-      'Krijoni raporte te sakta me vetem pak klikime.'
+      'Erstellen Sie präzise Berichte mit nur wenigen Klicks.'
     ),
   },
   {
     kind: 'lock',
-    title: lt('Secure Collaboration', 'Bashkepunim i sigurt'),
+    title: lt('Secure Collaboration', 'Sichere Zusammenarbeit'),
     body: lt(
       'Work together safely with role-based permissions.',
-      'Punoni se bashku ne menyre te sigurt me leje sipas roleve.'
+      'Arbeiten Sie sicher zusammen mit rollenbasierten Berechtigungen.'
     ),
   },
 ];
 
 const solutionChecklist = [
-  lt('Unified patient, room, and appointment data', 'Te dhena te bashkuara per paciente, dhoma dhe termine'),
-  lt('A clear handoff from public site to secure workspace', 'Kalim i qarte nga faqja publike te hapesira e sigurt'),
-  lt('A modern look that still feels clinical and trusted', 'Pamje moderne qe ende ndihet klinike dhe e besueshme'),
+  lt('Unified patient, room, and appointment data', 'Vereinheitlichte Daten für Patienten, Zimmer und Termine'),
+  lt('A clear handoff from public site to secure workspace', 'Ein klarer Übergang von der öffentlichen Website zum sicheren Arbeitsbereich'),
+  lt('A modern look that still feels clinical and trusted', 'Ein moderner Auftritt, der weiterhin klinisch und vertrauenswürdig wirkt'),
 ];
 
 const solutionStats = [
-  { value: '42%', label: lt('less admin work', 'me pak pune administrative') },
-  { value: '3.8x', label: lt('faster reporting', 'raportim me i shpejte') },
-  { value: '24/7', label: lt('secure access', 'qasje e sigurt') },
+  { value: '42%', label: lt('less admin work', 'weniger Verwaltungsaufwand') },
+  { value: '3.8x', label: lt('faster reporting', 'schnellere Berichterstattung') },
+  { value: '24/7', label: lt('secure access', 'sicherer Zugriff') },
 ];
 
 const footerColumns = [
   {
-    title: lt('Product', 'Produkti'),
-    items: [lt('Features', 'Karakteristikat'), lt('Dashboard', 'Paneli'), lt('Pricing', 'Cmimet'), lt('Integrations', 'Integrimet')],
+    title: lt('Product', 'Produkt'),
+    items: [lt('Features', 'Funktionen'), lt('Dashboard', 'Dashboard'), lt('Pricing', 'Preise'), lt('Integrations', 'Integrationen')],
   },
   {
-    title: lt('Solutions', 'Zgjidhjet'),
-    items: [lt('Clinics', 'Klinika'), lt('Hospitals', 'Spitale'), lt('Medical Groups', 'Grupe mjekesore'), lt('Telehealth', 'Telemjekesi')],
+    title: lt('Solutions', 'Lösungen'),
+    items: [lt('Clinics', 'Kliniken'), lt('Hospitals', 'Krankenhäuser'), lt('Medical Groups', 'Medizinische Gruppen'), lt('Telehealth', 'Telemedizin')],
   },
   {
-    title: lt('Company', 'Kompania'),
-    items: [lt('About Us', 'Rreth nesh'), lt('Blog', 'Blog'), lt('Careers', 'Karriera'), lt('Contact', 'Kontakti')],
+    title: lt('Company', 'Unternehmen'),
+    items: [lt('About Us', 'Über uns'), lt('Blog', 'Blog'), lt('Careers', 'Karriere'), lt('Contact', 'Kontakt')],
   },
   {
-    title: lt('Resources', 'Burimet'),
-    items: [lt('Help Center', 'Qendra e ndihmes'), lt('Documentation', 'Dokumentacioni'), lt('Privacy Policy', 'Privatesia'), lt('Terms of Service', 'Kushtet e perdorimit')],
+    title: lt('Resources', 'Ressourcen'),
+    items: [lt('Help Center', 'Hilfecenter'), lt('Documentation', 'Dokumentation'), lt('Privacy Policy', 'Datenschutz'), lt('Terms of Service', 'Nutzungsbedingungen')],
   },
 ];
 
@@ -323,13 +323,13 @@ export default function LandingPage() {
                 to="/login"
                 className="inline-flex h-11 items-center justify-center rounded-full px-4 text-sm font-semibold text-foreground transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
               >
-                {t(lt('Log in', 'Hyr'))}
+                {t(lt('Log in', 'Anmelden'))}
               </Link>
               <Link
                 to="/login"
                 className="inline-flex h-11 items-center justify-center rounded-full bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--secondary)))] px-5 text-sm font-semibold text-white shadow-soft transition hover:translate-y-[-1px] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                {t(lt('Continue', 'Vazhdo'))}
+                {t(lt('Continue', 'Weiter'))}
               </Link>
             </div>
           </div>
@@ -340,21 +340,21 @@ export default function LandingPage() {
             <div className="space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/12 bg-primary/6 px-4 py-2 text-sm font-semibold text-primary shadow-soft">
                 <span className="inline-flex h-2.5 w-2.5 rounded-full bg-secondary animate-beat" />
-                {t(lt('All-in-one healthcare management platform', 'Platforme e plote per menaxhimin shendetesor'))}
+                {t(lt('All-in-one healthcare management platform', 'All-in-One-Plattform für Gesundheitsmanagement'))}
               </div>
 
               <div className="max-w-2xl">
                 <h1 className="landing-display text-[clamp(3rem,6vw,6rem)] leading-[0.9] text-foreground">
-                  {t(lt('Smarter healthcare', 'Shendetesi me e zgjuar'))}
+                  {t(lt('Smarter healthcare', 'Intelligentere Gesundheitsversorgung'))}
                   <span className="block">
-                    {t(lt('starts', 'fillon'))} <span className="landing-highlight">{t(lt('here.', 'ketu.'))}</span>
+                    {t(lt('starts', 'beginnt'))} <span className="landing-highlight">{t(lt('here.', 'hier.'))}</span>
                   </span>
                 </h1>
                 <p className="mt-5 max-w-xl text-base leading-8 text-muted-foreground md:text-lg">
                   {t(
                     lt(
                       'MedSphere helps clinics, hospitals, and medical teams manage data, appointments, patients, and analytics in one secure platform.',
-                      'MedSphere i ndihmon klinikat, spitalet dhe ekipet mjekesore te menaxhojne te dhena, termine, paciente dhe analitika ne nje platforme te sigurt.'
+                      'MedSphere unterstützt Kliniken, Krankenhäuser und medizinische Teams dabei, Daten, Termine, Patienten und Analysen in einer sicheren Plattform zu verwalten.'
                     )
                   )}
                 </p>
@@ -365,13 +365,13 @@ export default function LandingPage() {
                   to="/login"
                   className="inline-flex h-14 items-center justify-center rounded-full bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--secondary)))] px-7 text-sm font-semibold text-white shadow-soft transition hover:translate-y-[-1px] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  {t(lt('Start with login', 'Fillo me hyrjen'))}
+                  {t(lt('Start with login', 'Mit dem Login starten'))}
                 </Link>
                 <a
                   href="#features"
                   className="inline-flex h-14 items-center justify-center rounded-full border border-primary/20 bg-card/80 px-7 text-sm font-semibold text-primary shadow-soft transition hover:border-primary/35 hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
-                  {t(lt('Explore features', 'Shiko karakteristikat'))}
+                  {t(lt('Explore features', 'Funktionen entdecken'))}
                 </a>
               </div>
 
@@ -400,7 +400,7 @@ export default function LandingPage() {
                       <img src="/medsphere.png" alt="" aria-hidden="true" className="h-9 w-9 rounded-xl object-cover" />
                       <div className="min-w-0">
                         <p className="truncate text-xs font-semibold uppercase tracking-[0.28em] text-white/70">MedSphere</p>
-                        <p className="truncate text-sm text-white/90">{t(lt('Overview', 'Permbledhje'))}</p>
+                        <p className="truncate text-sm text-white/90">{t(lt('Overview', 'Überblick'))}</p>
                       </div>
                     </div>
 
@@ -422,10 +422,10 @@ export default function LandingPage() {
 
                     <div className="mt-auto rounded-[24px] border border-white/12 bg-white/10 p-4">
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/68">
-                        {t(lt('Secure records', 'Kartela te sigurta'))}
+                        {t(lt('Secure records', 'Sichere Akten'))}
                       </p>
                       <p className="landing-display mt-3 text-3xl">100%</p>
-                      <p className="mt-2 text-sm text-white/72">{t(lt('Protected and role-based', 'Te mbrojtura dhe sipas roleve'))}</p>
+                      <p className="mt-2 text-sm text-white/72">{t(lt('Protected and role-based', 'Geschützt und rollenbasiert'))}</p>
                     </div>
                   </aside>
 
@@ -433,10 +433,10 @@ export default function LandingPage() {
                     <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-                          {t(lt('Overview', 'Permbledhje'))}
+                          {t(lt('Overview', 'Überblick'))}
                         </p>
                         <h2 className="landing-display mt-1 text-3xl text-foreground">
-                          {t(lt('MedSphere dashboard', 'Paneli i MedSphere'))}
+                          {t(lt('MedSphere dashboard', 'MedSphere-Dashboard'))}
                         </h2>
                       </div>
 
@@ -446,7 +446,7 @@ export default function LandingPage() {
                             <circle cx="11" cy="11" r="6" />
                             <path d="m20 20-3.2-3.2" />
                           </svg>
-                          {t(lt('Search patients, appointments...', 'Kerkoni paciente, termine...'))}
+                          {t(lt('Search patients, appointments...', 'Patienten, Termine ... suchen'))}
                         </div>
                         <div className="flex items-center gap-3 rounded-full border border-border/60 bg-background/80 px-2 py-2 shadow-soft">
                           <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--secondary)))] text-sm font-bold text-white">
@@ -454,7 +454,7 @@ export default function LandingPage() {
                           </span>
                           <div className="pr-2">
                             <p className="text-sm font-semibold text-foreground">Dr. Sarah Johnson</p>
-                            <p className="text-xs text-muted-foreground">{t(lt('Administrator', 'Administratore'))}</p>
+                            <p className="text-xs text-muted-foreground">{t(lt('Administrator', 'Administrator'))}</p>
                           </div>
                         </div>
                       </div>
@@ -483,7 +483,7 @@ export default function LandingPage() {
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-semibold text-foreground">{t(commonCopy.todayAppointments)}</p>
                           <a href="#pricing" className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                            {t(lt('View all', 'Shiko te gjitha'))}
+                            {t(lt('View all', 'Alle anzeigen'))}
                           </a>
                         </div>
                         <div className="mt-4 space-y-3">
@@ -515,10 +515,10 @@ export default function LandingPage() {
                         <article className="rounded-[28px] border border-border/60 bg-white p-4 shadow-soft">
                           <div className="flex items-center justify-between gap-3">
                             <p className="text-sm font-semibold text-foreground">
-                              {t(lt('Health Analytics', 'Analitika shendetesore'))}
+                              {t(lt('Health Analytics', 'Gesundheitsanalysen'))}
                             </p>
                             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                              {t(lt('This month', 'Kete muaj'))}
+                              {t(lt('This month', 'Diesen Monat'))}
                             </span>
                           </div>
 
@@ -549,13 +549,13 @@ export default function LandingPage() {
                         <div className="grid gap-3 sm:grid-cols-2">
                           {[
                             {
-                              title: lt('Doctor Activity', 'Aktiviteti i mjekeve'),
+                              title: lt('Doctor Activity', 'Aktivität der Ärzte'),
                               value: '78%',
                               note: '+6.2%',
                               icon: 'analytics',
                             },
                             {
-                              title: lt('Active Treatments', 'Trajtimet aktive'),
+                              title: lt('Active Treatments', 'Aktive Behandlungen'),
                               value: '1,104',
                               note: '+9.1%',
                               icon: 'records',
@@ -581,12 +581,12 @@ export default function LandingPage() {
                             </div>
                             <div>
                               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                                {t(lt('Upcoming Appointments', 'Termine ne vazhdim'))}
+                                {t(lt('Upcoming Appointments', 'Bevorstehende Termine'))}
                               </p>
                               <p className="landing-display mt-2 text-[2rem] leading-none text-foreground">32</p>
                             </div>
                           </div>
-                          <p className="mt-2 text-sm font-semibold text-emerald-600">{t(lt('Today', 'Sot'))}</p>
+                          <p className="mt-2 text-sm font-semibold text-emerald-600">{t(lt('Today', 'Heute'))}</p>
                         </article>
                       </div>
                     </div>
@@ -596,10 +596,10 @@ export default function LandingPage() {
 
               <div className="animate-float-slow absolute -right-2 top-12 hidden rounded-[24px] border border-border/60 bg-white/90 p-4 shadow-soft 2xl:block">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                  {t(lt('Platform uptime', 'Disponueshmeria'))}
+                  {t(lt('Platform uptime', 'Plattform-Verfügbarkeit'))}
                 </p>
                 <p className="landing-display mt-2 text-3xl text-foreground">99.98%</p>
-                <p className="mt-1 text-sm text-muted-foreground">{t(lt('Across clinics and hospitals', 'Ne klinika dhe spitale'))}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t(lt('Across clinics and hospitals', 'Über Kliniken und Krankenhäuser hinweg'))}</p>
               </div>
             </div>
           </div>
@@ -625,10 +625,10 @@ export default function LandingPage() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-[1.15fr_repeat(4,minmax(0,1fr))] xl:items-center">
             <div className="pr-0 xl:pr-6">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                {t(lt('Trusted by care teams', 'I besuar nga ekipet e kujdesit'))}
+                {t(lt('Trusted by care teams', 'Vertraut von Betreuungsteams'))}
               </p>
               <h2 className="landing-display mt-2 text-[2rem] leading-tight text-foreground">
-                {t(lt('Built to support better care at scale.', 'Ndertuar per te mbeshtetur kujdes me te mire ne shkalle.'))}
+                {t(lt('Built to support better care at scale.', 'Entwickelt, um bessere Versorgung im großen Maßstab zu unterstützen.'))}
               </h2>
             </div>
 
@@ -648,16 +648,16 @@ export default function LandingPage() {
           <div className="grid self-start content-start gap-4">
             <article className="landing-shell rounded-[36px] p-6 md:p-8">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                {t(lt('How MedSphere helps', 'Si ndihmon MedSphere'))}
+                {t(lt('How MedSphere helps', 'Wie MedSphere hilft'))}
               </p>
               <h2 className="landing-display mt-3 text-[clamp(2.2rem,4.4vw,4rem)] leading-[0.94] text-foreground">
-                {t(lt('Better care. Smarter operations.', 'Kujdes me i mire. Operacione me te zgjuara.'))}
+                {t(lt('Better care. Smarter operations.', 'Bessere Versorgung. Intelligentere Abläufe.'))}
               </h2>
               <p className="mt-4 text-base leading-8 text-muted-foreground">
                 {t(
                   lt(
                     'From the guest-facing first impression to daily staff workflows, MedSphere keeps the experience calm, trustworthy, and operationally useful.',
-                    'Nga pershtypja e pare publike deri tek rrjedhat e punes se stafit, MedSphere e mban eksperiencen te qete, te besueshme dhe te dobishme ne praktike.'
+                    'Vom ersten öffentlichen Eindruck bis zu den täglichen Arbeitsabläufen des Teams hält MedSphere das Erlebnis ruhig, vertrauenswürdig und praktisch.'
                   )
                 )}
               </p>
@@ -702,10 +702,10 @@ export default function LandingPage() {
               <div className="grid gap-4 md:grid-cols-[1fr_repeat(3,minmax(0,0.6fr))] md:items-center">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                    {t(lt('Operational impact', 'Ndikim operacional'))}
+                    {t(lt('Operational impact', 'Operative Wirkung'))}
                   </p>
                   <h3 className="mt-2 text-xl font-semibold text-foreground">
-                    {t(lt('Less waiting between every care step.', 'Me pak pritje mes cdo hapi te kujdesit.'))}
+                    {t(lt('Less waiting between every care step.', 'Weniger Wartezeit zwischen jedem Versorgungsschritt.'))}
                   </h3>
                 </div>
 

@@ -55,6 +55,9 @@ function collectReferenceKeys(moduleKey, scope = 'all') {
 function getReferenceOptions(moduleKey) {
     return collectReferenceKeys(moduleKey);
 }
+function supportsAction(config, action) {
+    return config.actions?.[action] ?? true;
+}
 export default function ModulePage({ moduleKey }) {
     const config = moduleConfigs[moduleKey];
     const [searchParams, setSearchParams] = useSearchParams();
@@ -223,7 +226,7 @@ export default function ModulePage({ moduleKey }) {
             ...Object.fromEntries(config.filters.map((filter) => [filter.name, null])),
         });
     }, [config.filters, updateSearchParams]);
-    const renderActions = useCallback((item) => (_jsxs("div", { className: "flex flex-wrap gap-2", children: [can(config.permissions?.edit) ? (_jsx(Button, { size: "sm", variant: "outline", onClick: () => openEditModal(item), children: t(commonCopy.edit) })) : null, can(config.permissions?.delete) ? (_jsx(Button, { size: "sm", variant: "danger", onClick: () => setDeleteItem(item), children: t(commonCopy.delete) })) : null] })), [can, config.permissions?.delete, config.permissions?.edit, openEditModal, t]);
+    const renderActions = useCallback((item) => (_jsxs("div", { className: "flex flex-wrap gap-2", children: [supportsAction(config, 'edit') && can(config.permissions?.edit) ? (_jsx(Button, { size: "sm", variant: "outline", onClick: () => openEditModal(item), children: t(commonCopy.edit) })) : null, supportsAction(config, 'delete') && can(config.permissions?.delete) ? (_jsx(Button, { size: "sm", variant: "danger", onClick: () => setDeleteItem(item), children: t(commonCopy.delete) })) : null] })), [can, config.permissions?.delete, config.permissions?.edit, openEditModal, t]);
     const handlePageChange = useCallback((nextPage) => {
         updateSearchParams({
             page: nextPage,
@@ -237,8 +240,8 @@ export default function ModulePage({ moduleKey }) {
     }, [updateSearchParams]);
     const hasForbiddenError = listQuery.error && listQuery.error?.response?.status === 403;
     const hasUnauthorizedError = listQuery.error && listQuery.error?.response?.status === 401;
-    const emptyAction = can(config.permissions?.create) ? (_jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) })) : null;
-    return (_jsxs("div", { className: "space-y-6", children: [_jsx(PageHeader, { title: t(config.label), description: t(config.description), action: _jsx(RoleGuard, { allow: config.permissions?.create, children: _jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) }) }) }), _jsx(Card, { title: t(commonCopy.filters), description: t(commonCopy.results), className: "relative z-20", children: _jsxs("form", { className: "grid gap-4 md:grid-cols-2 xl:grid-cols-4", onSubmit: submitFilters, children: [config.filters.map((filter) => {
+    const emptyAction = supportsAction(config, 'create') && can(config.permissions?.create) ? (_jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) })) : null;
+    return (_jsxs("div", { className: "space-y-6", children: [_jsx(PageHeader, { title: t(config.label), description: t(config.description), action: supportsAction(config, 'create') ? (_jsx(RoleGuard, { allow: config.permissions?.create, children: _jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) }) })) : null }), _jsx(Card, { title: t(commonCopy.filters), description: t(commonCopy.results), className: "relative z-20", children: _jsxs("form", { className: "grid gap-4 md:grid-cols-2 xl:grid-cols-4", onSubmit: submitFilters, children: [config.filters.map((filter) => {
                             const referenceOptions = filter.source ? references[filter.source] || [] : [];
                             const options = filter.source
                                 ? referenceOptions

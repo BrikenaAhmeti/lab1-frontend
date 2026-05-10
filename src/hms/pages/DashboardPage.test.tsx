@@ -60,15 +60,15 @@ describe('DashboardPage', () => {
           {
             id: 'appointment-1',
             patient: {
-              first_name: 'Lena',
-              last_name: 'Stone',
+              firstName: 'Lena',
+              lastName: 'Stone',
             },
             doctor: {
-              first_name: 'Ava',
-              last_name: 'Cole',
+              firstName: 'Ava',
+              lastName: 'Cole',
             },
-            date: '2099-10-10',
-            time: '09:30',
+            appointmentDate: '2099-10-10',
+            appointmentTime: '09:30',
           },
         ]);
       }

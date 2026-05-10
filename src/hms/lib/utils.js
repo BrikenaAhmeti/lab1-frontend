@@ -24,6 +24,27 @@ export function getValue(item, ...paths) {
 export function snakeToCamel(value) {
     return value.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
 }
+export function camelToSnake(value) {
+    return value.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toLowerCase();
+}
+export function deepCamelCaseKeys(value) {
+    if (Array.isArray(value)) {
+        return value.map(deepCamelCaseKeys);
+    }
+    if (!value || typeof value !== 'object' || value instanceof Date) {
+        return value;
+    }
+    return Object.fromEntries(Object.entries(value).map(([key, entryValue]) => [snakeToCamel(key), deepCamelCaseKeys(entryValue)]));
+}
+export function deepSnakeCaseKeys(value) {
+    if (Array.isArray(value)) {
+        return value.map(deepSnakeCaseKeys);
+    }
+    if (!value || typeof value !== 'object' || value instanceof Date) {
+        return value;
+    }
+    return Object.fromEntries(Object.entries(value).map(([key, entryValue]) => [camelToSnake(key), deepSnakeCaseKeys(entryValue)]));
+}
 export function normalizeRoles(input) {
     if (Array.isArray(input)) {
         return input
@@ -37,17 +58,21 @@ export function normalizeRoles(input) {
 }
 export function normalizeUser(user) {
     return {
-        ...user,
+        ...deepCamelCaseKeys(user),
         id: String(getValue(user, 'id')),
-        first_name: getValue(user, 'first_name', 'firstName'),
-        last_name: getValue(user, 'last_name', 'lastName'),
+        firstName: getValue(user, 'firstName', 'first_name'),
+        lastName: getValue(user, 'lastName', 'last_name'),
         email: getValue(user, 'email'),
         roles: normalizeRoles(getValue(user, 'roles', 'role')),
     };
 }
 export function normalizeListResponse(payload) {
     return {
-        data: Array.isArray(payload?.data) ? payload.data : Array.isArray(payload?.items) ? payload.items : [],
+        data: Array.isArray(payload?.data)
+            ? deepCamelCaseKeys(payload.data)
+            : Array.isArray(payload?.items)
+                ? deepCamelCaseKeys(payload.items)
+                : [],
         total: Number(payload?.total ?? 0),
         page: Number(payload?.page ?? 1),
         limit: Number(payload?.limit ?? 10),
@@ -56,13 +81,13 @@ export function normalizeListResponse(payload) {
 }
 export function normalizeArrayResponse(payload) {
     if (Array.isArray(payload)) {
-        return payload;
+        return deepCamelCaseKeys(payload);
     }
     if (Array.isArray(payload?.data)) {
-        return payload.data;
+        return deepCamelCaseKeys(payload.data);
     }
     if (Array.isArray(payload?.items)) {
-        return payload.items;
+        return deepCamelCaseKeys(payload.items);
     }
     return [];
 }
@@ -129,8 +154,8 @@ export function getErrorMessage(error, translate) {
     return resolveCopy(commonCopy.genericError, translate);
 }
 export function formatPersonName(item) {
-    const firstName = getValue(item, 'first_name', 'firstName');
-    const lastName = getValue(item, 'last_name', 'lastName');
+    const firstName = getValue(item, 'firstName', 'first_name');
+    const lastName = getValue(item, 'lastName', 'last_name');
     return `${firstName} ${lastName}`.trim();
 }
 export function formatDate(value, language) {
@@ -141,14 +166,14 @@ export function formatDate(value, language) {
     if (Number.isNaN(date.getTime())) {
         return value;
     }
-    return new Intl.DateTimeFormat(language === 'sq' ? 'sq-AL' : 'en-US', {
+    return new Intl.DateTimeFormat(language === 'de' ? 'de-DE' : 'en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
     }).format(date);
 }
 export function formatCurrency(value, language) {
-    return new Intl.NumberFormat(language === 'sq' ? 'sq-AL' : 'en-US', {
+    return new Intl.NumberFormat(language === 'de' ? 'de-DE' : 'en-US', {
         style: 'currency',
         currency: 'EUR',
         minimumFractionDigits: 2,
@@ -176,7 +201,7 @@ function normalizeTimeInput(value) {
     return value.slice(0, 5);
 }
 export function getFieldInputValue(item, field) {
-    const rawValue = getValue(item, field.name, snakeToCamel(field.name));
+    const rawValue = getValue(item, field.name, camelToSnake(field.name));
     if (field.type === 'date') {
         return normalizeDateInput(String(rawValue || ''));
     }

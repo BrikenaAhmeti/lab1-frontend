@@ -10,6 +10,22 @@ function clearLegacyRefreshToken() {
     }
     sessionStorage.removeItem(REFRESH_TOKEN_KEY);
 }
+function readRefreshToken() {
+    if (typeof window === 'undefined') {
+        return '';
+    }
+    return sessionStorage.getItem(REFRESH_TOKEN_KEY) || '';
+}
+function persistRefreshToken(refreshToken) {
+    if (typeof window === 'undefined') {
+        return;
+    }
+    if (refreshToken) {
+        sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+        return;
+    }
+    sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+}
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [accessToken, setAccessToken] = useState('');
@@ -22,6 +38,7 @@ export function AuthProvider({ children }) {
     const applySession = (payload) => {
         setUser((currentUser) => (payload.user ? normalizeUser(payload.user) : currentUser));
         setAccessToken(payload.accessToken);
+        persistRefreshToken(payload.refreshToken);
     };
     const handleRefreshFailure = useCallback(() => {
         clearSession();
@@ -32,6 +49,7 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         configureApiClient({
             getAccessToken: () => accessToken,
+            getRefreshToken: readRefreshToken,
             onRefreshSuccess: applySession,
             onRefreshFailure: handleRefreshFailure,
         });
@@ -39,9 +57,9 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         let cancelled = false;
         const restoreSession = async () => {
-            clearLegacyRefreshToken();
             try {
-                const payload = await authApi.refresh();
+                const refreshToken = readRefreshToken() || undefined;
+                const payload = await authApi.refresh(refreshToken);
                 const sessionUser = payload.user ?? (await authApi.me(payload.accessToken));
                 if (!cancelled) {
                     applySession({ ...payload, user: sessionUser });

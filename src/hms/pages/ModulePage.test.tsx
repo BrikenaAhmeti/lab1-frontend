@@ -39,21 +39,21 @@ function renderPage() {
 }
 
 async function fillPatientForm() {
-  fireEvent.change(document.getElementById('first_name') as HTMLInputElement, {
+  fireEvent.change(document.getElementById('firstName') as HTMLInputElement, {
     target: { value: 'John' },
   });
-  fireEvent.change(document.getElementById('last_name') as HTMLInputElement, {
+  fireEvent.change(document.getElementById('lastName') as HTMLInputElement, {
     target: { value: 'Doe' },
   });
-  fireEvent.change(document.getElementById('date_of_birth') as HTMLInputElement, {
+  fireEvent.change(document.getElementById('dateOfBirth') as HTMLInputElement, {
     target: { value: '1990-05-12' },
   });
   fireEvent.click(screen.getByTestId('select-gender'));
   fireEvent.click(screen.getByRole('option', { name: /^Male$/i }));
-  fireEvent.change(document.getElementById('phone') as HTMLInputElement, {
+  fireEvent.change(document.getElementById('phoneNumber') as HTMLInputElement, {
     target: { value: '+38344111222' },
   });
-  fireEvent.click(screen.getByTestId('select-blood_group'));
+  fireEvent.click(screen.getByTestId('select-bloodType'));
   fireEvent.click(screen.getByRole('option', { name: /^O\+$/ }));
   fireEvent.change(document.getElementById('address') as HTMLTextAreaElement, {
     target: { value: 'Prishtina' },
@@ -65,12 +65,12 @@ describe('ModulePage', () => {
     data: [
       {
         id: 'patient-1',
-        first_name: 'Jane',
-        last_name: 'Doe',
-        date_of_birth: '1991-03-12',
+        firstName: 'Jane',
+        lastName: 'Doe',
+        dateOfBirth: '1991-03-12',
         gender: 'FEMALE',
-        phone: '+38344111111',
-        blood_group: 'A+',
+        phoneNumber: '+38344111111',
+        bloodType: 'A+',
         address: 'Main Street',
       },
     ],
@@ -131,12 +131,12 @@ describe('ModulePage', () => {
     await waitFor(() => {
       expect(moduleConfigs.patients.service.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          first_name: 'John',
-          last_name: 'Doe',
-          date_of_birth: '1990-05-12',
+          firstName: 'John',
+          lastName: 'Doe',
+          dateOfBirth: '1990-05-12',
           gender: 'MALE',
-          phone: '+38344111222',
-          blood_group: 'O+',
+          phoneNumber: '+38344111222',
+          bloodType: 'O+',
           address: 'Prishtina',
         })
       );
@@ -147,9 +147,9 @@ describe('ModulePage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
 
     await waitFor(() => {
-      expect(document.getElementById('first_name')).toHaveValue('Jane');
+      expect(document.getElementById('firstName')).toHaveValue('Jane');
     });
-    fireEvent.change(document.getElementById('phone') as HTMLInputElement, {
+    fireEvent.change(document.getElementById('phoneNumber') as HTMLInputElement, {
       target: { value: '+38344999999' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Update' }));
@@ -158,7 +158,7 @@ describe('ModulePage', () => {
       expect(moduleConfigs.patients.service.update).toHaveBeenCalledWith(
         'patient-1',
         expect.objectContaining({
-          phone: '+38344999999',
+          phoneNumber: '+38344999999',
         })
       );
     });

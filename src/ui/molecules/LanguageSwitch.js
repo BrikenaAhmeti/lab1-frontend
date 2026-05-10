@@ -4,7 +4,7 @@ import { commonCopy } from '@/hms/copy';
 import { useLanguage } from '@/hms/contexts/LanguageContext';
 const langs = [
     { code: 'en', shortLabel: 'EN', label: 'English' },
-    { code: 'sq', shortLabel: 'SQ', label: 'Shqip' },
+    { code: 'de', shortLabel: 'DE', label: 'Deutsch' },
 ];
 const LanguageSwitch = ({ compact = false }) => {
     const { language, setLanguage, t } = useLanguage();

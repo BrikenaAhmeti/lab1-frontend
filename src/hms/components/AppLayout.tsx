@@ -19,16 +19,16 @@ type NavItem = {
 };
 
 const moduleDescriptions: Record<ModuleKey, ReturnType<typeof lt>> = {
-  patients: lt('Records, intake, and current care plans', 'Kartela, pranime dhe plane kujdesi'),
-  doctors: lt('Availability, teams, and medical coverage', 'Disponueshmeri, ekipe dhe mbulim mjekesor'),
-  departments: lt('Teams, specialties, and structure', 'Ekipe, specialitete dhe strukture'),
-  appointments: lt('Visits, schedules, and daily flow', 'Vizita, orare dhe rrjedhe ditore'),
-  'medical-records': lt('Clinical history and documentation', 'Histori klinike dhe dokumentim'),
-  prescriptions: lt('Medication orders and linked records', 'Urdhra ilaçesh dhe kartela te lidhura'),
-  rooms: lt('Capacity, availability, and occupancy', 'Kapacitet, disponueshmeri dhe zënie'),
-  admissions: lt('Check-ins, stays, and discharge flow', 'Pranime, qendrime dhe dalje'),
-  invoices: lt('Billing, balances, and payments', 'Faturim, balanca dhe pagesa'),
-  nurses: lt('Coverage, shifts, and ward support', 'Mbulim, turne dhe mbeshtetje reparti'),
+  patients: lt('Records, intake, and current care plans', 'Akten, Aufnahme und aktuelle Pflegepläne'),
+  doctors: lt('Availability, teams, and medical coverage', 'Verfügbarkeit, Teams und medizinische Versorgung'),
+  departments: lt('Teams, specialties, and structure', 'Teams, Fachgebiete und Struktur'),
+  appointments: lt('Visits, schedules, and daily flow', 'Besuche, Zeitpläne und Tagesablauf'),
+  'medical-records': lt('Clinical history and documentation', 'Klinische Historie und Dokumentation'),
+  prescriptions: lt('Medication orders and linked records', 'Medikationsanordnungen und verknüpfte Akten'),
+  rooms: lt('Capacity, availability, and occupancy', 'Kapazität, Verfügbarkeit und Belegung'),
+  admissions: lt('Check-ins, stays, and discharge flow', 'Aufnahmen, Aufenthalte und Entlassungsabläufe'),
+  invoices: lt('Billing, balances, and payments', 'Abrechnung, Salden und Zahlungen'),
+  nurses: lt('Coverage, shifts, and ward support', 'Abdeckung, Schichten und Stationsunterstützung'),
 };
 
 function initialsFromUser(fullName: string, email?: string) {
@@ -137,14 +137,14 @@ export default function AppLayout() {
   const { t } = useLanguage();
   const fullName = formatPersonName(user) || 'MedSphere User';
   const initials = initialsFromUser(fullName, user?.email);
-  const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Mbyll navigimin') : lt('Open navigation', 'Hap navigimin'));
+  const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Navigation schließen') : lt('Open navigation', 'Navigation öffnen'));
 
   const navigationItems: NavItem[] = [
     {
       key: 'dashboard',
       to: '/dashboard',
       label: t(commonCopy.dashboard),
-      description: t(lt('Live hospital overview and operations', 'Pamje operative dhe aktivitet spitalor')),
+      description: t(lt('Live hospital overview and operations', 'Live-Überblick über Krankenhausbetrieb und Abläufe')),
     },
     ...moduleOrder.map((key) => ({
       key,
@@ -205,7 +205,7 @@ export default function AppLayout() {
 
               <button
                 type="button"
-                aria-label={t(lt('Close menu', 'Mbyll menune'))}
+                aria-label={t(lt('Close menu', 'Menü schließen'))}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/12 bg-white/10 text-white transition hover:bg-white/16 md:hidden"
                 onClick={closeSidebar}
               >
@@ -320,7 +320,7 @@ export default function AppLayout() {
                   to="/"
                   className="hidden h-11 items-center justify-center rounded-full border border-border/70 bg-card/70 px-4 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:bg-card/90 lg:inline-flex"
                 >
-                  {t(lt('Guest site', 'Faqja publike'))}
+                  {t(lt('Guest site', 'Öffentliche Website'))}
                 </NavLink>
                 <ThemeToggle compact />
                 <LanguageSwitch compact />

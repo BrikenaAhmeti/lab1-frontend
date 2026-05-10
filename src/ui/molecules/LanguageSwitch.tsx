@@ -4,7 +4,7 @@ import { useLanguage } from '@/hms/contexts/LanguageContext';
 
 const langs = [
   { code: 'en', shortLabel: 'EN', label: 'English' },
-  { code: 'sq', shortLabel: 'SQ', label: 'Shqip' },
+  { code: 'de', shortLabel: 'DE', label: 'Deutsch' },
 ];
 
 type LanguageSwitchProps = {
@@ -41,7 +41,7 @@ const LanguageSwitch = ({ compact = false }: LanguageSwitchProps) => {
             'focus-visible:border-primary/40 focus-visible:ring-2 focus-visible:ring-ring/35'
           )}
           value={language}
-          onChange={(event) => setLanguage(event.target.value as 'en' | 'sq')}
+          onChange={(event) => setLanguage(event.target.value as 'en' | 'de')}
         >
           {langs.map((item) => (
             <option key={item.code} value={item.code}>

@@ -30,7 +30,8 @@ export default function EntityFormModal({ open, mode, config, item, references, 
     }, [config, form, item, open]);
     const title = mode === 'create' ? t(commonCopy.createRecord) : t(commonCopy.editRecord);
     const description = t(config.singular);
-    return (_jsx(Modal, { open: open, title: `${title}: ${description}`, onClose: onClose, children: loading ? (_jsx(ListSkeleton, { items: 4, itemClassName: "h-14" })) : error ? (_jsx(EmptyState, { compact: true, tone: "error", title: t(commonCopy.errorTitle), description: getErrorMessage(error, t), action: onRetry ? (_jsx(Button, { variant: "outline", onClick: onRetry, children: t(commonCopy.retry) })) : null })) : (_jsxs("form", { className: "space-y-4", onSubmit: form.handleSubmit(async (values) => onSubmit(values)), children: [_jsx("div", { className: "grid gap-4 md:grid-cols-2", children: config.fields.map((field) => {
+    const visibleFields = config.fields.filter((field) => !field.modes || field.modes.includes(mode));
+    return (_jsx(Modal, { open: open, title: `${title}: ${description}`, onClose: onClose, children: loading ? (_jsx(ListSkeleton, { items: 4, itemClassName: "h-14" })) : error ? (_jsx(EmptyState, { compact: true, tone: "error", title: t(commonCopy.errorTitle), description: getErrorMessage(error, t), action: onRetry ? (_jsx(Button, { variant: "outline", onClick: onRetry, children: t(commonCopy.retry) })) : null })) : (_jsxs("form", { className: "space-y-4", onSubmit: form.handleSubmit(async (values) => onSubmit(values)), children: [_jsx("div", { className: "grid gap-4 md:grid-cols-2", children: visibleFields.map((field) => {
                         const error = String(form.formState.errors[field.name]?.message || '');
                         const options = field.source
                             ? references[field.source] || []

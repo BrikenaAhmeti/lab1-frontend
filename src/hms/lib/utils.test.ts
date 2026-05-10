@@ -6,13 +6,13 @@ describe('utils', () => {
       buildQueryString({
         page: 1,
         limit: 10,
-        sortBy: 'created_at',
+        sortBy: 'createdAt',
         order: 'DESC',
         search: 'john',
         status: '',
         doctorId: null,
       })
-    ).toBe('page=1&limit=10&sortBy=created_at&order=DESC&search=john');
+    ).toBe('page=1&limit=10&sortBy=createdAt&order=DESC&search=john');
   });
 
   it('normalizes paginated payloads', () => {

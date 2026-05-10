@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import i18n from '@/config/i18n';
 import type { Language, LocalizedText } from '../types';
 import { pickText } from '../copy';
 
@@ -14,7 +15,12 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 function getInitialLanguage(): Language {
   const storedLanguage = localStorage.getItem(LANGUAGE_KEY);
-  return storedLanguage === 'sq' ? 'sq' : 'en';
+
+  if (storedLanguage === 'de' || storedLanguage === 'en') {
+    return storedLanguage;
+  }
+
+  return i18n.resolvedLanguage === 'de' ? 'de' : 'en';
 }
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
@@ -23,6 +29,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(LANGUAGE_KEY, language);
     document.documentElement.lang = language;
+    void i18n.changeLanguage(language);
   }, [language]);
 
   return (

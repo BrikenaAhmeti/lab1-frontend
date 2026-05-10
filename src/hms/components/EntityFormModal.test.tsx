@@ -34,10 +34,10 @@ describe('EntityFormModal', () => {
     });
     fireEvent.click(screen.getByRole('combobox', { name: /Gender/i }));
     fireEvent.click(screen.getByRole('option', { name: /^Male$/i }));
-    fireEvent.change(screen.getByLabelText('Phone'), {
+    fireEvent.change(screen.getByLabelText('Phone number'), {
       target: { value: '+38344111222' },
     });
-    fireEvent.click(screen.getByRole('combobox', { name: /Blood group/i }));
+    fireEvent.click(screen.getByRole('combobox', { name: /Blood type/i }));
     fireEvent.click(screen.getByRole('option', { name: /^O\+$/ }));
     fireEvent.change(screen.getByLabelText('Address'), {
       target: { value: 'Prishtina' },
@@ -48,12 +48,12 @@ describe('EntityFormModal', () => {
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          first_name: 'John',
-          last_name: 'Doe',
-          date_of_birth: '1990-05-12',
+          firstName: 'John',
+          lastName: 'Doe',
+          dateOfBirth: '1990-05-12',
           gender: 'MALE',
-          phone: '+38344111222',
-          blood_group: 'O+',
+          phoneNumber: '+38344111222',
+          bloodType: 'O+',
           address: 'Prishtina',
         })
       );

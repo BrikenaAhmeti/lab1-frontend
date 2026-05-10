@@ -43,7 +43,7 @@ describe('AuthProvider', () => {
       expect(screen.getByTestId('auth-status')).toHaveTextContent('ADMIN');
     });
 
-    expect(refreshSpy).toHaveBeenCalledWith();
+    expect(refreshSpy).toHaveBeenCalledTimes(1);
     expect(sessionStorage.getItem(REFRESH_TOKEN_KEY)).toBe(null);
     expect(localStorage.getItem('auth.session')).toBe(null);
   });

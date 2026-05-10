@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export type Language = 'en' | 'sq';
+export type Language = 'en' | 'de';
 
 export type LocalizedText = Record<Language, string>;
 
@@ -28,9 +28,7 @@ export type ReferenceKey =
 
 export type User = {
   id: string;
-  first_name?: string;
   firstName?: string;
-  last_name?: string;
   lastName?: string;
   email?: string;
   roles: string[];
@@ -92,6 +90,7 @@ export type FormFieldConfig = {
   options?: OptionConfig[];
   source?: ReferenceKey;
   step?: string;
+  modes?: Array<'create' | 'edit'>;
 };
 
 export type ModuleConfig = {
@@ -114,6 +113,11 @@ export type ModuleConfig = {
     create?: string[];
     edit?: string[];
     delete?: string[];
+  };
+  actions?: {
+    create?: boolean;
+    edit?: boolean;
+    delete?: boolean;
   };
   createDefaults?: Record<string, any>;
   cleanPayload?: (values: any, mode: 'create' | 'edit') => any;

@@ -1,2 +1,2 @@
-import { createModuleRoutePage } from './createModuleRoutePage';
-export default createModuleRoutePage('prescriptions');
+import PrescriptionsPage from '@/pages/Dashboard/prescriptions';
+export default PrescriptionsPage;

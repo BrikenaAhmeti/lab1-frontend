@@ -17,15 +17,15 @@ const schema = z.object({
 });
 
 const loginHighlights = [
-  lt('The same MedSphere palette and dashboard language', 'E njejta palete dhe gjuhe paneli e MedSphere'),
-  lt('Secure staff access with a clear public-to-private handoff', 'Qasje e sigurt e stafit me kalim te qarte nga publiku ne privat'),
-  lt('Fast access to patients, rooms, appointments, and reports', 'Qasje e shpejte ne paciente, dhoma, termine dhe raporte'),
+  lt('The same MedSphere palette and dashboard language', 'Dieselbe MedSphere-Palette und Dashboardsprache'),
+  lt('Secure staff access with a clear public-to-private handoff', 'Sicherer Personalzugang mit klarem Übergang von öffentlich zu intern'),
+  lt('Fast access to patients, rooms, appointments, and reports', 'Schneller Zugriff auf Patienten, Zimmer, Termine und Berichte'),
 ];
 
 const loginMetrics = [
-  { label: lt('Active Patients', 'Pacientet aktive'), value: '2,543' },
-  { label: lt("Today's Appointments", 'Terminet e sotme'), value: '32' },
-  { label: lt('Secure Records', 'Kartela te sigurta'), value: '100%' },
+  { label: lt('Active Patients', 'Aktive Patienten'), value: '2,543' },
+  { label: lt("Today's Appointments", 'Heutige Termine'), value: '32' },
+  { label: lt('Secure Records', 'Sichere Akten'), value: '100%' },
 ];
 
 export default function LoginPage() {
@@ -66,7 +66,7 @@ export default function LoginPage() {
               <div className="min-w-0">
                 <p className="landing-display truncate text-2xl text-foreground">MedSphere</p>
                 <p className="truncate text-sm text-muted-foreground">
-                  {t(lt('Secure workspace access', 'Qasje e sigurt ne hapesiren e punes'))}
+                  {t(lt('Secure workspace access', 'Sicherer Zugriff auf den Arbeitsbereich'))}
                 </p>
               </div>
             </Link>
@@ -78,7 +78,7 @@ export default function LoginPage() {
                 to="/"
                 className="inline-flex h-11 items-center justify-center rounded-full border border-border/70 bg-card/80 px-5 text-sm font-semibold text-foreground shadow-soft transition hover:border-primary/25 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
               >
-                {t(lt('Back to website', 'Kthehu te faqja'))}
+                {t(lt('Back to website', 'Zur Website zurück'))}
               </Link>
             </div>
           </div>
@@ -88,19 +88,19 @@ export default function LoginPage() {
           <section className="landing-shell animate-fade-up rounded-[40px] p-6 md:p-8">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/12 bg-primary/6 px-4 py-2 text-sm font-semibold text-primary shadow-soft">
               <span className="inline-flex h-2.5 w-2.5 rounded-full bg-secondary animate-beat" />
-              {t(lt('Staff portal', 'Portali i stafit'))}
+              {t(lt('Staff portal', 'Mitarbeiterportal'))}
             </div>
 
             <h1 className="landing-display mt-6 max-w-3xl text-[clamp(2.7rem,5.3vw,5rem)] leading-[0.92] text-foreground">
-              {t(lt('Secure access for every', 'Qasje e sigurt per cdo'))}
-              <span className="block landing-highlight">{t(lt('MedSphere team.', 'ekip MedSphere.'))}</span>
+              {t(lt('Secure access for every', 'Sicherer Zugang für jedes'))}
+              <span className="block landing-highlight">{t(lt('MedSphere team.', 'MedSphere-Team.'))}</span>
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
               {t(
                 lt(
                   'The workspace keeps the same calm visual language as the public site, so the move from first impression to real operations stays connected.',
-                  'Hapesira e punes ruan te njejten gjuhe te qete vizuale si faqja publike, qe kalimi nga pershtypja e pare ne operacione reale te mbetet i lidhur.'
+                  'Der Arbeitsbereich bewahrt dieselbe ruhige visuelle Sprache wie die öffentliche Website, damit der Wechsel vom ersten Eindruck zur täglichen Arbeit stimmig bleibt.'
                 )
               )}
             </p>
@@ -126,12 +126,12 @@ export default function LoginPage() {
                   <aside className="flex flex-col gap-3 bg-[linear-gradient(180deg,hsl(212_84%_27%),hsl(217_73%_18%))] p-4 text-white">
                     <div className="rounded-[20px] border border-white/12 bg-white/10 px-3 py-3">
                       <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">MedSphere</p>
-                      <p className="mt-1 text-sm text-white/92">{t(lt('Dashboard ready', 'Paneli gati'))}</p>
+                      <p className="mt-1 text-sm text-white/92">{t(lt('Dashboard ready', 'Dashboard bereit'))}</p>
                     </div>
                     {[
-                      lt('Overview', 'Permbledhje'),
-                      lt('Patients', 'Pacientet'),
-                      lt('Appointments', 'Terminet'),
+                      lt('Overview', 'Überblick'),
+                      lt('Patients', 'Patienten'),
+                      lt('Appointments', 'Termine'),
                     ].map((item, index) => (
                       <div
                         key={item.en}
@@ -146,10 +146,10 @@ export default function LoginPage() {
                     <div className="flex items-center justify-between rounded-[20px] border border-border/60 bg-background/55 px-4 py-3">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-                          {t(lt('Live overview', 'Pamje live'))}
+                          {t(lt('Live overview', 'Live-Überblick'))}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {t(lt('Patients, appointments, rooms', 'Paciente, termine, dhoma'))}
+                          {t(lt('Patients, appointments, rooms', 'Patienten, Termine, Zimmer'))}
                         </p>
                       </div>
                       <span className="rounded-full bg-emerald-500/12 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -160,14 +160,14 @@ export default function LoginPage() {
                     <div className="grid gap-3 sm:grid-cols-2">
                       <div className="rounded-[22px] border border-border/60 bg-white p-4 shadow-soft">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                          {t(lt('Care activity', 'Aktiviteti i kujdesit'))}
+                          {t(lt('Care activity', 'Pflegeaktivität'))}
                         </p>
                         <p className="landing-display mt-3 text-3xl text-foreground">78%</p>
                         <p className="mt-1 text-sm font-semibold text-emerald-600">+6.2%</p>
                       </div>
                       <div className="rounded-[22px] border border-border/60 bg-white p-4 shadow-soft">
                         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                          {t(lt('Records synced', 'Kartela te sinkronizuara'))}
+                          {t(lt('Records synced', 'Synchronisierte Akten'))}
                         </p>
                         <p className="landing-display mt-3 text-3xl text-foreground">12k+</p>
                         <p className="mt-1 text-sm font-semibold text-emerald-600">+14.1%</p>
@@ -178,7 +178,7 @@ export default function LoginPage() {
                       <div className="flex items-end justify-between">
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                            {t(lt('Security status', 'Statusi i sigurise'))}
+                            {t(lt('Security status', 'Sicherheitsstatus'))}
                           </p>
                           <p className="landing-display mt-3 text-3xl text-foreground">100%</p>
                         </div>
@@ -222,7 +222,7 @@ export default function LoginPage() {
 
           <section className="landing-shell animate-fade-up rounded-[40px] p-6 md:p-7 [animation-delay:120ms]">
             <div className="inline-flex rounded-full border border-primary/16 bg-primary/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
-              {t(lt('Log in', 'Hyr'))}
+              {t(lt('Log in', 'Anmelden'))}
             </div>
             <h2 className="landing-display mt-4 text-4xl text-foreground">{t(commonCopy.loginTitle)}</h2>
             <p className="mt-3 text-sm leading-7 text-muted-foreground">{t(commonCopy.loginDescription)}</p>
@@ -261,13 +261,13 @@ export default function LoginPage() {
 
             <div className="mt-5 rounded-[26px] border border-border/60 bg-background/65 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
-                {t(lt('Need the overview first?', 'Ju duhet fillimisht pamja e pergjithshme?'))}
+                {t(lt('Need the overview first?', 'Brauchen Sie zuerst den Überblick?'))}
               </p>
               <Link
                 to="/"
                 className="mt-2 inline-flex text-sm font-semibold text-foreground transition hover:text-primary"
               >
-                {t(lt('Go back to the guest homepage', 'Kthehu te faqja publike'))}
+                {t(lt('Go back to the guest homepage', 'Zur öffentlichen Startseite zurück'))}
               </Link>
             </div>
           </section>

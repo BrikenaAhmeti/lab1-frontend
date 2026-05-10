@@ -26,21 +26,21 @@ function renderPage() {
     render(_jsx(LanguageProvider, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(ToastProvider, { children: _jsx(MemoryRouter, { initialEntries: ['/patients'], children: _jsx(ModulePage, { moduleKey: "patients" }) }) }) }) }));
 }
 async function fillPatientForm() {
-    fireEvent.change(document.getElementById('first_name'), {
+    fireEvent.change(document.getElementById('firstName'), {
         target: { value: 'John' },
     });
-    fireEvent.change(document.getElementById('last_name'), {
+    fireEvent.change(document.getElementById('lastName'), {
         target: { value: 'Doe' },
     });
-    fireEvent.change(document.getElementById('date_of_birth'), {
+    fireEvent.change(document.getElementById('dateOfBirth'), {
         target: { value: '1990-05-12' },
     });
     fireEvent.click(screen.getByTestId('select-gender'));
     fireEvent.click(screen.getByRole('option', { name: /^Male$/i }));
-    fireEvent.change(document.getElementById('phone'), {
+    fireEvent.change(document.getElementById('phoneNumber'), {
         target: { value: '+38344111222' },
     });
-    fireEvent.click(screen.getByTestId('select-blood_group'));
+    fireEvent.click(screen.getByTestId('select-bloodType'));
     fireEvent.click(screen.getByRole('option', { name: /^O\+$/ }));
     fireEvent.change(document.getElementById('address'), {
         target: { value: 'Prishtina' },
@@ -51,12 +51,12 @@ describe('ModulePage', () => {
         data: [
             {
                 id: 'patient-1',
-                first_name: 'Jane',
-                last_name: 'Doe',
-                date_of_birth: '1991-03-12',
+                firstName: 'Jane',
+                lastName: 'Doe',
+                dateOfBirth: '1991-03-12',
                 gender: 'FEMALE',
-                phone: '+38344111111',
-                blood_group: 'A+',
+                phoneNumber: '+38344111111',
+                bloodType: 'A+',
                 address: 'Main Street',
             },
         ],
@@ -102,27 +102,27 @@ describe('ModulePage', () => {
         fireEvent.click(screen.getByRole('button', { name: 'Create' }));
         await waitFor(() => {
             expect(moduleConfigs.patients.service.create).toHaveBeenCalledWith(expect.objectContaining({
-                first_name: 'John',
-                last_name: 'Doe',
-                date_of_birth: '1990-05-12',
+                firstName: 'John',
+                lastName: 'Doe',
+                dateOfBirth: '1990-05-12',
                 gender: 'MALE',
-                phone: '+38344111222',
-                blood_group: 'O+',
+                phoneNumber: '+38344111222',
+                bloodType: 'O+',
                 address: 'Prishtina',
             }));
         });
         expect(await screen.findByText('Created successfully.')).toBeInTheDocument();
         fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
         await waitFor(() => {
-            expect(document.getElementById('first_name')).toHaveValue('Jane');
+            expect(document.getElementById('firstName')).toHaveValue('Jane');
         });
-        fireEvent.change(document.getElementById('phone'), {
+        fireEvent.change(document.getElementById('phoneNumber'), {
             target: { value: '+38344999999' },
         });
         fireEvent.click(screen.getByRole('button', { name: 'Update' }));
         await waitFor(() => {
             expect(moduleConfigs.patients.service.update).toHaveBeenCalledWith('patient-1', expect.objectContaining({
-                phone: '+38344999999',
+                phoneNumber: '+38344999999',
             }));
         });
         expect(await screen.findByText('Updated successfully.')).toBeInTheDocument();

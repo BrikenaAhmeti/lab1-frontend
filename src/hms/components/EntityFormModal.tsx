@@ -62,6 +62,7 @@ export default function EntityFormModal({
 
   const title = mode === 'create' ? t(commonCopy.createRecord) : t(commonCopy.editRecord);
   const description = t(config.singular);
+  const visibleFields = config.fields.filter((field) => !field.modes || field.modes.includes(mode));
 
   return (
     <Modal open={open} title={`${title}: ${description}`} onClose={onClose}>
@@ -84,7 +85,7 @@ export default function EntityFormModal({
       ) : (
         <form className="space-y-4" onSubmit={form.handleSubmit(async (values) => onSubmit(values))}>
           <div className="grid gap-4 md:grid-cols-2">
-            {config.fields.map((field) => {
+            {visibleFields.map((field) => {
               const error = String(form.formState.errors[field.name]?.message || '');
               const options = field.source
                 ? references[field.source] || []

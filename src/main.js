@@ -2,6 +2,7 @@ import { jsx as _jsx } from "react/jsx-runtime";
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/index.css';
+import '@/config/i18n';
 import { applyTheme, getInitialTheme } from '@/config/theme';
 import AppProviders from '@/hms/providers/AppProviders';
 import App from './App';
