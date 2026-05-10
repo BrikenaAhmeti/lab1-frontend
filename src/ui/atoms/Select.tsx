@@ -259,7 +259,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
 
       <div
         ref={rootRef}
-        className={clsx('relative', className)}
+        className={clsx('relative', open ? 'z-30' : 'z-0', className)}
         data-searchable-select-root=""
       >
         <button

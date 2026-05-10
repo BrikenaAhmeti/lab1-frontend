@@ -354,7 +354,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         }
       />
 
-      <Card title={t(commonCopy.filters)} description={t(commonCopy.results)}>
+      <Card title={t(commonCopy.filters)} description={t(commonCopy.results)} className="relative z-20">
         <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" onSubmit={submitFilters}>
           {config.filters.map((filter) => {
             const referenceOptions = filter.source ? references[filter.source] || [] : [];
@@ -476,7 +476,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         />
       ) : (
         <>
-          <Card title={t(commonCopy.results)}>
+          <Card title={t(commonCopy.results)} className="relative z-0">
             <DataTable
               rows={listQuery.data?.data || []}
               columns={config.columns}

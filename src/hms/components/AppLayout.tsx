@@ -169,7 +169,7 @@ export default function AppLayout() {
       <div className="landing-orb left-[-12rem] top-[-8rem] h-[24rem] w-[24rem]" />
       <div className="landing-orb bottom-[-14rem] right-[-8rem] h-[26rem] w-[26rem]" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-[1600px] gap-3 md:gap-4">
+      <div className="relative min-h-screen">
         <button
           type="button"
           aria-label={menuLabel}
@@ -182,7 +182,7 @@ export default function AppLayout() {
 
         <aside
           className={clsx(
-            'workspace-shell workspace-sidebar fixed inset-y-0 left-0 z-50 flex w-[280px] max-w-[calc(100vw-1.5rem)] flex-col rounded-r-[24px] border border-l-0 border-white/10 text-white shadow-[0_34px_80px_hsl(214_78%_18%/0.34)] transition-transform duration-300 md:sticky md:top-0 md:h-screen md:translate-x-0 md:self-start',
+            'workspace-shell workspace-sidebar fixed inset-y-0 left-0 z-50 flex w-[280px] max-w-[calc(100vw-1.5rem)] flex-col rounded-r-[24px] border border-l-0 border-white/10 text-white shadow-[0_34px_80px_hsl(214_78%_18%/0.34)] transition-transform duration-300 md:w-[252px] md:max-w-[252px] md:translate-x-0 md:rounded-none md:border-y-0 md:border-l-0 lg:w-[280px] lg:max-w-[280px]',
             isSidebarOpen ? 'translate-x-0' : '-translate-x-[112%]'
           )}
         >
@@ -282,7 +282,7 @@ export default function AppLayout() {
           </div>
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col gap-4 p-3 md:self-start md:p-4 md:pl-0">
+        <div className="flex min-h-screen min-w-0 flex-col gap-4 p-3 md:ml-[252px] md:p-4 lg:ml-[280px]">
           <header className="workspace-shell workspace-topbar sticky top-4 z-30 rounded-[32px] px-4 py-3 shadow-panel md:px-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex min-w-0 items-start gap-3">
@@ -328,7 +328,7 @@ export default function AppLayout() {
             </div>
           </header>
 
-          <main className="flex-1 pb-4">
+          <main className="min-w-0 flex-1 pb-4">
             <div className="mx-auto max-w-7xl">
               <Outlet />
             </div>

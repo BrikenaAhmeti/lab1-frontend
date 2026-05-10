@@ -26,7 +26,7 @@ function Pagination({
   const { t } = useLanguage();
 
   return (
-    <div className="flex flex-col gap-4 rounded-3xl border border-border bg-card px-4 py-4 md:flex-row md:items-end md:justify-between">
+    <div className="relative z-10 flex flex-col gap-4 rounded-3xl border border-border bg-card px-4 py-4 md:flex-row md:items-end md:justify-between">
       <div>
         <p className="text-sm font-medium text-foreground">
           {t(commonCopy.totalRecords)}: {total}
