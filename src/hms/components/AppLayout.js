@@ -1,26 +1,98 @@
-import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import clsx from 'clsx';
 import { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Button from '@/ui/atoms/Button';
 import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import ThemeToggle from '@/ui/molecules/ThemeToggle';
-import { commonCopy } from '../copy';
+import { commonCopy, lt } from '../copy';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { formatPersonName } from '../lib/utils';
 import { moduleOrder, moduleRouteMeta } from '../module-meta';
+const moduleDescriptions = {
+    patients: lt('Records, intake, and current care plans', 'Kartela, pranime dhe plane kujdesi'),
+    doctors: lt('Availability, teams, and medical coverage', 'Disponueshmeri, ekipe dhe mbulim mjekesor'),
+    departments: lt('Teams, specialties, and structure', 'Ekipe, specialitete dhe strukture'),
+    appointments: lt('Visits, schedules, and daily flow', 'Vizita, orare dhe rrjedhe ditore'),
+    'medical-records': lt('Clinical history and documentation', 'Histori klinike dhe dokumentim'),
+    prescriptions: lt('Medication orders and linked records', 'Urdhra ilaçesh dhe kartela te lidhura'),
+    rooms: lt('Capacity, availability, and occupancy', 'Kapacitet, disponueshmeri dhe zënie'),
+    admissions: lt('Check-ins, stays, and discharge flow', 'Pranime, qendrime dhe dalje'),
+    invoices: lt('Billing, balances, and payments', 'Faturim, balanca dhe pagesa'),
+    nurses: lt('Coverage, shifts, and ward support', 'Mbulim, turne dhe mbeshtetje reparti'),
+};
+function initialsFromUser(fullName, email) {
+    const pieces = fullName.split(' ').filter(Boolean);
+    if (pieces.length >= 2) {
+        return `${pieces[0][0]}${pieces[1][0]}`.toUpperCase();
+    }
+    if (pieces.length === 1) {
+        return pieces[0].slice(0, 2).toUpperCase();
+    }
+    return (email || 'MS').slice(0, 2).toUpperCase();
+}
+function iconForKey(key) {
+    const iconClass = 'h-[18px] w-[18px] fill-none stroke-current stroke-[1.8]';
+    switch (key) {
+        case 'dashboard':
+            return (_jsx("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: _jsx("path", { d: "M4 13h7V4H4zm9 7h7V11h-7zm0-16v5h7V4zM4 20h7v-5H4z" }) }));
+        case 'patients':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("circle", { cx: "12", cy: "8", r: "3.5" }), _jsx("path", { d: "M5 19a7 7 0 0 1 14 0" })] }));
+        case 'doctors':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("path", { d: "M12 4v16M8 8h8M8 12h8" }), _jsx("rect", { x: "4.5", y: "4.5", width: "15", height: "15", rx: "3" })] }));
+        case 'departments':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("rect", { x: "4", y: "5", width: "6", height: "6", rx: "1.5" }), _jsx("rect", { x: "14", y: "5", width: "6", height: "6", rx: "1.5" }), _jsx("rect", { x: "9", y: "14", width: "6", height: "6", rx: "1.5" }), _jsx("path", { d: "M12 11v3" })] }));
+        case 'appointments':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("rect", { x: "4", y: "5", width: "16", height: "15", rx: "3" }), _jsx("path", { d: "M8 3v4M16 3v4M4 10h16M12 13v4M10 15h4" })] }));
+        case 'medical-records':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("path", { d: "M8 4h7l4 4v12H8a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z" }), _jsx("path", { d: "M15 4v5h5M10 13h5M10 17h5" })] }));
+        case 'prescriptions':
+            return (_jsx("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: _jsx("path", { d: "m7 7 10 10M9.5 4.5a3.5 3.5 0 1 1-5 5l5-5Zm10 10a3.5 3.5 0 1 1-5 5l5-5Z" }) }));
+        case 'rooms':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("path", { d: "M4 18V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v10" }), _jsx("path", { d: "M4 14h16M7 10h3M8 18v2m8-2v2" })] }));
+        case 'admissions':
+            return (_jsx("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: _jsx("path", { d: "M12 4v16M6 10h12M7 6h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" }) }));
+        case 'invoices':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("path", { d: "M7 4h10v16l-2-1.5L13 20l-2-1.5L9 20l-2-1.5L5 20V6a2 2 0 0 1 2-2Z" }), _jsx("path", { d: "M9 9h6M9 13h6" })] }));
+        case 'nurses':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("path", { d: "M12 4v8M8 8h8" }), _jsx("circle", { cx: "12", cy: "16.5", r: "3.5" })] }));
+        default:
+            return null;
+    }
+}
 export default function AppLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const { user, logout, logoutAll } = useAuth();
+    const location = useLocation();
+    const { user, logout } = useAuth();
     const { t } = useLanguage();
-    const fullName = formatPersonName(user);
+    const fullName = formatPersonName(user) || 'MedSphere User';
+    const initials = initialsFromUser(fullName, user?.email);
+    const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Mbyll navigimin') : lt('Open navigation', 'Hap navigimin'));
+    const navigationItems = [
+        {
+            key: 'dashboard',
+            to: '/dashboard',
+            label: t(commonCopy.dashboard),
+            description: t(lt('Live hospital overview and operations', 'Pamje operative dhe aktivitet spitalor')),
+        },
+        ...moduleOrder.map((key) => ({
+            key,
+            to: `/${moduleRouteMeta[key].path}`,
+            label: t(moduleRouteMeta[key].label),
+            description: t(moduleDescriptions[key]),
+        })),
+    ];
+    const activeItem = navigationItems.find((item) => item.to === '/dashboard'
+        ? location.pathname === item.to
+        : location.pathname === item.to || location.pathname.startsWith(`${item.to}/`)) || navigationItems[0];
     const closeSidebar = () => setIsSidebarOpen(false);
-    return (_jsx("div", { className: "min-h-screen bg-background", children: _jsxs("div", { className: "mx-auto flex min-h-screen max-w-[1600px]", children: [_jsx("div", { className: clsx('fixed inset-0 z-40 bg-slate-950/45 transition md:hidden', isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'), onClick: closeSidebar }), _jsxs("aside", { className: clsx('fixed left-0 top-0 z-50 flex h-screen w-[280px] flex-col border-r border-border bg-card px-4 py-5 transition-transform md:sticky md:translate-x-0', isSidebarOpen ? 'translate-x-0' : '-translate-x-full'), children: [_jsxs("div", { className: "rounded-3xl bg-primary px-4 py-4 text-primary-foreground shadow-soft", children: [_jsx("p", { className: "text-sm font-semibold uppercase tracking-[0.18em]", children: "HMS" }), _jsx("h2", { className: "mt-2 text-xl font-bold", children: t(commonCopy.appName) }), _jsx("p", { className: "mt-1 text-sm text-primary-foreground/85", children: t(commonCopy.appSubtitle) })] }), _jsxs("nav", { className: "mt-6 flex-1 space-y-2 overflow-y-auto", children: [_jsx(NavLink, { to: "/dashboard", className: ({ isActive }) => clsx('block rounded-2xl px-4 py-3 text-sm font-medium transition', isActive ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'), onClick: closeSidebar, children: t(commonCopy.dashboard) }), moduleOrder.map((key) => (_jsx(NavLink, { to: `/${moduleRouteMeta[key].path}`, className: ({ isActive }) => clsx('block rounded-2xl px-4 py-3 text-sm font-medium transition', isActive ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-muted'), onClick: closeSidebar, children: t(moduleRouteMeta[key].label) }, key)))] }), _jsxs("div", { className: "mt-6 space-y-3 rounded-3xl border border-border bg-background/70 p-4", children: [_jsxs("div", { children: [_jsx("p", { className: "text-sm font-semibold text-foreground", children: fullName || t(commonCopy.appName) }), _jsx("p", { className: "mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground", children: (user?.roles || []).join(', ') || 'USER' })] }), _jsx(ThemeToggle, {}), _jsx(LanguageSwitch, {}), _jsx(Button, { variant: "outline", onClick: async () => {
-                                        await logout();
-                                        closeSidebar();
-                                    }, children: t(commonCopy.signOut) }), _jsx(Button, { variant: "ghost", onClick: async () => {
-                                        await logoutAll();
-                                        closeSidebar();
-                                    }, children: t(commonCopy.signOutAll) })] })] }), _jsxs("div", { className: "flex min-h-screen min-w-0 flex-1 flex-col md:pl-0", children: [_jsx("header", { className: "sticky top-0 z-30 border-b border-border bg-background/90 backdrop-blur", children: _jsxs("div", { className: "mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-6", children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx(Button, { variant: "outline", size: "sm", className: "md:hidden", onClick: () => setIsSidebarOpen((current) => !current), children: t(commonCopy.mobileMenu) }), _jsxs("div", { children: [_jsx("p", { className: "text-sm font-semibold text-foreground", children: t(commonCopy.appName) }), _jsx("p", { className: "text-xs text-muted-foreground", children: fullName || user?.email || 'User' })] })] }), _jsxs("div", { className: "hidden items-center gap-3 md:flex", children: [_jsx(ThemeToggle, { compact: true }), _jsx(LanguageSwitch, { compact: true })] })] }) }), _jsx("main", { className: "flex-1 px-4 py-6 md:px-6", children: _jsx("div", { className: "mx-auto max-w-7xl", children: _jsx(Outlet, {}) }) })] })] }) }));
+    return (_jsxs("div", { className: "workspace-page relative min-h-screen overflow-hidden", children: [_jsx("div", { className: "workspace-grid pointer-events-none absolute inset-0 opacity-70" }), _jsx("div", { className: "landing-orb left-[-12rem] top-[-8rem] h-[24rem] w-[24rem]" }), _jsx("div", { className: "landing-orb bottom-[-14rem] right-[-8rem] h-[26rem] w-[26rem]" }), _jsxs("div", { className: "relative mx-auto flex min-h-screen max-w-[1600px] gap-4 px-4 py-4 md:px-5", children: [_jsx("button", { type: "button", "aria-label": menuLabel, className: clsx('fixed inset-0 z-40 bg-slate-950/35 backdrop-blur-sm transition md:hidden', isSidebarOpen ? 'opacity-100' : 'pointer-events-none opacity-0'), onClick: closeSidebar }), _jsx("aside", { className: clsx('workspace-shell workspace-sidebar fixed inset-y-4 left-4 z-50 flex w-[300px] max-w-[calc(100vw-2rem)] flex-col rounded-[34px] border-white/10 text-white shadow-[0_34px_80px_hsl(214_78%_18%/0.34)] transition-transform duration-300 md:sticky md:top-4 md:h-[calc(100vh-2rem)] md:translate-x-0 md:self-start', isSidebarOpen ? 'translate-x-0' : '-translate-x-[112%]'), children: _jsxs("div", { className: "flex h-full flex-col p-4", children: [_jsxs("div", { className: "flex items-start justify-between gap-3", children: [_jsxs(NavLink, { to: "/dashboard", end: true, className: "flex min-w-0 items-center gap-3 rounded-2xl outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring/45", onClick: closeSidebar, children: [_jsx("img", { src: "/medsphere.png", alt: "MedSphere logo", className: "h-11 w-auto object-contain" }), _jsxs("div", { className: "min-w-0", children: [_jsx("p", { className: "truncate text-xs font-semibold uppercase tracking-[0.32em] text-white/72", children: "MedSphere" }), _jsx("p", { className: "truncate text-sm text-sky-50/78", children: t(commonCopy.appSubtitle) })] })] }), _jsx("button", { type: "button", "aria-label": t(lt('Close menu', 'Mbyll menune')), className: "inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/12 bg-white/10 text-white transition hover:bg-white/16 md:hidden", onClick: closeSidebar, children: _jsx("svg", { viewBox: "0 0 24 24", className: "h-5 w-5 fill-none stroke-current stroke-[1.8]", children: _jsx("path", { d: "m6 6 12 12M18 6 6 18" }) }) })] }), _jsxs("div", { className: "mt-5 rounded-[28px] border border-white/12 bg-white/10 p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]", children: [_jsxs("div", { className: "flex items-center gap-2", children: [_jsx("span", { className: "inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-beat" }), _jsx("p", { className: "text-[11px] font-semibold uppercase tracking-[0.26em] text-white/72", children: t(lt('Live workspace', 'Hapesire aktive')) })] }), _jsx("p", { className: "mt-3 text-sm leading-7 text-sky-50/78", children: activeItem.description })] }), _jsx("nav", { className: "mt-5 min-h-0 flex-1 overflow-y-auto pr-1", children: _jsx("div", { className: "space-y-2", children: navigationItems.map((item) => (_jsx(NavLink, { to: item.to, end: item.to === '/dashboard', className: ({ isActive }) => clsx('group flex items-start gap-3 rounded-[24px] border px-3.5 py-3 transition duration-200', isActive
+                                                ? 'border-white/14 bg-[linear-gradient(135deg,hsl(var(--accent)/0.28),hsl(var(--secondary)/0.16),hsl(0_0%_100%/0.08))] shadow-soft'
+                                                : 'border-transparent hover:border-white/10 hover:bg-white/6'), onClick: closeSidebar, children: ({ isActive }) => (_jsxs(_Fragment, { children: [_jsx("span", { className: clsx('mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition', isActive
+                                                            ? 'border-white/14 bg-white/16 text-white'
+                                                            : 'border-white/10 bg-white/8 text-white/70 group-hover:text-white'), children: iconForKey(item.key) }), _jsxs("span", { className: "min-w-0", children: [_jsx("span", { className: "block text-sm font-semibold text-white", children: item.label }), _jsx("span", { className: "mt-1 block text-xs leading-5 text-sky-50/70", children: item.description })] })] })) }, item.to))) }) }), _jsxs("div", { className: "mt-5 rounded-[30px] border border-white/12 bg-white/10 p-4 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]", children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("div", { className: "inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft", children: initials }), _jsxs("div", { className: "min-w-0", children: [_jsx("p", { className: "truncate text-sm font-semibold text-white", children: fullName }), _jsx("p", { className: "truncate text-xs text-sky-50/70", children: user?.email || 'care@medsphere.app' })] })] }), _jsx(Button, { variant: "outline", className: "mt-4 w-full rounded-full border-white/10 bg-white text-primary hover:bg-white/90", onClick: async () => {
+                                                await logout();
+                                                closeSidebar();
+                                            }, children: t(commonCopy.signOut) })] })] }) }), _jsxs("div", { className: "flex min-w-0 flex-1 flex-col gap-4 md:self-start", children: [_jsx("header", { className: "workspace-shell workspace-topbar sticky top-4 z-30 rounded-[32px] px-4 py-3 shadow-panel md:px-5", children: _jsxs("div", { className: "flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between", children: [_jsxs("div", { className: "flex min-w-0 items-start gap-3", children: [_jsx("button", { type: "button", "aria-label": menuLabel, "aria-expanded": isSidebarOpen, className: "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background/75 text-foreground transition hover:bg-muted/60 md:hidden", onClick: () => setIsSidebarOpen((current) => !current), children: _jsx("svg", { viewBox: "0 0 24 24", className: "h-5 w-5 fill-none stroke-current stroke-[1.8]", children: isSidebarOpen ? (_jsx("path", { d: "m6 6 12 12M18 6 6 18" })) : (_jsxs(_Fragment, { children: [_jsx("path", { d: "M4 7h16" }), _jsx("path", { d: "M4 12h16" }), _jsx("path", { d: "M4 17h16" })] })) }) }), _jsxs("div", { className: "min-w-0", children: [_jsx("p", { className: "truncate text-[11px] font-semibold uppercase tracking-[0.26em] text-primary", children: t(lt('Workspace view', 'Pamja e hapesires')) }), _jsx("p", { className: "landing-display mt-1 truncate text-2xl text-foreground", children: activeItem.label }), _jsx("p", { className: "mt-1 truncate text-sm text-muted-foreground", children: activeItem.description })] })] }), _jsxs("div", { className: "flex flex-wrap items-center gap-2 lg:justify-end", children: [_jsx(NavLink, { to: "/", className: "hidden h-11 items-center justify-center rounded-full border border-border/70 bg-card/70 px-4 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:bg-card/90 lg:inline-flex", children: t(lt('Guest site', 'Faqja publike')) }), _jsx(ThemeToggle, { compact: true }), _jsx(LanguageSwitch, { compact: true })] })] }) }), _jsx("main", { className: "flex-1 pb-4", children: _jsx("div", { className: "mx-auto max-w-7xl", children: _jsx(Outlet, {}) }) })] })] })] }));
 }

@@ -21,8 +21,33 @@ function normalizeList(value) {
     }
     return [];
 }
+function buildListAllQuery(params) {
+    const query = new URLSearchParams();
+    const sortBy = params?.sortBy ?? 'name';
+    const order = params?.order ?? 'ASC';
+    query.set('sortBy', sortBy);
+    query.set('order', order);
+    return query.toString();
+}
 export const DepartmentsApi = {
-    list: () => api.core.get(BASE).then((r) => normalizeList(r.data)),
+    /** Paginated listing (tables). See `listAll` for dropdowns / filters. */
+    list: (params) => {
+        const query = new URLSearchParams();
+        Object.entries(params ?? {}).forEach(([key, value]) => {
+            if (value === undefined || value === null || String(value).trim() === '') {
+                return;
+            }
+            query.set(key, String(value));
+        });
+        const suffix = query.toString();
+        const url = suffix ? `${BASE}?${suffix}` : BASE;
+        return api.core.get(url).then((r) => normalizeList(r.data));
+    },
+    /** Full list for selects (`GET /api/departments/all`). */
+    listAll: (params) => {
+        const qs = buildListAllQuery(params ?? {});
+        return api.core.get(`${BASE}/all?${qs}`).then((r) => normalizeList(r.data));
+    },
     get: (id) => api.core.get(`${BASE}/${id}`).then((r) => r.data),
     create: (payload) => api.core.post(BASE, payload).then((r) => r.data),
     update: (id, payload) => api.core.put(`${BASE}/${id}`, payload).then((r) => r.data),

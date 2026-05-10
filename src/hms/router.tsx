@@ -8,6 +8,7 @@ import { moduleOrder, moduleRouteMeta } from './module-meta';
 import type { ModuleKey } from './types';
 
 const LoginPage = lazy(() => import('./pages/routes/LoginRoutePage'));
+const LandingPage = lazy(() => import('./pages/routes/LandingRoutePage'));
 const DashboardPage = lazy(() => import('./pages/routes/DashboardRoutePage'));
 const NotFoundPage = lazy(() => import('./pages/routes/NotFoundRoutePage'));
 
@@ -35,16 +36,6 @@ function renderLazyPage(
   );
 }
 
-function HomeRedirect() {
-  const { ready, isAuthenticated } = useAuth();
-
-  if (!ready) {
-    return <RouteSkeleton variant="fullscreen" />;
-  }
-
-  return <Navigate to={isAuthenticated ? '/dashboard' : '/login'} replace />;
-}
-
 function GuestRoute() {
   const { ready, isAuthenticated } = useAuth();
 
@@ -58,9 +49,9 @@ function GuestRoute() {
 export default function AppRouter() {
   return (
     <Routes>
-      <Route path="/" element={<HomeRedirect />} />
       <Route element={<GuestRoute />}>
-        <Route path="/login" element={renderLazyPage(LoginPage, 'fullscreen')} />
+        <Route index element={renderLazyPage(LandingPage, 'fullscreen')} />
+        <Route path="login" element={renderLazyPage(LoginPage, 'fullscreen')} />
       </Route>
       <Route element={<PrivateRoute />}>
         <Route element={<AppLayout />}>

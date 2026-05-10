@@ -63,9 +63,9 @@ describe('AppLayout', () => {
         renderLayout({ route: '/app/patients' });
         expect(screen.getByText('Patients content')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /logout/i })).toBeInTheDocument();
-        expect(screen.getByText('MEDSPHERE')).toBeInTheDocument();
-        expect(screen.getByRole('combobox', { name: /language/i })).toBeInTheDocument();
+        expect(screen.getByRole('img', { name: /medsphere logo/i })).toBeInTheDocument();
         expect(screen.getByRole('button', { name: /theme/i })).toBeInTheDocument();
+        expect(screen.getByRole('combobox', { name: /language/i })).toBeInTheDocument();
         expect(screen.getByText('Dashboard')).toBeInTheDocument();
         expect(screen.getByText('Prescriptions')).toBeInTheDocument();
     });

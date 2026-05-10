@@ -9,15 +9,15 @@ export function pickText(language: Language, value: LocalizedText) {
 }
 
 export const commonCopy = {
-  appName: lt('Hospital Management System', 'Sistemi i Menaxhimit të Spitalit'),
+  appName: lt('MedSphere', 'MedSphere'),
   appSubtitle: lt(
-    'Simple frontend connected to your backend.',
-    'Frontend i thjeshtë i lidhur me backend-in tuaj.'
+    'Connected care operations for modern clinics and hospitals.',
+    'Operacione te lidhura te kujdesit per klinika dhe spitale moderne.'
   ),
   loginTitle: lt('Welcome back', 'Mirë se u ktheve'),
   loginDescription: lt(
-    'Sign in to manage patients, staff, rooms, and appointments.',
-    'Hyni për të menaxhuar pacientët, stafin, dhomat dhe terminet.'
+    'Sign in to manage patients, staff, rooms, and appointments across MedSphere.',
+    'Hyni për të menaxhuar pacientët, stafin, dhomat dhe terminet në MedSphere.'
   ),
   loadingSession: lt('Restoring your session...', 'Po rikthejmë sesionin tuaj...'),
   create: lt('Create', 'Krijo'),

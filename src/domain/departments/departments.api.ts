@@ -37,9 +37,44 @@ function normalizeList<T>(value: unknown): T[] {
   return [];
 }
 
+function buildListAllQuery(params?: { sortBy?: string; order?: string }) {
+  const query = new URLSearchParams();
+
+  const sortBy = params?.sortBy ?? 'name';
+  const order = params?.order ?? 'ASC';
+
+  query.set('sortBy', sortBy);
+  query.set('order', order);
+
+  return query.toString();
+}
+
 export const DepartmentsApi = {
-  list: () =>
-    api.core.get<unknown>(BASE).then((r) => normalizeList<Department>(r.data)),
+  /** Paginated listing (tables). See `listAll` for dropdowns / filters. */
+  list: (params?: Record<string, string | number>) => {
+    const query = new URLSearchParams();
+
+    Object.entries(params ?? {}).forEach(([key, value]) => {
+      if (value === undefined || value === null || String(value).trim() === '') {
+        return;
+      }
+
+      query.set(key, String(value));
+    });
+
+    const suffix = query.toString();
+    const url = suffix ? `${BASE}?${suffix}` : BASE;
+
+    return api.core.get<unknown>(url).then((r) => normalizeList<Department>(r.data));
+  },
+
+  /** Full list for selects and filters (`GET /api/departments/all`). */
+  listAll: (params?: { sortBy?: string; order?: string }) => {
+    const qs = buildListAllQuery(params);
+    return api.core
+      .get<unknown>(`${BASE}/all?${qs}`)
+      .then((r) => normalizeList<Department>(r.data));
+  },
 
   get: (id: string) =>
     api.core.get<Department>(`${BASE}/${id}`).then((r) => r.data),

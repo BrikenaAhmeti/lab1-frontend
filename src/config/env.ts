@@ -3,7 +3,16 @@ const withFallback = (value: string | undefined, fallback: string) => {
   return trimmed && trimmed.length > 0 ? trimmed : fallback;
 };
 
+const defaultCore = 'http://localhost:3006';
+
 export const env = {
-  API_CORE: withFallback(import.meta.env.VITE_API_CORE as string | undefined, 'http://localhost:3006'),
-  API_DEVICE_INFO: withFallback(import.meta.env.VITE_API_DEVICE_INFO as string | undefined, 'http://localhost:3006'),
+  API_CORE: withFallback(import.meta.env.VITE_API_CORE as string | undefined, defaultCore),
+  API_DEVICE_INFO: withFallback(
+    import.meta.env.VITE_API_DEVICE_INFO as string | undefined,
+    withFallback(import.meta.env.VITE_API_CORE as string | undefined, defaultCore)
+  ),
+  API_HMS: withFallback(
+    import.meta.env.VITE_API_URL as string | undefined,
+    withFallback(import.meta.env.VITE_API_CORE as string | undefined, defaultCore)
+  ),
 };

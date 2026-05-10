@@ -1,7 +1,7 @@
 import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
 import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import Button from '@/ui/atoms/Button';
 import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
@@ -42,7 +42,7 @@ export default function EntityFormModal({ open, mode, config, item, references, 
                             return (_jsx("div", { className: "md:col-span-2", children: _jsx(Textarea, { label: t(field.label), error: error, placeholder: field.placeholder ? t(field.placeholder) : '', ...form.register(field.name) }) }, field.name));
                         }
                         if (field.type === 'select') {
-                            return (_jsxs(Select, { label: t(field.label), error: error, ...form.register(field.name), children: [_jsx("option", { value: "", children: t(commonCopy.search) }), options.map((option) => (_jsx("option", { value: option.value, children: option.label }, option.value)))] }, field.name));
+                            return (_jsx(Controller, { name: field.name, control: form.control, render: ({ field: ctl }) => (_jsxs(Select, { label: t(field.label), error: error, name: ctl.name, value: typeof ctl.value === 'string' ? ctl.value : String(ctl.value ?? ''), onBlur: ctl.onBlur, onChange: ctl.onChange, ref: ctl.ref, children: [_jsx("option", { value: "", children: t(commonCopy.search) }), options.map((option) => (_jsx("option", { value: option.value, children: option.label }, option.value)))] })) }, field.name));
                         }
                         return (_jsx(Input, { type: field.type, step: field.step, label: t(field.label), error: error, placeholder: field.placeholder ? t(field.placeholder) : '', ...form.register(field.name) }, field.name));
                     }) }), _jsxs("div", { className: "flex flex-wrap justify-end gap-3", children: [_jsx(Button, { type: "button", variant: "outline", onClick: onClose, children: t(commonCopy.cancel) }), _jsx(Button, { type: "submit", loading: saving, children: mode === 'create' ? t(commonCopy.create) : t(commonCopy.update) })] })] })) }));

@@ -119,39 +119,39 @@ export const referenceConfigs: Record<string, ReferenceConfig> = {
   patients: {
     key: 'patients',
     endpoint: '/api/patients',
-    params: { page: 1, limit: 200, sortBy: 'created_at', order: 'DESC' },
+    params: { page: 1, limit: 100, sortBy: 'created_at', order: 'DESC' },
     getLabel: (item) => formatPersonName(item),
   },
   departments: {
     key: 'departments',
-    endpoint: '/api/departments',
-    params: { page: 1, limit: 200, sortBy: 'name', order: 'ASC' },
+    endpoint: '/api/departments/all',
+    params: { sortBy: 'name', order: 'ASC' },
     getLabel: (item) => String(getValue(item, 'name')),
   },
   doctors: {
     key: 'doctors',
     endpoint: '/api/doctors',
-    params: { page: 1, limit: 200, sortBy: 'last_name', order: 'ASC' },
+    params: { page: 1, limit: 100, sortBy: 'last_name', order: 'ASC' },
     getLabel: (item) => formatPersonName(item),
   },
   rooms: {
     key: 'rooms',
     endpoint: '/api/rooms/available',
     fallbackPaths: ['/api/rooms'],
-    params: { page: 1, limit: 200, sortBy: 'room_number', order: 'ASC' },
+    params: { page: 1, limit: 100, sortBy: 'room_number', order: 'ASC' },
     getLabel: (item) => `${getValue(item, 'room_number', 'roomNumber')} - ${getDepartmentName(item)}`,
   },
   medicalRecords: {
     key: 'medicalRecords',
     endpoint: '/api/medical-records',
-    params: { page: 1, limit: 200, sortBy: 'record_date', order: 'DESC' },
+    params: { page: 1, limit: 100, sortBy: 'record_date', order: 'DESC' },
     getLabel: (item) =>
       `${getPatientName(item) || getValue(item, 'patient_id', 'patientId')} - ${getValue(item, 'record_date', 'recordDate')}`,
   },
   admissions: {
     key: 'admissions',
     endpoint: '/api/admissions',
-    params: { page: 1, limit: 200, sortBy: 'admission_date', order: 'DESC' },
+    params: { page: 1, limit: 100, sortBy: 'admission_date', order: 'DESC' },
     getLabel: (item) =>
       `${getPatientName(item) || getValue(item, 'patient_id', 'patientId')} - ${getValue(item, 'room.room_number', 'roomNumber', 'room_id')}`,
   },

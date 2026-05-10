@@ -32,15 +32,13 @@ describe('EntityFormModal', () => {
     fireEvent.change(screen.getByLabelText('Date of birth'), {
       target: { value: '1990-05-12' },
     });
-    fireEvent.change(screen.getByLabelText('Gender'), {
-      target: { value: 'MALE' },
-    });
+    fireEvent.click(screen.getByRole('combobox', { name: /Gender/i }));
+    fireEvent.click(screen.getByRole('option', { name: /^Male$/i }));
     fireEvent.change(screen.getByLabelText('Phone'), {
       target: { value: '+38344111222' },
     });
-    fireEvent.change(screen.getByLabelText('Blood group'), {
-      target: { value: 'O+' },
-    });
+    fireEvent.click(screen.getByRole('combobox', { name: /Blood group/i }));
+    fireEvent.click(screen.getByRole('option', { name: /^O\+$/ }));
     fireEvent.change(screen.getByLabelText('Address'), {
       target: { value: 'Prishtina' },
     });

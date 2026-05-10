@@ -15,7 +15,7 @@ export const departmentsKeys = {
 export function useDepartments() {
   return useQuery({
     queryKey: departmentsKeys.list(),
-    queryFn: DepartmentsApi.list,
+    queryFn: () => DepartmentsApi.listAll({ sortBy: 'name', order: 'ASC' }),
   });
 }
 

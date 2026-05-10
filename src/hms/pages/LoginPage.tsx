@@ -1,13 +1,12 @@
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import Button from '@/ui/atoms/Button';
-import Card from '@/ui/atoms/Card';
 import Input from '@/ui/atoms/Input';
 import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import ThemeToggle from '@/ui/molecules/ThemeToggle';
-import { commonCopy } from '../copy';
+import { commonCopy, lt } from '../copy';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
@@ -16,6 +15,18 @@ const schema = z.object({
   identifier: z.string().trim().min(1, 'Please enter your email or username.'),
   password: z.string().trim().min(1, 'Please enter your password.'),
 });
+
+const loginHighlights = [
+  lt('The same MedSphere palette and dashboard language', 'E njejta palete dhe gjuhe paneli e MedSphere'),
+  lt('Secure staff access with a clear public-to-private handoff', 'Qasje e sigurt e stafit me kalim te qarte nga publiku ne privat'),
+  lt('Fast access to patients, rooms, appointments, and reports', 'Qasje e shpejte ne paciente, dhoma, termine dhe raporte'),
+];
+
+const loginMetrics = [
+  { label: lt('Active Patients', 'Pacientet aktive'), value: '2,543' },
+  { label: lt("Today's Appointments", 'Terminet e sotme'), value: '32' },
+  { label: lt('Secure Records', 'Kartela te sigurta'), value: '100%' },
+];
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -38,51 +49,186 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen px-4 py-8">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 md:pt-8">
-        <div className="flex justify-end gap-3">
-          <ThemeToggle compact />
-          <LanguageSwitch compact />
-        </div>
+    <main className="landing-page relative min-h-screen overflow-x-hidden px-3 pb-12 pt-3 md:px-5 md:pb-16 md:pt-5">
+      <div className="landing-noise pointer-events-none absolute inset-0" />
+      <div className="landing-mesh pointer-events-none absolute inset-0 opacity-70" />
+      <div className="landing-orb left-[-10rem] top-[-8rem] h-[22rem] w-[22rem]" />
+      <div className="landing-orb bottom-[-12rem] right-[-7rem] h-[26rem] w-[26rem]" />
 
-        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="ds-shell flex min-h-[280px] flex-col justify-between overflow-hidden p-8">
-            <div className="inline-flex w-fit rounded-full bg-primary/15 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-primary">
-              HMS
-            </div>
-            <div className="py-8">
-              <h1 className="max-w-xl text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-                {t(commonCopy.appName)}
-              </h1>
-              <p className="mt-4 max-w-xl text-base text-muted-foreground md:text-lg">
-                {t(commonCopy.appSubtitle)}
-              </p>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-border bg-background/65 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  {t(commonCopy.todayAppointments)}
+      <div className="relative mx-auto max-w-[1500px]">
+        <header className="landing-shell animate-fade-up rounded-[34px] px-5 py-4 md:px-7">
+          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-3 rounded-2xl outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring/45"
+            >
+              <img src="/medsphere-logo.png" alt="MedSphere" className="h-12 w-auto object-contain" />
+              <div className="min-w-0">
+                <p className="landing-display truncate text-2xl text-foreground">MedSphere</p>
+                <p className="truncate text-sm text-muted-foreground">
+                  {t(lt('Secure workspace access', 'Qasje e sigurt ne hapesiren e punes'))}
                 </p>
-                <p className="mt-2 text-2xl font-bold text-foreground">Live</p>
               </div>
-              <div className="rounded-2xl border border-border bg-background/65 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  {t(commonCopy.availableRooms)}
-                </p>
-                <p className="mt-2 text-2xl font-bold text-foreground">Rooms</p>
+            </Link>
+
+            <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+              <ThemeToggle compact />
+              <LanguageSwitch compact />
+              <Link
+                to="/"
+                className="inline-flex h-11 items-center justify-center rounded-full border border-border/70 bg-card/80 px-5 text-sm font-semibold text-foreground shadow-soft transition hover:border-primary/25 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+              >
+                {t(lt('Back to website', 'Kthehu te faqja'))}
+              </Link>
+            </div>
+          </div>
+        </header>
+
+        <div className="mt-6 grid gap-6 xl:grid-cols-[1.08fr_420px] xl:items-stretch">
+          <section className="landing-shell animate-fade-up rounded-[40px] p-6 md:p-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/12 bg-primary/6 px-4 py-2 text-sm font-semibold text-primary shadow-soft">
+              <span className="inline-flex h-2.5 w-2.5 rounded-full bg-secondary animate-beat" />
+              {t(lt('Staff portal', 'Portali i stafit'))}
+            </div>
+
+            <h1 className="landing-display mt-6 max-w-3xl text-[clamp(2.7rem,5.3vw,5rem)] leading-[0.92] text-foreground">
+              {t(lt('Secure access for every', 'Qasje e sigurt per cdo'))}
+              <span className="block landing-highlight">{t(lt('MedSphere team.', 'ekip MedSphere.'))}</span>
+            </h1>
+
+            <p className="mt-5 max-w-2xl text-base leading-8 text-muted-foreground md:text-lg">
+              {t(
+                lt(
+                  'The workspace keeps the same calm visual language as the public site, so the move from first impression to real operations stays connected.',
+                  'Hapesira e punes ruan te njejten gjuhe te qete vizuale si faqja publike, qe kalimi nga pershtypja e pare ne operacione reale te mbetet i lidhur.'
+                )
+              )}
+            </p>
+
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {loginMetrics.map((item, index) => (
+                <article
+                  key={item.label.en}
+                  className="animate-fade-up rounded-[26px] border border-border/60 bg-white/85 p-4 shadow-soft"
+                  style={{ animationDelay: `${150 + index * 100}ms` }}
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    {t(item.label)}
+                  </p>
+                  <p className="landing-display mt-3 text-3xl text-foreground">{item.value}</p>
+                </article>
+              ))}
+            </div>
+
+            <div className="mt-8 grid gap-6 lg:grid-cols-[1.08fr_0.92fr]">
+              <div className="landing-stage p-4 md:p-5">
+                <div className="grid overflow-hidden rounded-[30px] border border-border/60 bg-white xl:grid-cols-[170px_minmax(0,1fr)]">
+                  <aside className="flex flex-col gap-3 bg-[linear-gradient(180deg,hsl(212_84%_27%),hsl(217_73%_18%))] p-4 text-white">
+                    <div className="rounded-[20px] border border-white/12 bg-white/10 px-3 py-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/70">MedSphere</p>
+                      <p className="mt-1 text-sm text-white/92">{t(lt('Dashboard ready', 'Paneli gati'))}</p>
+                    </div>
+                    {[
+                      lt('Overview', 'Permbledhje'),
+                      lt('Patients', 'Pacientet'),
+                      lt('Appointments', 'Terminet'),
+                    ].map((item, index) => (
+                      <div
+                        key={item.en}
+                        className={`rounded-[18px] px-3 py-3 text-sm ${index === 0 ? 'bg-white/16 text-white' : 'text-white/72'}`}
+                      >
+                        {t(item)}
+                      </div>
+                    ))}
+                  </aside>
+
+                  <div className="space-y-3 p-4">
+                    <div className="flex items-center justify-between rounded-[20px] border border-border/60 bg-background/55 px-4 py-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
+                          {t(lt('Live overview', 'Pamje live'))}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {t(lt('Patients, appointments, rooms', 'Paciente, termine, dhoma'))}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-emerald-500/12 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        {t(lt('Online', 'Online'))}
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="rounded-[22px] border border-border/60 bg-white p-4 shadow-soft">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                          {t(lt('Care activity', 'Aktiviteti i kujdesit'))}
+                        </p>
+                        <p className="landing-display mt-3 text-3xl text-foreground">78%</p>
+                        <p className="mt-1 text-sm font-semibold text-emerald-600">+6.2%</p>
+                      </div>
+                      <div className="rounded-[22px] border border-border/60 bg-white p-4 shadow-soft">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                          {t(lt('Records synced', 'Kartela te sinkronizuara'))}
+                        </p>
+                        <p className="landing-display mt-3 text-3xl text-foreground">12k+</p>
+                        <p className="mt-1 text-sm font-semibold text-emerald-600">+14.1%</p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-[22px] border border-border/60 bg-white p-4 shadow-soft">
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                            {t(lt('Security status', 'Statusi i sigurise'))}
+                          </p>
+                          <p className="landing-display mt-3 text-3xl text-foreground">100%</p>
+                        </div>
+                        <svg viewBox="0 0 160 70" className="h-16 w-36">
+                          <path
+                            d="M8 56C22 56 28 22 44 22C60 22 62 46 78 46C94 46 98 16 114 16C130 16 136 34 152 34"
+                            fill="none"
+                            stroke="url(#login-chart)"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                          />
+                          <defs>
+                            <linearGradient id="login-chart" x1="8" x2="152" y1="0" y2="0">
+                              <stop offset="0%" stopColor="hsl(var(--secondary))" />
+                              <stop offset="100%" stopColor="hsl(var(--primary))" />
+                            </linearGradient>
+                          </defs>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="rounded-2xl border border-border bg-background/65 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                  {t(commonCopy.activeAdmissions)}
-                </p>
-                <p className="mt-2 text-2xl font-bold text-foreground">Care</p>
+
+              <div className="grid gap-3">
+                {loginHighlights.map((item) => (
+                  <article key={item.en} className="rounded-[24px] border border-border/60 bg-white/80 p-4 shadow-soft">
+                    <div className="flex items-start gap-3">
+                      <span className="mt-1 inline-flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-none stroke-current stroke-[2]">
+                          <path d="m5 12 4 4 10-10" />
+                        </svg>
+                      </span>
+                      <p className="text-sm leading-7 text-foreground">{t(item)}</p>
+                    </div>
+                  </article>
+                ))}
               </div>
             </div>
           </section>
 
-          <Card title={t(commonCopy.loginTitle)} description={t(commonCopy.loginDescription)}>
+          <section className="landing-shell animate-fade-up rounded-[40px] p-6 md:p-7 [animation-delay:120ms]">
+            <div className="inline-flex rounded-full border border-primary/16 bg-primary/8 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+              {t(lt('Log in', 'Hyr'))}
+            </div>
+            <h2 className="landing-display mt-4 text-4xl text-foreground">{t(commonCopy.loginTitle)}</h2>
+            <p className="mt-3 text-sm leading-7 text-muted-foreground">{t(commonCopy.loginDescription)}</p>
+
             <form
-              className="space-y-4"
+              className="mt-6 space-y-4"
               onSubmit={form.handleSubmit(async (values) => {
                 try {
                   await login(values);
@@ -104,11 +250,27 @@ export default function LoginPage() {
                 error={String(form.formState.errors.password?.message || '')}
                 {...form.register('password')}
               />
-              <Button type="submit" className="w-full" loading={form.formState.isSubmitting}>
+              <Button
+                type="submit"
+                className="h-12 w-full rounded-full bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--secondary)))] text-white"
+                loading={form.formState.isSubmitting}
+              >
                 {t(commonCopy.signIn)}
               </Button>
             </form>
-          </Card>
+
+            <div className="mt-5 rounded-[26px] border border-border/60 bg-background/65 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+                {t(lt('Need the overview first?', 'Ju duhet fillimisht pamja e pergjithshme?'))}
+              </p>
+              <Link
+                to="/"
+                className="mt-2 inline-flex text-sm font-semibold text-foreground transition hover:text-primary"
+              >
+                {t(lt('Go back to the guest homepage', 'Kthehu te faqja publike'))}
+              </Link>
+            </div>
+          </section>
         </div>
       </div>
     </main>

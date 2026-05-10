@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import Button from '@/ui/atoms/Button';
 import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
@@ -108,14 +108,29 @@ export default function EntityFormModal({
 
               if (field.type === 'select') {
                 return (
-                  <Select key={field.name} label={t(field.label)} error={error} {...form.register(field.name)}>
-                    <option value="">{t(commonCopy.search)}</option>
-                    {options.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </Select>
+                  <Controller
+                    key={field.name}
+                    name={field.name}
+                    control={form.control}
+                    render={({ field: ctl }) => (
+                      <Select
+                        label={t(field.label)}
+                        error={error}
+                        name={ctl.name}
+                        value={typeof ctl.value === 'string' ? ctl.value : String(ctl.value ?? '')}
+                        onBlur={ctl.onBlur}
+                        onChange={ctl.onChange}
+                        ref={ctl.ref}
+                      >
+                        <option value="">{t(commonCopy.search)}</option>
+                        {options.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </Select>
+                    )}
+                  />
                 );
               }
 

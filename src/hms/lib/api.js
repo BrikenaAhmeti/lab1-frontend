@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { buildQueryString, normalizeArrayResponse, normalizeListResponse } from './utils';
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { env } from '@/config/env';
+const baseURL = env.API_HMS;
 export const apiClient = axios.create({
     baseURL,
 });

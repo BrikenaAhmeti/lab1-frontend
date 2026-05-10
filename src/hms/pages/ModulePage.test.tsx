@@ -48,15 +48,13 @@ async function fillPatientForm() {
   fireEvent.change(document.getElementById('date_of_birth') as HTMLInputElement, {
     target: { value: '1990-05-12' },
   });
-  fireEvent.change(document.getElementById('gender') as HTMLSelectElement, {
-    target: { value: 'MALE' },
-  });
+  fireEvent.click(screen.getByTestId('select-gender'));
+  fireEvent.click(screen.getByRole('option', { name: /^Male$/i }));
   fireEvent.change(document.getElementById('phone') as HTMLInputElement, {
     target: { value: '+38344111222' },
   });
-  fireEvent.change(document.getElementById('blood_group') as HTMLSelectElement, {
-    target: { value: 'O+' },
-  });
+  fireEvent.click(screen.getByTestId('select-blood_group'));
+  fireEvent.click(screen.getByRole('option', { name: /^O\+$/ }));
   fireEvent.change(document.getElementById('address') as HTMLTextAreaElement, {
     target: { value: 'Prishtina' },
   });

@@ -100,5 +100,5 @@ function build(key: ApiKey): AxiosInstance {
 
 export const api = {
   core: build('core'),
-  deviceInfo: build('deviceInfo')
+  deviceInfo: build('deviceInfo'),
 };

@@ -1,8 +1,9 @@
 import axios from 'axios';
 import type { AuthPayload } from '../types';
 import { buildQueryString, normalizeArrayResponse, normalizeListResponse } from './utils';
+import { env } from '@/config/env';
 
-const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const baseURL = env.API_HMS;
 
 export const apiClient = axios.create({
   baseURL,

@@ -35,15 +35,13 @@ async function fillPatientForm() {
     fireEvent.change(document.getElementById('date_of_birth'), {
         target: { value: '1990-05-12' },
     });
-    fireEvent.change(document.getElementById('gender'), {
-        target: { value: 'MALE' },
-    });
+    fireEvent.click(screen.getByTestId('select-gender'));
+    fireEvent.click(screen.getByRole('option', { name: /^Male$/i }));
     fireEvent.change(document.getElementById('phone'), {
         target: { value: '+38344111222' },
     });
-    fireEvent.change(document.getElementById('blood_group'), {
-        target: { value: 'O+' },
-    });
+    fireEvent.click(screen.getByTestId('select-blood_group'));
+    fireEvent.click(screen.getByRole('option', { name: /^O\+$/ }));
     fireEvent.change(document.getElementById('address'), {
         target: { value: 'Prishtina' },
     });

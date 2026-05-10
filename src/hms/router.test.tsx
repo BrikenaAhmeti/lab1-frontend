@@ -28,6 +28,16 @@ vi.mock('./pages/routes/LoginRoutePage', async () => {
   };
 });
 
+vi.mock('./pages/routes/LandingRoutePage', async () => {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  return {
+    default: function MockLandingRoutePage() {
+      return <div>Lazy landing page</div>;
+    },
+  };
+});
+
 describe('AppRouter', () => {
   it('shows a suspense skeleton before a lazy route resolves', async () => {
     render(
@@ -38,5 +48,15 @@ describe('AppRouter', () => {
 
     expect(screen.getByTestId('route-skeleton')).toBeInTheDocument();
     expect(await screen.findByText('Lazy login page')).toBeInTheDocument();
+  });
+
+  it('shows the public landing page for guest visits to /', async () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <AppRouter />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('Lazy landing page')).toBeInTheDocument();
   });
 });
