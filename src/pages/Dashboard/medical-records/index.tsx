@@ -232,7 +232,11 @@ export default function MedicalRecordsListPage() {
         </div>
       </div>
 
-      <Card title={t('filters.title')} description={t('filters.description')}>
+      <Card
+        title={t('filters.title')}
+        description={t('filters.description')}
+        className="relative z-20"
+      >
         <div className="grid gap-4 md:grid-cols-2">
           <Input
             name="patientSearch"
@@ -269,6 +273,7 @@ export default function MedicalRecordsListPage() {
               })
             : t('list.resultsDescription')
         }
+        className="relative z-0"
       >
         <div className="space-y-4">
           {recordsQuery.isFetching && patientId && !recordsQuery.isLoading ? (

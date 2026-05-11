@@ -41,6 +41,27 @@ function buildNextSearchParams(current: URLSearchParams, values: Record<string, 
   return next;
 }
 
+function normalizeReferenceParams(params?: Record<string, string | number>) {
+  if (!params) {
+    return undefined;
+  }
+
+  return Object.fromEntries(
+    Object.entries(params).map(([key, value]) => {
+      if (key === 'sortBy' && typeof value === 'string' && value.trim()) {
+        return [
+          key,
+          value
+            .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+            .toLowerCase(),
+        ];
+      }
+
+      return [key, String(value)];
+    })
+  );
+}
+
 function collectReferenceKeys(moduleKey: ModuleKey, scope: 'all' | 'fields' = 'all') {
   const config = moduleConfigs[moduleKey];
   const keys = new Set<string>();
@@ -159,9 +180,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
             return path;
           }
 
-          const query = new URLSearchParams(
-            Object.entries(referenceConfig.params).map(([paramKey, value]) => [paramKey, String(value)])
-          );
+          const query = new URLSearchParams(normalizeReferenceParams(referenceConfig.params));
 
           return `${path}?${query.toString()}`;
         }));

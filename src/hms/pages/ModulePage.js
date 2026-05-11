@@ -35,6 +35,22 @@ function buildNextSearchParams(current, values) {
     });
     return next;
 }
+function normalizeReferenceParams(params) {
+    if (!params) {
+        return undefined;
+    }
+    return Object.fromEntries(Object.entries(params).map(([key, value]) => {
+        if (key === 'sortBy' && typeof value === 'string' && value.trim()) {
+            return [
+                key,
+                value
+                    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+                    .toLowerCase(),
+            ];
+        }
+        return [key, String(value)];
+    }));
+}
 function collectReferenceKeys(moduleKey, scope = 'all') {
     const config = moduleConfigs[moduleKey];
     const keys = new Set();
@@ -128,7 +144,7 @@ export default function ModulePage({ moduleKey }) {
                     if (!referenceConfig.params) {
                         return path;
                     }
-                    const query = new URLSearchParams(Object.entries(referenceConfig.params).map(([paramKey, value]) => [paramKey, String(value)]));
+                    const query = new URLSearchParams(normalizeReferenceParams(referenceConfig.params));
                     return `${path}?${query.toString()}`;
                 }));
                 return normalizeArrayResponse(items).map((item) => ({
