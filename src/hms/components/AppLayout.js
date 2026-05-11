@@ -1,14 +1,17 @@
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import clsx from 'clsx';
 import { useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Button from '@/ui/atoms/Button';
 import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import ThemeToggle from '@/ui/molecules/ThemeToggle';
+import PasswordFormModal from './PasswordFormModal';
 import { commonCopy, lt } from '../copy';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatPersonName } from '../lib/utils';
+import { useToast } from '../contexts/ToastContext';
+import { authApi } from '../lib/api';
+import { formatPersonName, getErrorMessage } from '../lib/utils';
 import { moduleOrder, moduleRouteMeta } from '../module-meta';
 const moduleDescriptions = {
     patients: lt('Records, intake, and current care plans', 'Akten, Aufnahme und aktuelle Pflegepläne'),
@@ -63,9 +66,13 @@ function iconForKey(key) {
 }
 export default function AppLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
     const { user, logout } = useAuth();
     const { t } = useLanguage();
+    const { showToast } = useToast();
     const fullName = formatPersonName(user) || 'MedSphere User';
     const initials = initialsFromUser(fullName, user?.email);
     const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Navigation schließen') : lt('Open navigation', 'Navigation öffnen'));
@@ -91,8 +98,27 @@ export default function AppLayout() {
                                                 ? 'border-white/14 bg-[linear-gradient(135deg,hsl(var(--accent)/0.28),hsl(var(--secondary)/0.16),hsl(0_0%_100%/0.08))] shadow-soft'
                                                 : 'border-transparent hover:border-white/10 hover:bg-white/6'), onClick: closeSidebar, children: ({ isActive }) => (_jsxs(_Fragment, { children: [_jsx("span", { className: clsx('mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] border transition', isActive
                                                             ? 'border-white/14 bg-white/16 text-white'
-                                                            : 'border-white/10 bg-white/8 text-white/70 group-hover:text-white'), children: iconForKey(item.key) }), _jsxs("span", { className: "min-w-0", children: [_jsx("span", { className: "block text-sm font-semibold text-white", children: item.label }), _jsx("span", { className: "mt-0.5 block text-xs leading-5 text-sky-50/70", children: item.description })] })] })) }, item.to))) }) }), _jsxs("div", { className: "mt-3 rounded-[22px] border border-white/12 bg-white/10 p-3 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]", children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("div", { className: "inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft", children: initials }), _jsxs("div", { className: "min-w-0", children: [_jsx("p", { className: "truncate text-sm font-semibold text-white", children: fullName }), _jsx("p", { className: "truncate text-xs text-sky-50/70", children: user?.email || 'care@medsphere.app' })] })] }), _jsx(Button, { variant: "outline", className: "mt-3 h-10 w-full rounded-[16px] border-white/10 bg-white text-primary hover:bg-white/90", onClick: async () => {
+                                                            : 'border-white/10 bg-white/8 text-white/70 group-hover:text-white'), children: iconForKey(item.key) }), _jsxs("span", { className: "min-w-0", children: [_jsx("span", { className: "block text-sm font-semibold text-white", children: item.label }), _jsx("span", { className: "mt-0.5 block text-xs leading-5 text-sky-50/70", children: item.description })] })] })) }, item.to))) }) }), _jsxs("div", { className: "mt-3 rounded-[22px] border border-white/12 bg-white/10 p-3 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]", children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("div", { className: "inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft", children: initials }), _jsxs("div", { className: "min-w-0", children: [_jsx("p", { className: "truncate text-sm font-semibold text-white", children: fullName }), _jsx("p", { className: "truncate text-xs text-sky-50/70", children: user?.email || 'care@medsphere.app' })] })] }), _jsx(Button, { variant: "ghost", className: "mt-3 h-10 w-full rounded-[16px] border-white/10 text-white hover:bg-white/10", onClick: () => setIsPasswordModalOpen(true), children: t(commonCopy.changePassword) }), _jsx(Button, { variant: "outline", className: "mt-3 h-10 w-full rounded-[16px] border-white/10 bg-white text-primary hover:bg-white/90", onClick: async () => {
                                                 await logout();
                                                 closeSidebar();
-                                            }, children: t(commonCopy.signOut) })] })] }) }), _jsxs("div", { className: "flex min-h-screen min-w-0 flex-col gap-4 p-3 md:ml-[252px] md:p-4 lg:ml-[280px]", children: [_jsx("header", { className: "workspace-shell workspace-topbar sticky top-4 z-30 rounded-[32px] px-4 py-3 shadow-panel md:px-5", children: _jsxs("div", { className: "flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between", children: [_jsxs("div", { className: "flex min-w-0 items-start gap-3", children: [_jsx("button", { type: "button", "aria-label": menuLabel, "aria-expanded": isSidebarOpen, className: "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background/75 text-foreground transition hover:bg-muted/60 md:hidden", onClick: () => setIsSidebarOpen((current) => !current), children: _jsx("svg", { viewBox: "0 0 24 24", className: "h-5 w-5 fill-none stroke-current stroke-[1.8]", children: isSidebarOpen ? (_jsx("path", { d: "m6 6 12 12M18 6 6 18" })) : (_jsxs(_Fragment, { children: [_jsx("path", { d: "M4 7h16" }), _jsx("path", { d: "M4 12h16" }), _jsx("path", { d: "M4 17h16" })] })) }) }), _jsxs("div", { className: "min-w-0", children: [_jsx("p", { className: "truncate text-[11px] font-semibold uppercase tracking-[0.26em] text-primary", children: t(lt('Workspace view', 'Pamja e hapesires')) }), _jsx("p", { className: "landing-display mt-1 truncate text-2xl text-foreground", children: activeItem.label }), _jsx("p", { className: "mt-1 truncate text-sm text-muted-foreground", children: activeItem.description })] })] }), _jsxs("div", { className: "flex flex-wrap items-center gap-2 lg:justify-end", children: [_jsx(NavLink, { to: "/", className: "hidden h-11 items-center justify-center rounded-full border border-border/70 bg-card/70 px-4 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:bg-card/90 lg:inline-flex", children: t(lt('Guest site', 'Öffentliche Website')) }), _jsx(ThemeToggle, { compact: true }), _jsx(LanguageSwitch, { compact: true })] })] }) }), _jsx("main", { className: "min-w-0 flex-1 pb-4", children: _jsx("div", { className: "mx-auto max-w-7xl", children: _jsx(Outlet, {}) }) })] })] })] }));
+                                                navigate('/login', { replace: true });
+                                            }, children: t(commonCopy.signOut) })] })] }) }), _jsxs("div", { className: "flex min-h-screen min-w-0 flex-col gap-4 p-3 md:ml-[252px] md:p-4 lg:ml-[280px]", children: [_jsx("header", { className: "workspace-shell workspace-topbar sticky top-4 z-30 rounded-[32px] px-4 py-3 shadow-panel md:px-5", children: _jsxs("div", { className: "flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between", children: [_jsxs("div", { className: "flex min-w-0 items-start gap-3", children: [_jsx("button", { type: "button", "aria-label": menuLabel, "aria-expanded": isSidebarOpen, className: "inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background/75 text-foreground transition hover:bg-muted/60 md:hidden", onClick: () => setIsSidebarOpen((current) => !current), children: _jsx("svg", { viewBox: "0 0 24 24", className: "h-5 w-5 fill-none stroke-current stroke-[1.8]", children: isSidebarOpen ? (_jsx("path", { d: "m6 6 12 12M18 6 6 18" })) : (_jsxs(_Fragment, { children: [_jsx("path", { d: "M4 7h16" }), _jsx("path", { d: "M4 12h16" }), _jsx("path", { d: "M4 17h16" })] })) }) }), _jsxs("div", { className: "min-w-0", children: [_jsx("p", { className: "truncate text-[11px] font-semibold uppercase tracking-[0.26em] text-primary", children: t(lt('Workspace view', 'Pamja e hapesires')) }), _jsx("p", { className: "landing-display mt-1 truncate text-2xl text-foreground", children: activeItem.label }), _jsx("p", { className: "mt-1 truncate text-sm text-muted-foreground", children: activeItem.description })] })] }), _jsxs("div", { className: "flex flex-wrap items-center gap-2 lg:justify-end", children: [_jsx(NavLink, { to: "/", className: "hidden h-11 items-center justify-center rounded-full border border-border/70 bg-card/70 px-4 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:bg-card/90 lg:inline-flex", children: t(lt('Guest site', 'Öffentliche Website')) }), _jsx(ThemeToggle, { compact: true }), _jsx(LanguageSwitch, { compact: true })] })] }) }), _jsx("main", { className: "min-w-0 flex-1 pb-4", children: _jsx("div", { className: "mx-auto max-w-7xl", children: _jsx(Outlet, {}) }) })] })] }), _jsx(PasswordFormModal, { open: isPasswordModalOpen, mode: "change", title: t(commonCopy.changePassword), description: t(commonCopy.passwordChangeDescription), saving: isChangingPassword, onClose: () => setIsPasswordModalOpen(false), onSubmit: async (values) => {
+                    setIsChangingPassword(true);
+                    try {
+                        await authApi.changePassword({
+                            currentPassword: values.currentPassword || '',
+                            newPassword: values.password,
+                        });
+                        setIsPasswordModalOpen(false);
+                        showToast(t(commonCopy.passwordUpdated), 'success');
+                        await logout();
+                        navigate('/login', { replace: true });
+                    }
+                    catch (error) {
+                        showToast(getErrorMessage(error, t), 'error');
+                    }
+                    finally {
+                        setIsChangingPassword(false);
+                    }
+                } })] }));
 }

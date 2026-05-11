@@ -79,6 +79,14 @@ export const authApi = {
         });
         return response.data;
     },
+    changePassword: async (payload) => {
+        const response = await apiClient.post(`${AUTH_BASE}/change-password`, payload);
+        return response.data;
+    },
+    resetUserPassword: async (userId, payload) => {
+        const response = await apiClient.patch(`${AUTH_BASE}/users/${userId}/password`, payload);
+        return response.data;
+    },
 };
 function normalizeEndpointParams(params) {
     const nextParams = { ...params };

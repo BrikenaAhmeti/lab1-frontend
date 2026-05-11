@@ -11,13 +11,14 @@ import DataTable from '../components/DataTable';
 import DeleteModal from '../components/DeleteModal';
 import EmptyState from '../components/EmptyState';
 import EntityFormModal from '../components/EntityFormModal';
+import PasswordFormModal from '../components/PasswordFormModal';
 import PageHeader from '../components/PageHeader';
 import Pagination from '../components/Pagination';
 import RoleGuard from '../components/RoleGuard';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
-import { fetchArrayWithFallback } from '../lib/api';
+import { authApi, fetchArrayWithFallback } from '../lib/api';
 import { getErrorMessage, normalizeArrayResponse, stripEmptyValues } from '../lib/utils';
 import { moduleConfigs, referenceConfigs } from '../modules';
 function getPositiveNumber(value, fallback) {
@@ -54,18 +55,20 @@ function normalizeReferenceParams(params) {
 function collectReferenceKeys(moduleKey, scope = 'all') {
     const config = moduleConfigs[moduleKey];
     const keys = new Set();
-    if (scope === 'all') {
+    if (scope === 'all' || scope === 'filters') {
         config.filters.forEach((filter) => {
             if (filter.source) {
                 keys.add(filter.source);
             }
         });
     }
-    config.fields.forEach((field) => {
-        if (field.source) {
-            keys.add(field.source);
-        }
-    });
+    if (scope === 'all' || scope === 'fields') {
+        config.fields.forEach((field) => {
+            if (field.source) {
+                keys.add(field.source);
+            }
+        });
+    }
     return Array.from(keys);
 }
 function getReferenceOptions(moduleKey) {
@@ -84,6 +87,7 @@ export default function ModulePage({ moduleKey }) {
         item: null,
     });
     const [deleteItem, setDeleteItem] = useState(null);
+    const [passwordResetItem, setPasswordResetItem] = useState(null);
     const { t } = useLanguage();
     const { can } = useAuth();
     const { showToast } = useToast();
@@ -132,11 +136,14 @@ export default function ModulePage({ moduleKey }) {
         staleTime: 30_000,
     });
     const referenceKeys = useMemo(() => getReferenceOptions(moduleKey), [moduleKey]);
+    const filterReferenceKeys = useMemo(() => collectReferenceKeys(moduleKey, 'filters'), [moduleKey]);
     const formReferenceKeys = useMemo(() => collectReferenceKeys(moduleKey, 'fields'), [moduleKey]);
+    const filterReferenceKeySet = useMemo(() => new Set(filterReferenceKeys), [filterReferenceKeys]);
     const formReferenceKeySet = useMemo(() => new Set(formReferenceKeys), [formReferenceKeys]);
     const referenceQueries = useQueries({
         queries: referenceKeys.map((key) => ({
             queryKey: ['reference', key],
+            enabled: filterReferenceKeySet.has(key) || (formState.open && formReferenceKeySet.has(key)),
             queryFn: async () => {
                 const referenceConfig = referenceConfigs[key];
                 const paths = [referenceConfig.endpoint, ...(referenceConfig.fallbackPaths || [])];
@@ -203,6 +210,18 @@ export default function ModulePage({ moduleKey }) {
             showToast(getErrorMessage(error, t), 'error');
         },
     });
+    const resetPasswordMutation = useMutation({
+        mutationFn: async ({ userId, password }) => {
+            await authApi.resetUserPassword(userId, { password });
+        },
+        onSuccess: () => {
+            setPasswordResetItem(null);
+            showToast(t(commonCopy.passwordResetSuccess), 'success');
+        },
+        onError: (error) => {
+            showToast(getErrorMessage(error, t), 'error');
+        },
+    });
     const currentItem = formState.mode === 'edit' ? detailQuery.data || formState.item : formState.item;
     const openCreateModal = useCallback(() => {
         setFormState({ open: true, mode: 'create', item: null });
@@ -242,7 +261,7 @@ export default function ModulePage({ moduleKey }) {
             ...Object.fromEntries(config.filters.map((filter) => [filter.name, null])),
         });
     }, [config.filters, updateSearchParams]);
-    const renderActions = useCallback((item) => (_jsxs("div", { className: "flex flex-wrap gap-2", children: [supportsAction(config, 'edit') && can(config.permissions?.edit) ? (_jsx(Button, { size: "sm", variant: "outline", onClick: () => openEditModal(item), children: t(commonCopy.edit) })) : null, supportsAction(config, 'delete') && can(config.permissions?.delete) ? (_jsx(Button, { size: "sm", variant: "danger", onClick: () => setDeleteItem(item), children: t(commonCopy.delete) })) : null] })), [can, config.permissions?.delete, config.permissions?.edit, openEditModal, t]);
+    const renderActions = useCallback((item) => (_jsxs("div", { className: "flex flex-wrap gap-2", children: [supportsAction(config, 'edit') && can(config.permissions?.edit) ? (_jsx(Button, { size: "sm", variant: "outline", onClick: () => openEditModal(item), children: t(commonCopy.edit) })) : null, supportsAction(config, 'delete') && can(config.permissions?.delete) ? (_jsx(Button, { size: "sm", variant: "danger", onClick: () => setDeleteItem(item), children: t(commonCopy.delete) })) : null, config.getPasswordUserId && can(config.permissions?.edit) && config.getPasswordUserId(item) ? (_jsx(Button, { size: "sm", variant: "ghost", onClick: () => setPasswordResetItem(item), children: t(commonCopy.resetPassword) })) : null] })), [can, config, openEditModal, t]);
     const handlePageChange = useCallback((nextPage) => {
         updateSearchParams({
             page: nextPage,
@@ -285,5 +304,14 @@ export default function ModulePage({ moduleKey }) {
                     saveMutation.mutate(values);
                 } }), _jsx(DeleteModal, { open: Boolean(deleteItem), itemTitle: deleteItem ? config.getItemTitle?.(deleteItem) || String(deleteItem.id) : '', deleting: deleteMutation.isPending, onClose: () => setDeleteItem(null), onConfirm: () => {
                     deleteMutation.mutate(deleteItem);
+                } }), _jsx(PasswordFormModal, { open: Boolean(passwordResetItem), mode: "reset", title: t(commonCopy.resetPassword), description: t(commonCopy.passwordResetDescription), saving: resetPasswordMutation.isPending, onClose: () => setPasswordResetItem(null), onSubmit: async (values) => {
+                    const userId = passwordResetItem ? config.getPasswordUserId?.(passwordResetItem) : '';
+                    if (!userId) {
+                        return;
+                    }
+                    await resetPasswordMutation.mutateAsync({
+                        userId,
+                        password: values.password,
+                    });
                 } })] }));
 }

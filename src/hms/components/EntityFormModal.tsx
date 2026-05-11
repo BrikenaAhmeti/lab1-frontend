@@ -28,13 +28,17 @@ type EntityFormModalProps = {
 };
 
 function getDefaultValues(config: ModuleConfig, item: any) {
+  const mode = item ? 'edit' : 'create';
   const defaults: Record<string, any> = { ...(config.createDefaults || {}) };
 
   config.fields.forEach((field) => {
     defaults[field.name] = item ? getFieldInputValue(item, field) : defaults[field.name] ?? '';
   });
 
-  return defaults;
+  return {
+    ...defaults,
+    ...(config.getInitialValues ? config.getInitialValues(item, mode) : {}),
+  };
 }
 
 export default function EntityFormModal({
@@ -52,7 +56,7 @@ export default function EntityFormModal({
 }: EntityFormModalProps) {
   const { t } = useLanguage();
   const form = useForm({
-    resolver: zodResolver(config.schema),
+    resolver: zodResolver(config.getSchema ? config.getSchema(mode) : config.schema),
     defaultValues: getDefaultValues(config, item),
   });
 
@@ -62,7 +66,14 @@ export default function EntityFormModal({
 
   const title = mode === 'create' ? t(commonCopy.createRecord) : t(commonCopy.editRecord);
   const description = t(config.singular);
-  const visibleFields = config.fields.filter((field) => !field.modes || field.modes.includes(mode));
+  const formValues = form.watch();
+  const visibleFields = config.fields.filter((field) => {
+    if (field.modes && !field.modes.includes(mode)) {
+      return false;
+    }
+
+    return field.showWhen ? field.showWhen(formValues, mode) : true;
+  });
 
   return (
     <Modal open={open} title={`${title}: ${description}`} onClose={onClose}>
@@ -116,6 +127,7 @@ export default function EntityFormModal({
                     render={({ field: ctl }) => (
                       <Select
                         label={t(field.label)}
+                        hint={field.hint ? t(field.hint) : undefined}
                         error={error}
                         name={ctl.name}
                         value={typeof ctl.value === 'string' ? ctl.value : String(ctl.value ?? '')}
@@ -141,6 +153,7 @@ export default function EntityFormModal({
                   type={field.type}
                   step={field.step}
                   label={t(field.label)}
+                  hint={field.hint ? t(field.hint) : undefined}
                   error={error}
                   placeholder={field.placeholder ? t(field.placeholder) : ''}
                   {...form.register(field.name)}

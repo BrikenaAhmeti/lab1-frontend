@@ -1,13 +1,16 @@
 import clsx from 'clsx';
 import { useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Button from '@/ui/atoms/Button';
 import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import ThemeToggle from '@/ui/molecules/ThemeToggle';
+import PasswordFormModal from './PasswordFormModal';
 import { commonCopy, lt } from '../copy';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { formatPersonName } from '../lib/utils';
+import { useToast } from '../contexts/ToastContext';
+import { authApi } from '../lib/api';
+import { formatPersonName, getErrorMessage } from '../lib/utils';
 import { moduleOrder, moduleRouteMeta } from '../module-meta';
 import type { ModuleKey } from '../types';
 
@@ -132,9 +135,13 @@ function iconForKey(key: NavItem['key']) {
 
 export default function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { t } = useLanguage();
+  const { showToast } = useToast();
   const fullName = formatPersonName(user) || 'MedSphere User';
   const initials = initialsFromUser(fullName, user?.email);
   const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Navigation schließen') : lt('Open navigation', 'Navigation öffnen'));
@@ -269,11 +276,20 @@ export default function AppLayout() {
               </div>
 
               <Button
+                variant="ghost"
+                className="mt-3 h-10 w-full rounded-[16px] border-white/10 text-white hover:bg-white/10"
+                onClick={() => setIsPasswordModalOpen(true)}
+              >
+                {t(commonCopy.changePassword)}
+              </Button>
+
+              <Button
                 variant="outline"
                 className="mt-3 h-10 w-full rounded-[16px] border-white/10 bg-white text-primary hover:bg-white/90"
                 onClick={async () => {
                   await logout();
                   closeSidebar();
+                  navigate('/login', { replace: true });
                 }}
               >
                 {t(commonCopy.signOut)}
@@ -335,6 +351,33 @@ export default function AppLayout() {
           </main>
         </div>
       </div>
+
+      <PasswordFormModal
+        open={isPasswordModalOpen}
+        mode="change"
+        title={t(commonCopy.changePassword)}
+        description={t(commonCopy.passwordChangeDescription)}
+        saving={isChangingPassword}
+        onClose={() => setIsPasswordModalOpen(false)}
+        onSubmit={async (values) => {
+          setIsChangingPassword(true);
+
+          try {
+            await authApi.changePassword({
+              currentPassword: values.currentPassword || '',
+              newPassword: values.password,
+            });
+            setIsPasswordModalOpen(false);
+            showToast(t(commonCopy.passwordUpdated), 'success');
+            await logout();
+            navigate('/login', { replace: true });
+          } catch (error) {
+            showToast(getErrorMessage(error, t), 'error');
+          } finally {
+            setIsChangingPassword(false);
+          }
+        }}
+      />
     </div>
   );
 }

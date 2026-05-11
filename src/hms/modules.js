@@ -6,9 +6,21 @@ import { createCrudService } from './lib/api';
 import { formatCurrency, formatDate, formatPersonName, getStatusVariant, getValue, stripEmptyValues } from './lib/utils';
 const requiredText = 'This field is required.';
 const positiveNumberText = 'Enter a value greater than zero.';
+const phoneNumberText = 'Use a valid phone number like +38344111222.';
+const passwordMinText = 'Use at least 6 characters.';
+const passwordMaxText = 'Use 255 characters or fewer.';
 const listPageSizeOptions = [10, 20, 50];
+const doctorPhonePattern = /^\+\d{8,15}$/;
+const accountModeValues = ['existing', 'new'];
+const nurseShiftValues = ['Morning', 'Evening', 'Night'];
+const accountModeOptions = [
+    option('existing', 'Link existing user', 'Vorhandenen Benutzer verknüpfen'),
+    option('new', 'Create new login', 'Neuen Login erstellen'),
+];
 const requiredString = () => z.string().trim().min(1, requiredText);
 const positiveNumber = () => z.coerce.number().gt(0, positiveNumberText);
+const optionalTrimmedString = () => z.string().trim().optional().or(z.literal(''));
+const passwordRule = () => z.string().min(6, passwordMinText).max(255, passwordMaxText);
 function option(value, en, de) {
     return {
         value,
@@ -61,6 +73,14 @@ const nurseShifts = [
     option('Evening', 'Evening', 'Spätschicht'),
     option('Night', 'Night', 'Nachtschicht'),
 ];
+function getUserLabel(item) {
+    const fullName = formatPersonName(item);
+    const email = String(getValue(item, 'email'));
+    if (fullName && email) {
+        return `${fullName} (${email})`;
+    }
+    return fullName || email || String(getValue(item, 'id'));
+}
 function getDepartmentName(item) {
     return String(getValue(item, 'department.name', 'departmentName'));
 }
@@ -85,6 +105,136 @@ function stripForCreate(values, fieldsToOmit) {
         delete payload[field];
     });
     return stripEmptyValues(payload);
+}
+function buildDoctorPayload(values, mode) {
+    const payload = {
+        userId: String(values.userId || '').trim(),
+        firstName: String(values.firstName || '').trim(),
+        lastName: String(values.lastName || '').trim(),
+        specialization: String(values.specialization || '').trim(),
+        departmentId: String(values.departmentId || '').trim(),
+        phoneNumber: String(values.phoneNumber || '').trim(),
+    };
+    if (mode === 'edit') {
+        return stripEmptyValues(payload);
+    }
+    if (values.accountMode === 'new') {
+        return stripEmptyValues({
+            ...payload,
+            password: String(values.password || '').trim(),
+            userId: undefined,
+        });
+    }
+    return stripEmptyValues(payload);
+}
+function buildNursePayload(values, mode) {
+    const payload = {
+        userId: String(values.userId || '').trim(),
+        firstName: String(values.firstName || '').trim(),
+        lastName: String(values.lastName || '').trim(),
+        departmentId: String(values.departmentId || '').trim(),
+        shift: String(values.shift || '').trim(),
+    };
+    if (mode === 'edit') {
+        return stripEmptyValues(payload);
+    }
+    if (values.accountMode === 'new') {
+        return stripEmptyValues({
+            ...payload,
+            password: String(values.password || '').trim(),
+            userId: undefined,
+        });
+    }
+    return stripEmptyValues(payload);
+}
+function createDoctorSchema(mode) {
+    return z
+        .object({
+        accountMode: mode === 'create' ? z.enum(accountModeValues) : z.string().optional(),
+        userId: optionalTrimmedString(),
+        firstName: requiredString(),
+        lastName: requiredString(),
+        specialization: requiredString(),
+        departmentId: requiredString(),
+        phoneNumber: requiredString().regex(doctorPhonePattern, phoneNumberText),
+        password: optionalTrimmedString(),
+    })
+        .superRefine((values, context) => {
+        if (mode === 'edit') {
+            return;
+        }
+        if (values.accountMode === 'new') {
+            if (!values.password?.trim()) {
+                context.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['password'],
+                    message: requiredText,
+                });
+                return;
+            }
+            const passwordResult = passwordRule().safeParse(values.password.trim());
+            if (!passwordResult.success) {
+                passwordResult.error.issues.forEach((issue) => {
+                    context.addIssue({
+                        ...issue,
+                        path: ['password'],
+                    });
+                });
+            }
+            return;
+        }
+        if (!values.userId?.trim()) {
+            context.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['userId'],
+                message: requiredText,
+            });
+        }
+    });
+}
+function createNurseSchema(mode) {
+    return z
+        .object({
+        accountMode: mode === 'create' ? z.enum(accountModeValues) : z.string().optional(),
+        userId: optionalTrimmedString(),
+        firstName: requiredString(),
+        lastName: requiredString(),
+        departmentId: requiredString(),
+        shift: z.enum(nurseShiftValues, { message: requiredText }),
+        password: optionalTrimmedString(),
+    })
+        .superRefine((values, context) => {
+        if (mode === 'edit') {
+            return;
+        }
+        if (values.accountMode === 'new') {
+            if (!values.password?.trim()) {
+                context.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    path: ['password'],
+                    message: requiredText,
+                });
+                return;
+            }
+            const passwordResult = passwordRule().safeParse(values.password.trim());
+            if (!passwordResult.success) {
+                passwordResult.error.issues.forEach((issue) => {
+                    context.addIssue({
+                        ...issue,
+                        path: ['password'],
+                    });
+                });
+            }
+            return;
+        }
+        if (!values.userId?.trim()) {
+            context.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: ['userId'],
+                message: requiredText,
+            });
+        }
+    });
 }
 function allowListParams(...allowedParams) {
     return { allowedListParams: allowedParams };
@@ -113,6 +263,11 @@ export const referenceConfigs = {
         endpoint: '/api/departments/all',
         params: { sortBy: 'name', order: 'ASC' },
         getLabel: (item) => String(getValue(item, 'name')),
+    },
+    users: {
+        key: 'users',
+        endpoint: '/api/auth/users',
+        getLabel: (item) => getUserLabel(item),
     },
     doctors: {
         key: 'doctors',
@@ -222,12 +377,33 @@ export const moduleConfigs = {
             { name: 'specialization', label: lt('Specialization', 'Fachgebiet'), type: 'text', placeholder: lt('Cardiology', 'Kardiologie') },
         ],
         fields: [
-            { name: 'userId', label: lt('User ID', 'Benutzer-ID'), type: 'text', modes: ['edit'] },
+            {
+                name: 'accountMode',
+                label: lt('Account setup', 'Kontoeinrichtung'),
+                type: 'select',
+                options: accountModeOptions,
+                modes: ['create'],
+            },
+            {
+                name: 'userId',
+                label: lt('User account', 'Benutzerkonto'),
+                type: 'select',
+                source: 'users',
+                showWhen: (values, mode) => mode === 'edit' || values.accountMode !== 'new',
+            },
             { name: 'firstName', label: lt('First name', 'Vorname'), type: 'text' },
             { name: 'lastName', label: lt('Last name', 'Nachname'), type: 'text' },
             { name: 'specialization', label: lt('Specialization', 'Fachgebiet'), type: 'text' },
             { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
             { name: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), type: 'text' },
+            {
+                name: 'password',
+                label: lt('Password', 'Passwort'),
+                type: 'password',
+                hint: lt('Use at least 6 characters.', 'Verwenden Sie mindestens 6 Zeichen.'),
+                modes: ['create'],
+                showWhen: (values) => values.accountMode === 'new',
+            },
         ],
         columns: [
             { key: 'name', label: lt('Doctor', 'Arzt'), render: (item) => formatPersonName(item) },
@@ -235,16 +411,14 @@ export const moduleConfigs = {
             { key: 'departmentId', label: lt('Department', 'Abteilung'), render: (item) => getDepartmentName(item) },
             { key: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), render: (item) => String(getValue(item, 'phoneNumber')) },
         ],
-        schema: z.object({
-            userId: z.string().optional(),
-            firstName: requiredString(),
-            lastName: requiredString(),
-            specialization: requiredString(),
-            departmentId: requiredString(),
-            phoneNumber: requiredString(),
+        getSchema: createDoctorSchema,
+        getInitialValues: (_item, mode) => ({
+            accountMode: mode === 'create' ? 'existing' : '',
+            password: '',
         }),
-        cleanPayload: (values, mode) => (mode === 'create' ? stripForCreate(values, ['userId']) : stripEmptyValues(values)),
+        cleanPayload: buildDoctorPayload,
         getItemTitle: (item) => formatPersonName(item),
+        getPasswordUserId: (item) => String(getValue(item, 'userId')),
     },
     departments: {
         key: 'departments',
@@ -627,23 +801,45 @@ export const moduleConfigs = {
             { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
         ],
         fields: [
+            {
+                name: 'accountMode',
+                label: lt('Account setup', 'Kontoeinrichtung'),
+                type: 'select',
+                options: accountModeOptions,
+                modes: ['create'],
+            },
+            {
+                name: 'userId',
+                label: lt('User account', 'Benutzerkonto'),
+                type: 'select',
+                source: 'users',
+                showWhen: (values, mode) => mode === 'edit' || values.accountMode !== 'new',
+            },
             { name: 'firstName', label: lt('First name', 'Vorname'), type: 'text' },
             { name: 'lastName', label: lt('Last name', 'Nachname'), type: 'text' },
             { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
             { name: 'shift', label: lt('Shift', 'Schicht'), type: 'select', options: nurseShifts },
+            {
+                name: 'password',
+                label: lt('Password', 'Passwort'),
+                type: 'password',
+                hint: lt('Use at least 6 characters.', 'Verwenden Sie mindestens 6 Zeichen.'),
+                modes: ['create'],
+                showWhen: (values) => values.accountMode === 'new',
+            },
         ],
         columns: [
             { key: 'name', label: lt('Nurse', 'Pflegekraft'), render: (item) => formatPersonName(item) },
             { key: 'departmentId', label: lt('Department', 'Abteilung'), render: (item) => getDepartmentName(item) },
             { key: 'shift', label: lt('Shift', 'Schicht'), render: (item) => String(getValue(item, 'shift')) },
         ],
-        schema: z.object({
-            firstName: requiredString(),
-            lastName: requiredString(),
-            departmentId: requiredString(),
-            shift: requiredString(),
+        getSchema: createNurseSchema,
+        getInitialValues: (_item, mode) => ({
+            accountMode: mode === 'create' ? 'existing' : '',
+            password: '',
         }),
-        cleanPayload: (values) => stripEmptyValues(values),
+        cleanPayload: buildNursePayload,
         getItemTitle: (item) => formatPersonName(item),
+        getPasswordUserId: (item) => String(getValue(item, 'userId')),
     },
 };

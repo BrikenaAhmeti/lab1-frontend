@@ -119,4 +119,25 @@ export const commonCopy = {
   createRecord: lt('Create record', 'Eintrag erstellen'),
   editRecord: lt('Edit record', 'Eintrag bearbeiten'),
   createNew: lt('Create new', 'Neu erstellen'),
+  passwordMinLength: lt('Use at least 6 characters.', 'Verwenden Sie mindestens 6 Zeichen.'),
+  passwordMaxLength: lt('Use 255 characters or fewer.', 'Verwenden Sie höchstens 255 Zeichen.'),
+  passwordMismatch: lt('Passwords do not match.', 'Die Passwörter stimmen nicht überein.'),
+  changePassword: lt('Change password', 'Passwort ändern'),
+  resetPassword: lt('Reset password', 'Passwort zurücksetzen'),
+  currentPassword: lt('Current password', 'Aktuelles Passwort'),
+  newPassword: lt('New password', 'Neues Passwort'),
+  confirmPassword: lt('Confirm password', 'Passwort bestätigen'),
+  passwordUpdated: lt(
+    'Password updated. Please sign in again.',
+    'Passwort aktualisiert. Bitte melden Sie sich erneut an.'
+  ),
+  passwordResetSuccess: lt('Password reset successfully.', 'Passwort erfolgreich zurückgesetzt.'),
+  passwordChangeDescription: lt(
+    'Update your password to keep your account secure.',
+    'Aktualisieren Sie Ihr Passwort, um Ihr Konto sicher zu halten.'
+  ),
+  passwordResetDescription: lt(
+    'Set a temporary password for this linked user account.',
+    'Legen Sie ein temporäres Passwort für dieses verknüpfte Benutzerkonto fest.'
+  ),
 };

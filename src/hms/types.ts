@@ -21,6 +21,7 @@ export type ModuleKey =
 export type ReferenceKey =
   | 'patients'
   | 'departments'
+  | 'users'
   | 'doctors'
   | 'rooms'
   | 'medicalRecords'
@@ -80,17 +81,19 @@ export type FilterConfig = {
   source?: ReferenceKey;
 };
 
-export type FormFieldType = 'text' | 'textarea' | 'date' | 'time' | 'number' | 'select';
+export type FormFieldType = 'text' | 'textarea' | 'date' | 'time' | 'number' | 'select' | 'password';
 
 export type FormFieldConfig = {
   name: string;
   label: LocalizedText;
   type: FormFieldType;
   placeholder?: LocalizedText;
+  hint?: LocalizedText;
   options?: OptionConfig[];
   source?: ReferenceKey;
   step?: string;
   modes?: Array<'create' | 'edit'>;
+  showWhen?: (values: Record<string, any>, mode: 'create' | 'edit') => boolean;
 };
 
 export type ModuleConfig = {
@@ -107,7 +110,8 @@ export type ModuleConfig = {
   filters: FilterConfig[];
   fields: FormFieldConfig[];
   columns: ColumnConfig[];
-  schema: any;
+  schema?: any;
+  getSchema?: (mode: 'create' | 'edit') => any;
   listPageSizeOptions?: number[];
   permissions?: {
     create?: string[];
@@ -122,6 +126,8 @@ export type ModuleConfig = {
   createDefaults?: Record<string, any>;
   cleanPayload?: (values: any, mode: 'create' | 'edit') => any;
   getItemTitle?: (item: any) => string;
+  getInitialValues?: (item: any, mode: 'create' | 'edit') => Record<string, any>;
+  getPasswordUserId?: (item: any) => string;
 };
 
 export type ReferenceConfig = {

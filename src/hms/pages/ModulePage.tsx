@@ -10,13 +10,14 @@ import DataTable from '../components/DataTable';
 import DeleteModal from '../components/DeleteModal';
 import EmptyState from '../components/EmptyState';
 import EntityFormModal from '../components/EntityFormModal';
+import PasswordFormModal from '../components/PasswordFormModal';
 import PageHeader from '../components/PageHeader';
 import Pagination from '../components/Pagination';
 import RoleGuard from '../components/RoleGuard';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
-import { fetchArrayWithFallback } from '../lib/api';
+import { authApi, fetchArrayWithFallback } from '../lib/api';
 import { getErrorMessage, normalizeArrayResponse, stripEmptyValues } from '../lib/utils';
 import { moduleConfigs, referenceConfigs } from '../modules';
 import type { ModuleKey, ReferenceOption, SortOrder } from '../types';
@@ -62,11 +63,11 @@ function normalizeReferenceParams(params?: Record<string, string | number>) {
   );
 }
 
-function collectReferenceKeys(moduleKey: ModuleKey, scope: 'all' | 'fields' = 'all') {
+function collectReferenceKeys(moduleKey: ModuleKey, scope: 'all' | 'fields' | 'filters' = 'all') {
   const config = moduleConfigs[moduleKey];
   const keys = new Set<string>();
 
-  if (scope === 'all') {
+  if (scope === 'all' || scope === 'filters') {
     config.filters.forEach((filter) => {
       if (filter.source) {
         keys.add(filter.source);
@@ -74,11 +75,13 @@ function collectReferenceKeys(moduleKey: ModuleKey, scope: 'all' | 'fields' = 'a
     });
   }
 
-  config.fields.forEach((field) => {
-    if (field.source) {
-      keys.add(field.source);
-    }
-  });
+  if (scope === 'all' || scope === 'fields') {
+    config.fields.forEach((field) => {
+      if (field.source) {
+        keys.add(field.source);
+      }
+    });
+  }
 
   return Array.from(keys);
 }
@@ -101,6 +104,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     item: null,
   });
   const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [passwordResetItem, setPasswordResetItem] = useState<any>(null);
   const { t } = useLanguage();
   const { can } = useAuth();
   const { showToast } = useToast();
@@ -167,11 +171,14 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   });
 
   const referenceKeys = useMemo(() => getReferenceOptions(moduleKey), [moduleKey]);
+  const filterReferenceKeys = useMemo(() => collectReferenceKeys(moduleKey, 'filters'), [moduleKey]);
   const formReferenceKeys = useMemo(() => collectReferenceKeys(moduleKey, 'fields'), [moduleKey]);
+  const filterReferenceKeySet = useMemo(() => new Set(filterReferenceKeys), [filterReferenceKeys]);
   const formReferenceKeySet = useMemo(() => new Set(formReferenceKeys), [formReferenceKeys]);
   const referenceQueries = useQueries({
     queries: referenceKeys.map((key) => ({
       queryKey: ['reference', key],
+      enabled: filterReferenceKeySet.has(key) || (formState.open && formReferenceKeySet.has(key)),
       queryFn: async () => {
         const referenceConfig = referenceConfigs[key];
         const paths = [referenceConfig.endpoint, ...(referenceConfig.fallbackPaths || [])];
@@ -262,6 +269,19 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     },
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: async ({ userId, password }: { userId: string; password: string }) => {
+      await authApi.resetUserPassword(userId, { password });
+    },
+    onSuccess: () => {
+      setPasswordResetItem(null);
+      showToast(t(commonCopy.passwordResetSuccess), 'success');
+    },
+    onError: (error) => {
+      showToast(getErrorMessage(error, t), 'error');
+    },
+  });
+
   const currentItem = formState.mode === 'edit' ? detailQuery.data || formState.item : formState.item;
 
   const openCreateModal = useCallback(() => {
@@ -335,9 +355,14 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
             {t(commonCopy.delete)}
           </Button>
         ) : null}
+        {config.getPasswordUserId && can(config.permissions?.edit) && config.getPasswordUserId(item) ? (
+          <Button size="sm" variant="ghost" onClick={() => setPasswordResetItem(item)}>
+            {t(commonCopy.resetPassword)}
+          </Button>
+        ) : null}
       </div>
     ),
-    [can, config.permissions?.delete, config.permissions?.edit, openEditModal, t]
+    [can, config, openEditModal, t]
   );
 
   const handlePageChange = useCallback(
@@ -545,6 +570,27 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         onClose={() => setDeleteItem(null)}
         onConfirm={() => {
           deleteMutation.mutate(deleteItem);
+        }}
+      />
+
+      <PasswordFormModal
+        open={Boolean(passwordResetItem)}
+        mode="reset"
+        title={t(commonCopy.resetPassword)}
+        description={t(commonCopy.passwordResetDescription)}
+        saving={resetPasswordMutation.isPending}
+        onClose={() => setPasswordResetItem(null)}
+        onSubmit={async (values) => {
+          const userId = passwordResetItem ? config.getPasswordUserId?.(passwordResetItem) : '';
+
+          if (!userId) {
+            return;
+          }
+
+          await resetPasswordMutation.mutateAsync({
+            userId,
+            password: values.password,
+          });
         }}
       />
     </div>
