@@ -28,7 +28,8 @@
     "patientSearchPlaceholder": "Patientenoptionen durchsuchen",
     "patientPlaceholder": "Patient auswählen",
     "doctorPlaceholder": "Arzt auswählen",
-    "prescriptionsPlaceholder": "Falls nötig, eine kurze Verschreibungsnotiz hinzufügen"
+    "prescriptionsPlaceholder": "Falls nötig, eine kurze Verschreibungsnotiz hinzufügen",
+    "inactiveDoctorHint": "Dieser Arzt ist nicht mehr aktiv. Wählen Sie vor dem Speichern einen aktiven Arzt aus."
   },
   "actions": {
     "create": "Eintrag erstellen",
@@ -69,7 +70,8 @@
     "loadingDoctors": "Ärzte werden geladen...",
     "notAvailable": "Nicht verfügbar",
     "noPrescriptionsText": "Keine Verschreibungsnotizen hinzugefügt.",
-    "noInstructions": "Keine Anweisungen hinzugefügt."
+    "noInstructions": "Keine Anweisungen hinzugefügt.",
+    "inactiveDoctorSuffix": "(inaktiv)"
   },
   "states": {
     "loadingTitle": "Krankenakten werden geladen",
@@ -109,7 +111,8 @@
     "invalidData": "Bitte prüfen Sie die Angaben und versuchen Sie es erneut.",
     "invalidPrescriptionData": "Bitte prüfen Sie die Angaben zur Verschreibung und versuchen Sie es erneut.",
     "writeForbidden": "Sie haben keine Berechtigung, Krankenakten zu ändern.",
-    "notFound": "Der Krankenakt wurde nicht gefunden."
+    "notFound": "Der Krankenakt wurde nicht gefunden.",
+    "inactiveDoctor": "Der ausgewählte Arzt ist inaktiv. Bitte wählen Sie einen aktiven Arzt aus."
   },
   "messages": {
     "created": "Krankenakt erfolgreich erstellt.",
@@ -121,7 +124,8 @@
   },
   "validation": {
     "required": "Dieses Feld ist erforderlich.",
-    "date": "Verwenden Sie YYYY-MM-DD."
+    "date": "Verwenden Sie YYYY-MM-DD.",
+    "activeDoctor": "Wählen Sie einen aktiven Arzt aus."
   },
   "prescriptions": {
     "title": "Verknüpfte Verschreibungen",

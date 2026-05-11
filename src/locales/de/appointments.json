@@ -34,7 +34,8 @@
     "patientPlaceholder": "Patient auswahlen",
     "doctorPlaceholder": "Arzt auswahlen",
     "statusHint": "Neue Termine werden immer als Geplant erstellt.",
-    "notesPlaceholder": "Fugen Sie bei Bedarf Besuchsnotizen hinzu"
+    "notesPlaceholder": "Fugen Sie bei Bedarf Besuchsnotizen hinzu",
+    "inactiveDoctorHint": "Dieser Arzt ist nicht mehr aktiv. Wählen Sie vor dem Speichern einen aktiven Arzt aus."
   },
   "actions": {
     "create": "Termin erstellen",
@@ -71,7 +72,8 @@
     "notAvailable": "Nicht verfugbar",
     "noNotes": "Keine Notizen hinzugefugt.",
     "loadingDoctors": "Arzte werden geladen...",
-    "loadingPatients": "Patienten werden geladen..."
+    "loadingPatients": "Patienten werden geladen...",
+    "inactiveDoctorSuffix": "(inaktiv)"
   },
   "states": {
     "loadingTitle": "Termine werden geladen",
@@ -101,7 +103,8 @@
     "doctors": "Arztoptionen konnten nicht geladen werden.",
     "patients": "Patientenoptionen konnten nicht geladen werden.",
     "today": "Die heutigen Termine konnten nicht geladen werden.",
-    "conflict": "Dieser Arzt hat zu dieser Zeit bereits einen Termin."
+    "conflict": "Dieser Arzt hat zu dieser Zeit bereits einen Termin.",
+    "inactiveDoctor": "Der ausgewählte Arzt ist inaktiv. Die Arztoptionen wurden aktualisiert. Bitte wählen Sie einen aktiven Arzt aus."
   },
   "messages": {
     "created": "Termin erfolgreich erstellt.",
@@ -113,7 +116,8 @@
     "date": "Verwenden Sie YYYY-MM-DD.",
     "time": "Verwenden Sie HH:mm.",
     "future": "Termin darf nicht in der Vergangenheit liegen.",
-    "noChanges": "Es gibt keine Anderungen zum Speichern."
+    "noChanges": "Es gibt keine Anderungen zum Speichern.",
+    "activeDoctor": "Wählen Sie einen aktiven Arzt aus."
   },
   "statuses": {
     "Scheduled": "Geplant",

@@ -4,6 +4,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
 import { isAdminUser, isDoctorOrAdminUser } from '@/domain/auth/role.utils';
 import { useDoctors } from '@/domain/doctors/doctors.hooks';
+import { isDoctorInactiveApiError } from '@/domain/doctors/doctors.utils';
 import {
   useCreateMedicalRecord,
   useMedicalRecord,
@@ -43,7 +44,11 @@ const emptyForm: MedicalRecordFormValues = {
   date: '',
 };
 
-function validateForm(values: MedicalRecordFormValues, t: (key: string) => string) {
+function validateFormWithDoctors(
+  values: MedicalRecordFormValues,
+  activeDoctorIds: Set<string>,
+  t: (key: string) => string
+) {
   const errors: Record<string, string> = {};
 
   if (!values.patientId.trim()) errors.patientId = t('validation.required');
@@ -54,6 +59,10 @@ function validateForm(values: MedicalRecordFormValues, t: (key: string) => strin
 
   if (values.date && !medicalRecordDatePattern.test(values.date)) {
     errors.date = t('validation.date');
+  }
+
+  if (values.doctorId && !activeDoctorIds.has(values.doctorId.trim())) {
+    errors.doctorId = t('validation.activeDoctor');
   }
 
   return errors;
@@ -139,10 +148,11 @@ export default function MedicalRecordFormPage() {
     value: doctor.id,
     label: getMedicalRecordDoctorOptionLabel(doctor),
   }));
+  const activeDoctorIds = new Set(doctorOptions.map((option) => option.value));
   const selectedDoctorLabel =
     doctorOptions.find((option) => option.value === form.doctorId)?.label
     ?? (recordQuery.data?.doctor
-      ? getMedicalRecordDoctorOptionLabel(recordQuery.data.doctor)
+      ? `${getMedicalRecordDoctorOptionLabel(recordQuery.data.doctor)} ${t('labels.inactiveDoctorSuffix')}`
       : currentDoctor
         ? getMedicalRecordDoctorOptionLabel(currentDoctor)
         : form.doctorId);
@@ -151,6 +161,7 @@ export default function MedicalRecordFormPage() {
     form.doctorId,
     selectedDoctorLabel
   );
+  const selectedDoctorInactive = !!form.doctorId && !activeDoctorIds.has(form.doctorId);
 
   const handleChange = (name: keyof MedicalRecordFormValues, value: string) => {
     setForm((current) => ({ ...current, [name]: value }));
@@ -165,7 +176,7 @@ export default function MedicalRecordFormPage() {
       return;
     }
 
-    const nextErrors = validateForm(form, t);
+    const nextErrors = validateFormWithDoctors(form, activeDoctorIds, t);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length) {
@@ -191,6 +202,13 @@ export default function MedicalRecordFormPage() {
         state: { success: isEdit ? t('messages.updated') : t('messages.created') },
       });
     } catch (error: unknown) {
+      if (isDoctorInactiveApiError(error)) {
+        setErrors((current) => ({ ...current, doctorId: t('validation.activeDoctor') }));
+        setFormError(t('errors.inactiveDoctor'));
+        doctorsQuery.refetch();
+        return;
+      }
+
       setFormError(
         getMedicalRecordApiMessage(error, t('errors.save'), {
           400: t('errors.invalidData'),
@@ -375,7 +393,13 @@ export default function MedicalRecordFormPage() {
               label={t('fields.doctor')}
               value={form.doctorId}
               error={errors.doctorId}
-              hint={doctorsQuery.isLoading ? t('labels.loadingDoctors') : undefined}
+              hint={
+                selectedDoctorInactive
+                  ? t('form.inactiveDoctorHint')
+                  : doctorsQuery.isLoading
+                    ? t('labels.loadingDoctors')
+                    : undefined
+              }
               onChange={(event) => handleChange('doctorId', event.target.value)}
             >
               <option value="">{t('form.doctorPlaceholder')}</option>

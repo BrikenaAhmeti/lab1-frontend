@@ -3,13 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
 import { isAdminUser } from '@/domain/auth/role.utils';
-import { useDeleteDoctor, useDoctor } from '@/domain/doctors/doctors.hooks';
+import type { Doctor } from '@/domain/doctors/doctors.types';
+import {
+  useDeleteDoctor,
+  useDoctor,
+  useUpdateDoctorStatus,
+} from '@/domain/doctors/doctors.hooks';
 import {
   formatDoctorDate,
   getDoctorApiMessage,
   getDoctorApiStatus,
   getDoctorFullName,
 } from '@/domain/doctors/doctors.utils';
+import Modal from '@/hms/components/Modal';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
@@ -25,10 +31,13 @@ export default function DoctorDetailsPage() {
   const isAdmin = isAdminUser(roles);
   const doctorQuery = useDoctor(id);
   const deleteDoctor = useDeleteDoctor();
+  const updateDoctorStatus = useUpdateDoctorStatus();
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [doctorSnapshot, setDoctorSnapshot] = useState<Doctor | null>(null);
+  const [disableModalOpen, setDisableModalOpen] = useState(false);
   const status = getDoctorApiStatus(doctorQuery.error);
-  const doctor = doctorQuery.data;
+  const doctor = doctorQuery.data ?? doctorSnapshot;
 
   useEffect(() => {
     const successMessage = (location.state as { success?: string } | null)?.success;
@@ -40,6 +49,12 @@ export default function DoctorDetailsPage() {
     setActionSuccess(successMessage);
     navigate(location.pathname, { replace: true, state: null });
   }, [location.pathname, location.state, navigate]);
+
+  useEffect(() => {
+    if (doctorQuery.data) {
+      setDoctorSnapshot(doctorQuery.data);
+    }
+  }, [doctorQuery.data]);
 
   const handleDelete = async () => {
     if (!window.confirm(t('details.deleteConfirm'))) {
@@ -53,10 +68,32 @@ export default function DoctorDetailsPage() {
       await deleteDoctor.mutateAsync(id);
       navigate('/app/doctors', {
         replace: true,
-        state: { success: t('messages.deleted') },
+        state: { success: t('messages.removed') },
       });
     } catch (error: unknown) {
       setActionError(getDoctorApiMessage(error, t('errors.delete')));
+    }
+  };
+
+  const handleStatusChange = async (isActive: boolean) => {
+    if (!doctor) {
+      return;
+    }
+
+    setActionError('');
+    setActionSuccess('');
+
+    try {
+      const updatedDoctor = await updateDoctorStatus.mutateAsync({ id: doctor.id, isActive });
+      setDoctorSnapshot(updatedDoctor);
+      setDisableModalOpen(false);
+      setActionSuccess(updatedDoctor.isActive ? t('messages.enabled') : t('messages.disabled'));
+
+      if (updatedDoctor.isActive) {
+        doctorQuery.refetch();
+      }
+    } catch (error: unknown) {
+      setActionError(getDoctorApiMessage(error, t('errors.statusUpdate')));
     }
   };
 
@@ -87,7 +124,7 @@ export default function DoctorDetailsPage() {
     );
   }
 
-  if (status === 404) {
+  if (status === 404 && (!doctor || doctor.isActive)) {
     return (
       <DoctorStateCard
         title={t('details.notFoundTitle')}
@@ -100,7 +137,7 @@ export default function DoctorDetailsPage() {
     );
   }
 
-  if (doctorQuery.error || !doctor) {
+  if ((doctorQuery.error && !doctor) || !doctor) {
     return (
       <DoctorStateCard
         title={t('states.errorTitle')}
@@ -139,6 +176,9 @@ export default function DoctorDetailsPage() {
             <h1 className="text-2xl font-bold text-foreground md:text-3xl">
               {getDoctorFullName(doctor)}
             </h1>
+            <Badge variant={doctor.isActive ? 'success' : 'danger'}>
+              {doctor.isActive ? t('labels.active') : t('labels.disabled')}
+            </Badge>
             <Badge variant="secondary">{doctor.specialization}</Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{t('details.description')}</p>
@@ -160,9 +200,20 @@ export default function DoctorDetailsPage() {
             {t('actions.edit')}
           </Button>
           {isAdmin ? (
-            <Button variant="danger" loading={deleteDoctor.isPending} onClick={handleDelete}>
-              {t('actions.delete')}
-            </Button>
+            <>
+              <Button
+                variant={doctor.isActive ? 'outline' : 'secondary'}
+                loading={updateDoctorStatus.isPending}
+                onClick={() =>
+                  doctor.isActive ? setDisableModalOpen(true) : handleStatusChange(true)
+                }
+              >
+                {doctor.isActive ? t('actions.disableDoctor') : t('actions.enableDoctor')}
+              </Button>
+              <Button variant="danger" loading={deleteDoctor.isPending} onClick={handleDelete}>
+                {t('actions.delete')}
+              </Button>
+            </>
           ) : null}
         </div>
       </div>
@@ -202,6 +253,29 @@ export default function DoctorDetailsPage() {
       </Card>
 
       <RelatedAppointmentsCard doctorId={doctor.id} />
+
+      <Modal
+        open={disableModalOpen}
+        title={t('modals.disableTitle')}
+        description={t('modals.disableDescription')}
+        onClose={() => setDisableModalOpen(false)}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">{getDoctorFullName(doctor)}</p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setDisableModalOpen(false)}>
+              {t('actions.cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              loading={updateDoctorStatus.isPending}
+              onClick={() => handleStatusChange(false)}
+            >
+              {t('actions.disableDoctor')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </section>
   );
 }

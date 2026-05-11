@@ -29,6 +29,14 @@ export function getDoctorApiMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
+export function isDoctorInactiveApiError(error: unknown) {
+  if (!isAxiosError(error)) {
+    return false;
+  }
+
+  return error.response?.status === 409 && error.response?.data?.message === 'Doctor is inactive';
+}
+
 export function formatDoctorDate(value: string | undefined, language: string) {
   if (!value) {
     return '';

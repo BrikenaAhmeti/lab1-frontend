@@ -49,6 +49,19 @@ export function useUpdateDoctor() {
   });
 }
 
+export function useUpdateDoctorStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
+      DoctorsApi.updateStatus(id, isActive),
+    onSuccess: (doctor: Doctor) => {
+      queryClient.setQueryData(doctorsKeys.detail(doctor.id), doctor);
+      queryClient.invalidateQueries({ queryKey: doctorsKeys.list() });
+    },
+  });
+}
+
 export function useDeleteDoctor() {
   const queryClient = useQueryClient();
 

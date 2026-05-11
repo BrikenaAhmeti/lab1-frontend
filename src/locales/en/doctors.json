@@ -12,7 +12,7 @@
     "description": "Review linked account, specialization, and department details.",
     "deleteConfirm": "Delete this doctor?",
     "notFoundTitle": "Doctor not found",
-    "notFoundDescription": "This doctor record is no longer available."
+    "notFoundDescription": "This doctor is unavailable, disabled, or no longer exists."
   },
   "form": {
     "createTitle": "Create doctor",
@@ -30,6 +30,8 @@
     "view": "View",
     "edit": "Edit",
     "delete": "Delete",
+    "disableDoctor": "Disable doctor",
+    "enableDoctor": "Enable doctor",
     "save": "Save doctor",
     "update": "Update doctor",
     "cancel": "Cancel",
@@ -46,12 +48,15 @@
     "department": "Department",
     "departmentLocation": "Department location",
     "phoneNumber": "Phone number",
+    "status": "Status",
     "createdAt": "Created at",
     "updatedAt": "Updated at"
   },
   "labels": {
     "noDepartment": "No department assigned.",
-    "notAvailable": "Not available"
+    "notAvailable": "Not available",
+    "active": "Active",
+    "disabled": "Disabled"
   },
   "states": {
     "loadingTitle": "Loading doctors",
@@ -80,13 +85,21 @@
     "details": "We could not load this doctor.",
     "save": "We could not save the doctor.",
     "delete": "We could not delete the doctor.",
+    "statusUpdate": "We could not update the doctor's status.",
     "departments": "We could not load the departments for this form.",
     "users": "We could not load the users for this form."
   },
   "messages": {
     "created": "Doctor created successfully.",
     "updated": "Doctor updated successfully.",
-    "deleted": "Doctor deleted successfully."
+    "deleted": "Doctor deleted successfully.",
+    "removed": "Doctor removed.",
+    "disabled": "Doctor disabled successfully.",
+    "enabled": "Doctor enabled successfully."
+  },
+  "modals": {
+    "disableTitle": "Disable doctor",
+    "disableDescription": "Existing appointment and medical record history will be preserved, but this doctor will no longer be available for new appointments or medical records."
   },
   "validation": {
     "required": "This field is required.",

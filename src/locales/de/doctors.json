@@ -12,7 +12,7 @@
     "description": "Prüfen Sie verknüpftes Konto, Fachgebiet und Abteilungsdetails.",
     "deleteConfirm": "Diesen Arzt löschen?",
     "notFoundTitle": "Arzt nicht gefunden",
-    "notFoundDescription": "Dieser Arztdatensatz ist nicht mehr verfügbar."
+    "notFoundDescription": "Dieser Arzt ist nicht verfügbar, deaktiviert oder existiert nicht mehr."
   },
   "form": {
     "createTitle": "Arzt erstellen",
@@ -30,6 +30,8 @@
     "view": "Ansehen",
     "edit": "Bearbeiten",
     "delete": "Löschen",
+    "disableDoctor": "Arzt deaktivieren",
+    "enableDoctor": "Arzt aktivieren",
     "save": "Arzt speichern",
     "update": "Arzt aktualisieren",
     "cancel": "Abbrechen",
@@ -46,12 +48,15 @@
     "department": "Abteilung",
     "departmentLocation": "Standort der Abteilung",
     "phoneNumber": "Telefonnummer",
+    "status": "Status",
     "createdAt": "Erstellt am",
     "updatedAt": "Aktualisiert am"
   },
   "labels": {
     "noDepartment": "Keine Abteilung zugewiesen.",
-    "notAvailable": "Nicht verfügbar"
+    "notAvailable": "Nicht verfügbar",
+    "active": "Aktiv",
+    "disabled": "Deaktiviert"
   },
   "states": {
     "loadingTitle": "Ärzte werden geladen",
@@ -80,13 +85,21 @@
     "details": "Dieser Arzt konnte nicht geladen werden.",
     "save": "Der Arzt konnte nicht gespeichert werden.",
     "delete": "Der Arzt konnte nicht gelöscht werden.",
+    "statusUpdate": "Der Status des Arztes konnte nicht aktualisiert werden.",
     "departments": "Die Abteilungen für dieses Formular konnten nicht geladen werden.",
     "users": "Die Benutzer für dieses Formular konnten nicht geladen werden."
   },
   "messages": {
     "created": "Arzt erfolgreich erstellt.",
     "updated": "Arzt erfolgreich aktualisiert.",
-    "deleted": "Arzt erfolgreich gelöscht."
+    "deleted": "Arzt erfolgreich gelöscht.",
+    "removed": "Arzt entfernt.",
+    "disabled": "Arzt erfolgreich deaktiviert.",
+    "enabled": "Arzt erfolgreich aktiviert."
+  },
+  "modals": {
+    "disableTitle": "Arzt deaktivieren",
+    "disableDescription": "Bestehende Termin- und Krankenaktenhistorie bleibt erhalten, aber dieser Arzt steht nicht mehr für neue Termine oder Krankenakten zur Verfügung."
   },
   "validation": {
     "required": "Dieses Feld ist erforderlich.",

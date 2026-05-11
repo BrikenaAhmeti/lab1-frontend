@@ -3,12 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
 import { isAdminUser } from '@/domain/auth/role.utils';
-import { useDeleteDoctor, useDoctors } from '@/domain/doctors/doctors.hooks';
+import type { Doctor } from '@/domain/doctors/doctors.types';
+import {
+  useDeleteDoctor,
+  useDoctors,
+  useUpdateDoctorStatus,
+} from '@/domain/doctors/doctors.hooks';
 import {
   getDoctorApiMessage,
   getDoctorApiStatus,
   getDoctorFullName,
 } from '@/domain/doctors/doctors.utils';
+import Modal from '@/hms/components/Modal';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
@@ -22,8 +28,11 @@ export default function DoctorsListPage() {
   const isAdmin = isAdminUser(roles);
   const doctorsQuery = useDoctors();
   const deleteDoctor = useDeleteDoctor();
+  const updateDoctorStatus = useUpdateDoctorStatus();
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [managedDoctors, setManagedDoctors] = useState<Doctor[]>([]);
+  const [statusModalDoctor, setStatusModalDoctor] = useState<Doctor | null>(null);
   const status = getDoctorApiStatus(doctorsQuery.error);
 
   useEffect(() => {
@@ -37,6 +46,19 @@ export default function DoctorsListPage() {
     navigate(location.pathname, { replace: true, state: null });
   }, [location.pathname, location.state, navigate]);
 
+  useEffect(() => {
+    if (!doctorsQuery.data) {
+      return;
+    }
+
+    setManagedDoctors((current) => {
+      const activeIds = new Set(doctorsQuery.data.map((doctor) => doctor.id));
+      const retainedDisabled = current.filter((doctor) => !doctor.isActive && !activeIds.has(doctor.id));
+
+      return [...doctorsQuery.data, ...retainedDisabled];
+    });
+  }, [doctorsQuery.data]);
+
   const handleDelete = async (id: string) => {
     if (!window.confirm(t('details.deleteConfirm'))) {
       return;
@@ -47,9 +69,32 @@ export default function DoctorsListPage() {
 
     try {
       await deleteDoctor.mutateAsync(id);
-      setActionSuccess(t('messages.deleted'));
+      setManagedDoctors((current) => current.filter((doctor) => doctor.id !== id));
+      setActionSuccess(t('messages.removed'));
+      doctorsQuery.refetch();
     } catch (error: unknown) {
       setActionError(getDoctorApiMessage(error, t('errors.delete')));
+    }
+  };
+
+  const handleStatusChange = async (doctor: Doctor, isActive: boolean) => {
+    setActionError('');
+    setActionSuccess('');
+
+    try {
+      const updatedDoctor = await updateDoctorStatus.mutateAsync({ id: doctor.id, isActive });
+
+      setManagedDoctors((current) => {
+        const next = current.filter((item) => item.id !== updatedDoctor.id);
+        return updatedDoctor.isActive ? [updatedDoctor, ...next] : [...next, updatedDoctor];
+      });
+      setActionSuccess(
+        updatedDoctor.isActive ? t('messages.enabled') : t('messages.disabled')
+      );
+      setStatusModalDoctor(null);
+      doctorsQuery.refetch();
+    } catch (error: unknown) {
+      setActionError(getDoctorApiMessage(error, t('errors.statusUpdate')));
     }
   };
 
@@ -87,7 +132,7 @@ export default function DoctorsListPage() {
         </Button>
       </DoctorStateCard>
     );
-  } else if (!doctorsQuery.data?.length) {
+  } else if (!managedDoctors.length) {
     content = (
       <DoctorStateCard
         title={t('states.emptyTitle')}
@@ -101,7 +146,7 @@ export default function DoctorsListPage() {
   } else {
     content = (
       <div className="grid gap-4 xl:grid-cols-2">
-        {doctorsQuery.data.map((doctor) => (
+        {managedDoctors.map((doctor) => (
           <div
             key={doctor.id}
             className="rounded-2xl border border-border/70 bg-background/50 p-5 transition-shadow duration-200 hover:shadow-soft"
@@ -115,7 +160,12 @@ export default function DoctorsListPage() {
                   {doctor.department?.name || t('labels.noDepartment')}
                 </p>
               </div>
-              <Badge variant="secondary">{doctor.specialization}</Badge>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant={doctor.isActive ? 'success' : 'danger'}>
+                  {doctor.isActive ? t('labels.active') : t('labels.disabled')}
+                </Badge>
+                <Badge variant="secondary">{doctor.specialization}</Badge>
+              </div>
             </div>
 
             <div className="mt-4 grid gap-3 text-sm md:grid-cols-2">
@@ -147,14 +197,32 @@ export default function DoctorsListPage() {
                 {t('actions.edit')}
               </Button>
               {isAdmin ? (
-                <Button
-                  size="sm"
-                  variant="danger"
-                  loading={deleteDoctor.isPending && deleteDoctor.variables === doctor.id}
-                  onClick={() => handleDelete(doctor.id)}
-                >
-                  {t('actions.delete')}
-                </Button>
+                <>
+                  <Button
+                    size="sm"
+                    variant={doctor.isActive ? 'outline' : 'secondary'}
+                    loading={
+                      updateDoctorStatus.isPending
+                      && updateDoctorStatus.variables?.id === doctor.id
+                      && updateDoctorStatus.variables?.isActive !== doctor.isActive
+                    }
+                    onClick={() =>
+                      doctor.isActive
+                        ? setStatusModalDoctor(doctor)
+                        : handleStatusChange(doctor, true)
+                    }
+                  >
+                    {doctor.isActive ? t('actions.disableDoctor') : t('actions.enableDoctor')}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="danger"
+                    loading={deleteDoctor.isPending && deleteDoctor.variables === doctor.id}
+                    onClick={() => handleDelete(doctor.id)}
+                  >
+                    {t('actions.delete')}
+                  </Button>
+                </>
               ) : null}
             </div>
           </div>
@@ -178,8 +246,8 @@ export default function DoctorsListPage() {
       <Card
         title={t('list.resultsTitle')}
         description={
-          doctorsQuery.data
-            ? t('list.results', { count: doctorsQuery.data.length })
+          managedDoctors.length
+            ? t('list.results', { count: managedDoctors.length })
             : t('list.resultsDescription')
         }
       >
@@ -203,6 +271,35 @@ export default function DoctorsListPage() {
           {content}
         </div>
       </Card>
+
+      <Modal
+        open={!!statusModalDoctor}
+        title={t('modals.disableTitle')}
+        description={t('modals.disableDescription')}
+        onClose={() => setStatusModalDoctor(null)}
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            {statusModalDoctor ? getDoctorFullName(statusModalDoctor) : ''}
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setStatusModalDoctor(null)}>
+              {t('actions.cancel')}
+            </Button>
+            <Button
+              variant="danger"
+              loading={
+                updateDoctorStatus.isPending && updateDoctorStatus.variables?.id === statusModalDoctor?.id
+              }
+              onClick={() =>
+                statusModalDoctor ? handleStatusChange(statusModalDoctor, false) : undefined
+              }
+            >
+              {t('actions.disableDoctor')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </section>
   );
 }

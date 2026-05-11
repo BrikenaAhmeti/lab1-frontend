@@ -12,6 +12,7 @@ export type Doctor = {
   specialization: string;
   departmentId: string;
   phoneNumber: string;
+  isActive: boolean;
   department?: DoctorDepartment | null;
   createdAt?: string;
   updatedAt?: string;

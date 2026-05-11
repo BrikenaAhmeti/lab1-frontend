@@ -34,7 +34,8 @@
     "patientPlaceholder": "Select patient",
     "doctorPlaceholder": "Select doctor",
     "statusHint": "New appointments are always created as Scheduled.",
-    "notesPlaceholder": "Add visit notes if needed"
+    "notesPlaceholder": "Add visit notes if needed",
+    "inactiveDoctorHint": "This doctor is no longer active. Select an active doctor before saving."
   },
   "actions": {
     "create": "Create appointment",
@@ -71,7 +72,8 @@
     "notAvailable": "Not available",
     "noNotes": "No notes added.",
     "loadingDoctors": "Loading doctors...",
-    "loadingPatients": "Loading patients..."
+    "loadingPatients": "Loading patients...",
+    "inactiveDoctorSuffix": "(inactive)"
   },
   "states": {
     "loadingTitle": "Loading appointments",
@@ -101,7 +103,8 @@
     "doctors": "We could not load doctor options.",
     "patients": "We could not load patient options.",
     "today": "We could not load today's appointments.",
-    "conflict": "This doctor already has an appointment at that time."
+    "conflict": "This doctor already has an appointment at that time.",
+    "inactiveDoctor": "The selected doctor is inactive. Doctor options were refreshed, so please choose an active doctor."
   },
   "messages": {
     "created": "Appointment created successfully.",
@@ -113,7 +116,8 @@
     "date": "Use YYYY-MM-DD.",
     "time": "Use HH:mm.",
     "future": "Appointment date and time cannot be in the past.",
-    "noChanges": "There are no changes to save."
+    "noChanges": "There are no changes to save.",
+    "activeDoctor": "Select an active doctor."
   },
   "statuses": {
     "Scheduled": "Scheduled",

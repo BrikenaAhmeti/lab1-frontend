@@ -9,6 +9,7 @@ import {
 import type { UpdateAppointmentDTO } from '@/domain/appointments/appointments.types';
 import type { Doctor } from '@/domain/doctors/doctors.types';
 import { useDoctors } from '@/domain/doctors/doctors.hooks';
+import { isDoctorInactiveApiError } from '@/domain/doctors/doctors.utils';
 import { usePatient, usePatients } from '@/domain/patients/patients.hooks';
 import type { Patient } from '@/domain/patients/patients.types';
 import {
@@ -78,6 +79,7 @@ function withFallbackOption(
 function validateForm(
   values: AppointmentFormValues,
   canEditSchedule: boolean,
+  activeDoctorIds: Set<string>,
   t: (key: string) => string
 ) {
   const errors: Record<string, string> = {};
@@ -93,6 +95,10 @@ function validateForm(
 
   if (values.time && !appointmentTimePattern.test(values.time)) {
     errors.time = t('validation.time');
+  }
+
+  if (values.doctorId && !activeDoctorIds.has(values.doctorId.trim())) {
+    errors.doctorId = t('validation.activeDoctor');
   }
 
   if (canEditSchedule && values.date && values.time && isPastAppointmentSlot(values.date, values.time)) {
@@ -167,6 +173,14 @@ export default function AppointmentFormPage() {
     value: doctor.id,
     label: getDoctorLabel(doctor),
   }));
+  const activeDoctorIds = new Set(doctorOptions.map((option) => option.value));
+  const selectedDoctorLabel =
+    doctorOptions.find((option) => option.value === form.doctorId)?.label
+    ?? (appointmentQuery.data?.doctor
+      ? `${getDoctorLabel(appointmentQuery.data.doctor as Doctor)} ${t('labels.inactiveDoctorSuffix')}`
+      : form.doctorId);
+  const doctorSelectOptions = withFallbackOption(doctorOptions, form.doctorId, selectedDoctorLabel);
+  const selectedDoctorInactive = !!form.doctorId && !activeDoctorIds.has(form.doctorId);
 
   const handleChange = (name: keyof AppointmentFormValues, value: string) => {
     if (name === 'status' && value !== 'Scheduled' && appointmentQuery.data) {
@@ -191,7 +205,7 @@ export default function AppointmentFormPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const nextErrors = validateForm(form, canEditSchedule, t);
+    const nextErrors = validateForm(form, canEditSchedule, activeDoctorIds, t);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length) {
@@ -258,6 +272,13 @@ export default function AppointmentFormPage() {
         state: { success: t('messages.created') },
       });
     } catch (error: unknown) {
+      if (isDoctorInactiveApiError(error)) {
+        setErrors((current) => ({ ...current, doctorId: t('validation.activeDoctor') }));
+        setFormError(t('errors.inactiveDoctor'));
+        doctorsQuery.refetch();
+        return;
+      }
+
       setFormError(getAppointmentApiMessage(error, t('errors.save'), t('errors.conflict')));
     }
   };
@@ -442,11 +463,12 @@ export default function AppointmentFormPage() {
               label={t('fields.doctor')}
               value={form.doctorId}
               error={errors.doctorId}
+              hint={selectedDoctorInactive ? t('form.inactiveDoctorHint') : undefined}
               disabled={!canEditSchedule}
               onChange={(event) => handleChange('doctorId', event.target.value)}
             >
               <option value="">{t('form.doctorPlaceholder')}</option>
-              {doctorOptions.map((option) => (
+              {doctorSelectOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>

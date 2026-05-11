@@ -28,7 +28,8 @@
     "patientSearchPlaceholder": "Search patient options",
     "patientPlaceholder": "Select patient",
     "doctorPlaceholder": "Select doctor",
-    "prescriptionsPlaceholder": "Add a short prescriptions note if needed"
+    "prescriptionsPlaceholder": "Add a short prescriptions note if needed",
+    "inactiveDoctorHint": "This doctor is no longer active. Select an active doctor before saving."
   },
   "actions": {
     "create": "Create record",
@@ -69,7 +70,8 @@
     "loadingDoctors": "Loading doctors...",
     "notAvailable": "Not available",
     "noPrescriptionsText": "No prescription notes added.",
-    "noInstructions": "No instructions added."
+    "noInstructions": "No instructions added.",
+    "inactiveDoctorSuffix": "(inactive)"
   },
   "states": {
     "loadingTitle": "Loading medical records",
@@ -109,7 +111,8 @@
     "invalidData": "Please check the medical record details and try again.",
     "invalidPrescriptionData": "Please check the prescription details and try again.",
     "writeForbidden": "You do not have permission to change medical records.",
-    "notFound": "The medical record could not be found."
+    "notFound": "The medical record could not be found.",
+    "inactiveDoctor": "The selected doctor is inactive. Please choose an active doctor."
   },
   "messages": {
     "created": "Medical record created successfully.",
@@ -121,7 +124,8 @@
   },
   "validation": {
     "required": "This field is required.",
-    "date": "Use YYYY-MM-DD."
+    "date": "Use YYYY-MM-DD.",
+    "activeDoctor": "Select an active doctor."
   },
   "prescriptions": {
     "title": "Linked prescriptions",
