@@ -21,6 +21,18 @@
     "editDescription": "Update the selected nurse.",
     "formTitle": "Nurse form",
     "formDescription": "Fill in the nurse details below.",
+    "userLinkLegend": "Linked user setup",
+    "userLinkDescription": "Choose whether to link an existing user account or create a new linked login for this nurse.",
+    "linkExistingUser": "Link existing user",
+    "linkExistingUserHint": "Attach this nurse to a user account that already exists.",
+    "createNewLinkedUser": "Create new linked user",
+    "createNewLinkedUserHint": "Optionally create a new login while creating the nurse record.",
+    "userPlaceholder": "Select user account",
+    "userReadOnlyHint": "The linked user account is read only here.",
+    "userLoadFailedHint": "We could not load user accounts right now. You can still choose Create new linked user.",
+    "emailHint": "Optional. Enter a valid email address if you want to set one now.",
+    "usernameHint": "Optional. Must be at least 3 characters if provided.",
+    "passwordHint": "Optional. Must be at least 6 characters if provided.",
     "departmentPlaceholder": "Select department",
     "shiftPlaceholder": "Select shift"
   },
@@ -48,6 +60,10 @@
   "fields": {
     "firstName": "First name",
     "lastName": "Last name",
+    "userId": "User account",
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
     "department": "Department",
     "departmentLocation": "Department location",
     "shift": "Shift",
@@ -92,7 +108,10 @@
     "deleted": "Nurse deleted successfully."
   },
   "validation": {
-    "required": "This field is required."
+    "required": "This field is required.",
+    "email": "Enter a valid email address.",
+    "username": "Username must be at least 3 characters.",
+    "password": "Password must be at least 6 characters."
   },
   "shifts": {
     "Morning": "Morning",

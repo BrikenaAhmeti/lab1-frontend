@@ -9,6 +9,7 @@ export interface AuthUser {
   firstName: string;
   lastName: string;
   email: string;
+  username?: string | null;
   phoneNumber?: string | null;
   emailConfirmed: boolean;
   isActive: boolean;
@@ -48,8 +49,12 @@ export interface CreateUserDTO {
   firstName: string;
   lastName: string;
   email: string;
+  username?: string;
   password?: string;
   phoneNumber?: string;
+  emailConfirmed?: boolean;
+  lockoutEnabled?: boolean;
+  isActive?: boolean;
   roles?: AuthRole[];
 }
 
@@ -57,7 +62,9 @@ export interface UpdateUserDTO {
   firstName?: string;
   lastName?: string;
   email?: string;
+  username?: string;
   phoneNumber?: string;
+  emailConfirmed?: boolean;
   isActive?: boolean;
   lockoutEnabled?: boolean;
 }

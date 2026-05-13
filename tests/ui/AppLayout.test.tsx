@@ -105,6 +105,7 @@ describe('AppLayout', () => {
     expect(screen.getAllByText('Patients').length).toBeGreaterThan(0);
     expect(screen.getByText('Doctors')).toBeInTheDocument();
     expect(screen.getByText('Departments')).toBeInTheDocument();
+    expect(screen.getByText('Receptionists')).toBeInTheDocument();
   });
 
   it('toggles mobile navigation state from the header button', () => {

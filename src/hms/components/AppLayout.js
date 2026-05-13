@@ -13,6 +13,7 @@ import { useToast } from '../contexts/ToastContext';
 import { authApi } from '../lib/api';
 import { formatPersonName, getErrorMessage } from '../lib/utils';
 import { moduleOrder, moduleRouteMeta } from '../module-meta';
+import { hasPermission, moduleKeyToAppModule } from '../permissions';
 const moduleDescriptions = {
     patients: lt('Records, intake, and current care plans', 'Akten, Aufnahme und aktuelle Pflegepläne'),
     doctors: lt('Availability, teams, and medical coverage', 'Verfügbarkeit, Teams und medizinische Versorgung'),
@@ -24,6 +25,7 @@ const moduleDescriptions = {
     admissions: lt('Check-ins, stays, and discharge flow', 'Aufnahmen, Aufenthalte und Entlassungsabläufe'),
     invoices: lt('Billing, balances, and payments', 'Abrechnung, Salden und Zahlungen'),
     nurses: lt('Coverage, shifts, and ward support', 'Abdeckung, Schichten und Stationsunterstützung'),
+    receptionists: lt('Front desk accounts, access, and support staff', 'Empfangskonten, Zugriffe und Frontdesk-Unterstützung'),
 };
 function initialsFromUser(fullName, email) {
     const pieces = fullName.split(' ').filter(Boolean);
@@ -60,6 +62,8 @@ function iconForKey(key) {
             return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("path", { d: "M7 4h10v16l-2-1.5L13 20l-2-1.5L9 20l-2-1.5L5 20V6a2 2 0 0 1 2-2Z" }), _jsx("path", { d: "M9 9h6M9 13h6" })] }));
         case 'nurses':
             return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("path", { d: "M12 4v8M8 8h8" }), _jsx("circle", { cx: "12", cy: "16.5", r: "3.5" })] }));
+        case 'receptionists':
+            return (_jsxs("svg", { viewBox: "0 0 24 24", className: iconClass, "aria-hidden": "true", children: [_jsx("path", { d: "M5 7.5A2.5 2.5 0 0 1 7.5 5h9A2.5 2.5 0 0 1 19 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 16.5Z" }), _jsx("path", { d: "M8.5 10.5h7M8.5 14h5" })] }));
         default:
             return null;
     }
@@ -77,13 +81,27 @@ export default function AppLayout() {
     const initials = initialsFromUser(fullName, user?.email);
     const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Navigation schließen') : lt('Open navigation', 'Navigation öffnen'));
     const navigationItems = [
-        {
-            key: 'dashboard',
-            to: '/dashboard',
-            label: t(commonCopy.dashboard),
-            description: t(lt('Live hospital overview and operations', 'Live-Überblick über Krankenhausbetrieb und Abläufe')),
-        },
-        ...moduleOrder.map((key) => ({
+        ...(hasPermission({
+            userRoles: user?.roles,
+            module: 'dashboard',
+            action: 'VIEW',
+        })
+            ? [
+                {
+                    key: 'dashboard',
+                    to: '/dashboard',
+                    label: t(commonCopy.dashboard),
+                    description: t(lt('Live hospital overview and operations', 'Live-Überblick über Krankenhausbetrieb und Abläufe')),
+                },
+            ]
+            : []),
+        ...moduleOrder
+            .filter((key) => hasPermission({
+            userRoles: user?.roles,
+            module: moduleKeyToAppModule[key],
+            action: 'VIEW',
+        }))
+            .map((key) => ({
             key,
             to: `/${moduleRouteMeta[key].path}`,
             label: t(moduleRouteMeta[key].label),

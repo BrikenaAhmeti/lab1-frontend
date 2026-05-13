@@ -83,6 +83,11 @@ export const commonCopy = {
     'Your role cannot access this resource.',
     'Ihre Rolle hat keinen Zugriff auf diese Ressource.'
   ),
+  accessDeniedDescription: lt(
+    'Your account is signed in, but this page is not available for your role.',
+    'Ihr Konto ist angemeldet, aber diese Seite ist für Ihre Rolle nicht verfügbar.'
+  ),
+  backToDashboard: lt('Back to dashboard', 'Zurück zum Dashboard'),
   loginRateLimitError: lt(
     'Too many login attempts, please try again in 15 minutes',
     'Zu viele Anmeldeversuche. Bitte versuchen Sie es in 15 Minuten erneut.'
@@ -119,6 +124,7 @@ export const commonCopy = {
   createRecord: lt('Create record', 'Eintrag erstellen'),
   editRecord: lt('Edit record', 'Eintrag bearbeiten'),
   createNew: lt('Create new', 'Neu erstellen'),
+  readOnly: lt('Read only', 'Nur lesen'),
   passwordMinLength: lt('Use at least 6 characters.', 'Verwenden Sie mindestens 6 Zeichen.'),
   passwordMaxLength: lt('Use 255 characters or fewer.', 'Verwenden Sie höchstens 255 Zeichen.'),
   passwordMismatch: lt('Passwords do not match.', 'Die Passwörter stimmen nicht überein.'),

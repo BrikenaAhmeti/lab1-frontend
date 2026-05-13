@@ -17,6 +17,7 @@ export const moduleOrder: ModuleKey[] = [
   'admissions',
   'invoices',
   'nurses',
+  'receptionists',
 ];
 
 export const moduleRouteMeta: Record<ModuleKey, ModuleRouteMeta> = {
@@ -59,5 +60,9 @@ export const moduleRouteMeta: Record<ModuleKey, ModuleRouteMeta> = {
   nurses: {
     path: 'nurses',
     label: lt('Nurses', 'Pflegekräfte'),
+  },
+  receptionists: {
+    path: 'receptionists',
+    label: lt('Receptionists', 'Rezeptionisten'),
   },
 };

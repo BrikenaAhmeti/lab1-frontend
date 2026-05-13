@@ -22,6 +22,7 @@ type EntityFormModalProps = {
   loading: boolean;
   error?: any;
   saving: boolean;
+  readOnly?: boolean;
   onClose: () => void;
   onRetry?: () => Promise<void> | void;
   onSubmit: (values: any) => Promise<void> | void;
@@ -50,6 +51,7 @@ export default function EntityFormModal({
   loading,
   error,
   saving,
+  readOnly = false,
   onClose,
   onRetry,
   onSubmit,
@@ -95,7 +97,7 @@ export default function EntityFormModal({
         />
       ) : (
         <form className="space-y-4" onSubmit={form.handleSubmit(async (values) => onSubmit(values))}>
-          <div className="grid gap-4 md:grid-cols-2">
+          <fieldset className="grid gap-4 md:grid-cols-2" disabled={readOnly}>
             {visibleFields.map((field) => {
               const error = String(form.formState.errors[field.name]?.message || '');
               const options = field.source
@@ -160,15 +162,17 @@ export default function EntityFormModal({
                 />
               );
             })}
-          </div>
+          </fieldset>
 
           <div className="flex flex-wrap justify-end gap-3">
             <Button type="button" variant="outline" onClick={onClose}>
               {t(commonCopy.cancel)}
             </Button>
-            <Button type="submit" loading={saving}>
-              {mode === 'create' ? t(commonCopy.create) : t(commonCopy.update)}
-            </Button>
+            {!readOnly ? (
+              <Button type="submit" loading={saving}>
+                {mode === 'create' ? t(commonCopy.create) : t(commonCopy.update)}
+              </Button>
+            ) : null}
           </div>
         </form>
       )}

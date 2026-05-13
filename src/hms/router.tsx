@@ -10,6 +10,7 @@ import type { ModuleKey } from './types';
 const LoginPage = lazy(() => import('./pages/routes/LoginRoutePage'));
 const LandingPage = lazy(() => import('./pages/routes/LandingRoutePage'));
 const DashboardPage = lazy(() => import('./pages/routes/DashboardRoutePage'));
+const AccessDeniedPage = lazy(() => import('./pages/routes/AccessDeniedRoutePage'));
 const NotFoundPage = lazy(() => import('./pages/routes/NotFoundRoutePage'));
 
 const moduleRoutePages: Record<ModuleKey, LazyExoticComponent<ComponentType>> = {
@@ -23,6 +24,7 @@ const moduleRoutePages: Record<ModuleKey, LazyExoticComponent<ComponentType>> = 
   admissions: lazy(() => import('./pages/routes/AdmissionsRoutePage')),
   invoices: lazy(() => import('./pages/routes/InvoicesRoutePage')),
   nurses: lazy(() => import('./pages/routes/NursesRoutePage')),
+  receptionists: lazy(() => import('./pages/routes/ReceptionistsRoutePage')),
 };
 
 function renderLazyPage(
@@ -56,6 +58,7 @@ export default function AppRouter() {
       <Route element={<PrivateRoute />}>
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={renderLazyPage(DashboardPage)} />
+          <Route path="/unauthorized" element={renderLazyPage(AccessDeniedPage)} />
           {moduleOrder.map((key) => (
             <Route
               key={key}

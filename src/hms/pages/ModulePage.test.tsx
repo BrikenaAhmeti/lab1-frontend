@@ -9,11 +9,14 @@ import ModulePage from './ModulePage';
 
 vi.mock('../contexts/AuthContext', () => ({
   useAuth: () => ({
+    user: {
+      roles: ['ADMIN'],
+    },
     can: () => true,
   }),
 }));
 
-function renderPage() {
+function renderPage(moduleKey: keyof typeof moduleConfigs = 'patients') {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -29,8 +32,8 @@ function renderPage() {
     <LanguageProvider>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <MemoryRouter initialEntries={['/patients']}>
-            <ModulePage moduleKey="patients" />
+          <MemoryRouter initialEntries={[`/${moduleConfigs[moduleKey].path}`]}>
+            <ModulePage moduleKey={moduleKey} />
           </MemoryRouter>
         </ToastProvider>
       </QueryClientProvider>
@@ -80,6 +83,7 @@ describe('ModulePage', () => {
     totalPages: 1,
   };
   const originalService = moduleConfigs.patients.service;
+  const originalReceptionistService = moduleConfigs.receptionists.service;
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -95,6 +99,62 @@ describe('ModulePage', () => {
 
   afterEach(() => {
     moduleConfigs.patients.service = originalService;
+    moduleConfigs.receptionists.service = originalReceptionistService;
+  });
+
+  it('creates receptionist accounts with the receptionist auth payload shape', async () => {
+    moduleConfigs.receptionists.service = {
+      list: vi.fn().mockResolvedValue({
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }),
+      get: vi.fn(),
+      create: vi.fn().mockResolvedValue({ id: 'receptionist-1' }),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    renderPage('receptionists');
+
+    expect(await screen.findByText('No data yet')).toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Create new' })[0]);
+    fireEvent.change(document.getElementById('firstName') as HTMLInputElement, {
+      target: { value: 'Lira' },
+    });
+    fireEvent.change(document.getElementById('lastName') as HTMLInputElement, {
+      target: { value: 'Gashi' },
+    });
+    fireEvent.change(document.getElementById('email') as HTMLInputElement, {
+      target: { value: 'lira@example.com' },
+    });
+    fireEvent.change(document.getElementById('username') as HTMLInputElement, {
+      target: { value: 'lira.gashi' },
+    });
+    fireEvent.change(document.getElementById('password') as HTMLInputElement, {
+      target: { value: 'Reception123!' },
+    });
+    fireEvent.change(document.getElementById('phoneNumber') as HTMLInputElement, {
+      target: { value: '+38344111222' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(moduleConfigs.receptionists.service.create).toHaveBeenCalledWith({
+        firstName: 'Lira',
+        lastName: 'Gashi',
+        email: 'lira@example.com',
+        username: 'lira.gashi',
+        password: 'Reception123!',
+        phoneNumber: '+38344111222',
+        emailConfirmed: false,
+        lockoutEnabled: true,
+        isActive: true,
+      });
+    });
   });
 
   it('shows friendly retry UI for network errors and recovers on retry', async () => {

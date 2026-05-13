@@ -9,10 +9,13 @@ import { moduleConfigs } from '../modules';
 import ModulePage from './ModulePage';
 vi.mock('../contexts/AuthContext', () => ({
     useAuth: () => ({
+        user: {
+            roles: ['ADMIN'],
+        },
         can: () => true,
     }),
 }));
-function renderPage() {
+function renderPage(moduleKey = 'patients') {
     const queryClient = new QueryClient({
         defaultOptions: {
             queries: {
@@ -23,7 +26,7 @@ function renderPage() {
             },
         },
     });
-    render(_jsx(LanguageProvider, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(ToastProvider, { children: _jsx(MemoryRouter, { initialEntries: ['/patients'], children: _jsx(ModulePage, { moduleKey: "patients" }) }) }) }) }));
+    render(_jsx(LanguageProvider, { children: _jsx(QueryClientProvider, { client: queryClient, children: _jsx(ToastProvider, { children: _jsx(MemoryRouter, { initialEntries: [`/${moduleConfigs[moduleKey].path}`], children: _jsx(ModulePage, { moduleKey: moduleKey }) }) }) }) }));
 }
 async function fillPatientForm() {
     fireEvent.change(document.getElementById('firstName'), {
@@ -66,6 +69,7 @@ describe('ModulePage', () => {
         totalPages: 1,
     };
     const originalService = moduleConfigs.patients.service;
+    const originalReceptionistService = moduleConfigs.receptionists.service;
     beforeEach(() => {
         vi.clearAllMocks();
         moduleConfigs.patients.service = {
@@ -78,6 +82,57 @@ describe('ModulePage', () => {
     });
     afterEach(() => {
         moduleConfigs.patients.service = originalService;
+        moduleConfigs.receptionists.service = originalReceptionistService;
+    });
+    it('creates receptionist accounts with the receptionist auth payload shape', async () => {
+        moduleConfigs.receptionists.service = {
+            list: vi.fn().mockResolvedValue({
+                data: [],
+                total: 0,
+                page: 1,
+                limit: 10,
+                totalPages: 1,
+            }),
+            get: vi.fn(),
+            create: vi.fn().mockResolvedValue({ id: 'receptionist-1' }),
+            update: vi.fn(),
+            remove: vi.fn(),
+        };
+        renderPage('receptionists');
+        expect(await screen.findByText('No data yet')).toBeInTheDocument();
+        fireEvent.click(screen.getAllByRole('button', { name: 'Create new' })[0]);
+        fireEvent.change(document.getElementById('firstName'), {
+            target: { value: 'Lira' },
+        });
+        fireEvent.change(document.getElementById('lastName'), {
+            target: { value: 'Gashi' },
+        });
+        fireEvent.change(document.getElementById('email'), {
+            target: { value: 'lira@example.com' },
+        });
+        fireEvent.change(document.getElementById('username'), {
+            target: { value: 'lira.gashi' },
+        });
+        fireEvent.change(document.getElementById('password'), {
+            target: { value: 'Reception123!' },
+        });
+        fireEvent.change(document.getElementById('phoneNumber'), {
+            target: { value: '+38344111222' },
+        });
+        fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+        await waitFor(() => {
+            expect(moduleConfigs.receptionists.service.create).toHaveBeenCalledWith({
+                firstName: 'Lira',
+                lastName: 'Gashi',
+                email: 'lira@example.com',
+                username: 'lira.gashi',
+                password: 'Reception123!',
+                phoneNumber: '+38344111222',
+                emailConfirmed: false,
+                lockoutEnabled: true,
+                isActive: true,
+            });
+        });
     });
     it('shows friendly retry UI for network errors and recovers on retry', async () => {
         moduleConfigs.patients.service = {

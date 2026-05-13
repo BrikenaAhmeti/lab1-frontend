@@ -21,9 +21,19 @@
     "editDescription": "Aktualisieren Sie den ausgewählten Arzt.",
     "formTitle": "Arztformular",
     "formDescription": "Füllen Sie die Arztdetails unten aus.",
+    "userLinkLegend": "Verknüpftes Benutzerkonto",
+    "userLinkDescription": "Wählen Sie, ob Sie ein vorhandenes Benutzerkonto verknüpfen oder einen neuen Login für diesen Arzt anlegen möchten.",
+    "linkExistingUser": "Vorhandenen Benutzer verknüpfen",
+    "linkExistingUserHint": "Verknüpfen Sie diesen Arzt mit einem bereits vorhandenen Benutzerkonto.",
+    "createNewLinkedUser": "Neuen verknüpften Benutzer erstellen",
+    "createNewLinkedUserHint": "Erstellen Sie beim Anlegen des Arztdatensatzes optional einen neuen Login.",
     "userPlaceholder": "Benutzerkonto auswählen",
     "departmentPlaceholder": "Abteilung auswählen",
-    "userReadOnlyHint": "Das verknüpfte Benutzerkonto ist hier schreibgeschützt."
+    "userReadOnlyHint": "Das verknüpfte Benutzerkonto ist hier schreibgeschützt.",
+    "userLoadFailedHint": "Benutzerkonten konnten gerade nicht geladen werden. Sie können weiterhin Neuen verknüpften Benutzer erstellen wählen.",
+    "emailHint": "Optional. Geben Sie eine gültige E-Mail-Adresse an, wenn Sie sie jetzt setzen möchten.",
+    "usernameHint": "Optional. Falls angegeben, sind mindestens 3 Zeichen erforderlich.",
+    "passwordHint": "Optional. Falls angegeben, sind mindestens 6 Zeichen erforderlich."
   },
   "actions": {
     "create": "Arzt erstellen",
@@ -44,6 +54,9 @@
     "firstName": "Vorname",
     "lastName": "Nachname",
     "userId": "Benutzerkonto",
+    "email": "E-Mail",
+    "username": "Benutzername",
+    "password": "Passwort",
     "specialization": "Fachgebiet",
     "department": "Abteilung",
     "departmentLocation": "Standort der Abteilung",
@@ -103,6 +116,9 @@
   },
   "validation": {
     "required": "Dieses Feld ist erforderlich.",
-    "phoneNumber": "Verwenden Sie eine gültige Telefonnummer wie +38344111222."
+    "phoneNumber": "Verwenden Sie eine gültige Telefonnummer wie +38344111222.",
+    "email": "Geben Sie eine gültige E-Mail-Adresse ein.",
+    "username": "Der Benutzername muss mindestens 3 Zeichen lang sein.",
+    "password": "Das Passwort muss mindestens 6 Zeichen lang sein."
   }
 }

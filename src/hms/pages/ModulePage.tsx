@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 import Input from '@/ui/atoms/Input';
@@ -13,13 +14,13 @@ import EntityFormModal from '../components/EntityFormModal';
 import PasswordFormModal from '../components/PasswordFormModal';
 import PageHeader from '../components/PageHeader';
 import Pagination from '../components/Pagination';
-import RoleGuard from '../components/RoleGuard';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
 import { authApi, fetchArrayWithFallback } from '../lib/api';
 import { getErrorMessage, normalizeArrayResponse, stripEmptyValues } from '../lib/utils';
 import { moduleConfigs, referenceConfigs } from '../modules';
+import { getModulePermissionFlags, moduleKeyToAppModule } from '../permissions';
 import type { ModuleKey, ReferenceOption, SortOrder } from '../types';
 
 function getPositiveNumber(value: string | null, fallback: number) {
@@ -106,10 +107,16 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const [deleteItem, setDeleteItem] = useState<any>(null);
   const [passwordResetItem, setPasswordResetItem] = useState<any>(null);
   const { t } = useLanguage();
-  const { can } = useAuth();
+  const { user } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const searchParamsKey = searchParams.toString();
+  const permissionFlags = getModulePermissionFlags(user?.roles, moduleKeyToAppModule[moduleKey]);
+  const canCreate = permissionFlags.canCreate;
+  const canUpdate = permissionFlags.canUpdate;
+  const canDelete = permissionFlags.canDelete;
+  const canRead = permissionFlags.canRead;
+  const isReadOnly = permissionFlags.isReadOnly;
 
   const page = getPositiveNumber(searchParams.get('page'), 1);
   const limit = getPositiveNumber(searchParams.get('limit'), config.listPageSizeOptions?.[0] || 10);
@@ -147,6 +154,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     queryKey: [moduleKey, listParams],
     queryFn: () => config.service.list(listParams),
     staleTime: 30_000,
+    enabled: canRead,
   });
 
   useEffect(() => {
@@ -166,7 +174,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const detailQuery = useQuery({
     queryKey: [moduleKey, 'detail', formState.item?.id],
     queryFn: () => config.service.get(String(formState.item?.id)),
-    enabled: formState.open && formState.mode === 'edit' && Boolean(formState.item?.id),
+    enabled: canRead && formState.open && formState.mode === 'edit' && Boolean(formState.item?.id),
     staleTime: 30_000,
   });
 
@@ -345,24 +353,24 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const renderActions = useCallback(
     (item: any) => (
       <div className="flex flex-wrap gap-2">
-        {supportsAction(config, 'edit') && can(config.permissions?.edit) ? (
+        {supportsAction(config, 'edit') && canUpdate ? (
           <Button size="sm" variant="outline" onClick={() => openEditModal(item)}>
             {t(commonCopy.edit)}
           </Button>
         ) : null}
-        {supportsAction(config, 'delete') && can(config.permissions?.delete) ? (
+        {supportsAction(config, 'delete') && canDelete ? (
           <Button size="sm" variant="danger" onClick={() => setDeleteItem(item)}>
             {t(commonCopy.delete)}
           </Button>
         ) : null}
-        {config.getPasswordUserId && can(config.permissions?.edit) && config.getPasswordUserId(item) ? (
+        {config.getPasswordUserId && canUpdate && config.getPasswordUserId(item) ? (
           <Button size="sm" variant="ghost" onClick={() => setPasswordResetItem(item)}>
             {t(commonCopy.resetPassword)}
           </Button>
         ) : null}
       </div>
     ),
-    [can, config, openEditModal, t]
+    [canDelete, canUpdate, config, openEditModal, t]
   );
 
   const handlePageChange = useCallback(
@@ -386,9 +394,13 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
 
   const hasForbiddenError = listQuery.error && (listQuery.error as any)?.response?.status === 403;
   const hasUnauthorizedError = listQuery.error && (listQuery.error as any)?.response?.status === 401;
-  const emptyAction = supportsAction(config, 'create') && can(config.permissions?.create) ? (
+  const emptyAction = supportsAction(config, 'create') && canCreate ? (
     <Button onClick={openCreateModal}>{t(commonCopy.createNew)}</Button>
   ) : null;
+  const hasTableActions =
+    (supportsAction(config, 'edit') && canUpdate) ||
+    (supportsAction(config, 'delete') && canDelete) ||
+    Boolean(config.getPasswordUserId && canUpdate);
 
   return (
     <div className="space-y-6">
@@ -396,13 +408,19 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         title={t(config.label)}
         description={t(config.description)}
         action={
-          supportsAction(config, 'create') ? (
-            <RoleGuard allow={config.permissions?.create}>
+          supportsAction(config, 'create') && canCreate ? (
+            <>
               <Button onClick={openCreateModal}>{t(commonCopy.createNew)}</Button>
-            </RoleGuard>
+            </>
           ) : null
         }
       />
+
+      {isReadOnly ? (
+        <div className="flex">
+          <Badge variant="secondary">{t(commonCopy.readOnly)}</Badge>
+        </div>
+      ) : null}
 
       <Card title={t(commonCopy.filters)} description={t(commonCopy.results)} className="relative z-20">
         <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" onSubmit={submitFilters}>
@@ -495,7 +513,13 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         </form>
       </Card>
 
-      {hasUnauthorizedError ? (
+      {!canRead ? (
+        <EmptyState
+          tone="locked"
+          title={t(commonCopy.forbiddenTitle)}
+          description={t(commonCopy.accessDeniedDescription)}
+        />
+      ) : hasUnauthorizedError ? (
         <EmptyState
           tone="locked"
           title={t(commonCopy.unauthorizedTitle)}
@@ -531,7 +555,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
               rows={listQuery.data?.data || []}
               columns={config.columns}
               loading={listQuery.isLoading}
-              actions={renderActions}
+              actions={hasTableActions ? renderActions : undefined}
             />
           </Card>
 
@@ -556,6 +580,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         loading={detailQuery.isLoading || formReferenceLoading}
         error={detailQuery.error || formReferenceError}
         saving={saveMutation.isPending}
+        readOnly={formState.mode === 'edit' && !canUpdate}
         onClose={closeFormModal}
         onRetry={retryFormState}
         onSubmit={(values) => {

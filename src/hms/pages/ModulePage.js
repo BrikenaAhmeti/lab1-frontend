@@ -2,6 +2,7 @@ import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-run
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 import Input from '@/ui/atoms/Input';
@@ -14,13 +15,13 @@ import EntityFormModal from '../components/EntityFormModal';
 import PasswordFormModal from '../components/PasswordFormModal';
 import PageHeader from '../components/PageHeader';
 import Pagination from '../components/Pagination';
-import RoleGuard from '../components/RoleGuard';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useToast } from '../contexts/ToastContext';
 import { authApi, fetchArrayWithFallback } from '../lib/api';
 import { getErrorMessage, normalizeArrayResponse, stripEmptyValues } from '../lib/utils';
 import { moduleConfigs, referenceConfigs } from '../modules';
+import { getModulePermissionFlags, moduleKeyToAppModule } from '../permissions';
 function getPositiveNumber(value, fallback) {
     const parsed = Number(value);
     return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
@@ -89,10 +90,16 @@ export default function ModulePage({ moduleKey }) {
     const [deleteItem, setDeleteItem] = useState(null);
     const [passwordResetItem, setPasswordResetItem] = useState(null);
     const { t } = useLanguage();
-    const { can } = useAuth();
+    const { user } = useAuth();
     const { showToast } = useToast();
     const queryClient = useQueryClient();
     const searchParamsKey = searchParams.toString();
+    const permissionFlags = getModulePermissionFlags(user?.roles, moduleKeyToAppModule[moduleKey]);
+    const canCreate = permissionFlags.canCreate;
+    const canUpdate = permissionFlags.canUpdate;
+    const canDelete = permissionFlags.canDelete;
+    const canRead = permissionFlags.canRead;
+    const isReadOnly = permissionFlags.isReadOnly;
     const page = getPositiveNumber(searchParams.get('page'), 1);
     const limit = getPositiveNumber(searchParams.get('limit'), config.listPageSizeOptions?.[0] || 10);
     const sortBy = searchParams.get('sortBy') || config.defaultSortBy;
@@ -118,6 +125,7 @@ export default function ModulePage({ moduleKey }) {
         queryKey: [moduleKey, listParams],
         queryFn: () => config.service.list(listParams),
         staleTime: 30_000,
+        enabled: canRead,
     });
     useEffect(() => {
         if (!listQuery.data) {
@@ -132,7 +140,7 @@ export default function ModulePage({ moduleKey }) {
     const detailQuery = useQuery({
         queryKey: [moduleKey, 'detail', formState.item?.id],
         queryFn: () => config.service.get(String(formState.item?.id)),
-        enabled: formState.open && formState.mode === 'edit' && Boolean(formState.item?.id),
+        enabled: canRead && formState.open && formState.mode === 'edit' && Boolean(formState.item?.id),
         staleTime: 30_000,
     });
     const referenceKeys = useMemo(() => getReferenceOptions(moduleKey), [moduleKey]);
@@ -261,7 +269,7 @@ export default function ModulePage({ moduleKey }) {
             ...Object.fromEntries(config.filters.map((filter) => [filter.name, null])),
         });
     }, [config.filters, updateSearchParams]);
-    const renderActions = useCallback((item) => (_jsxs("div", { className: "flex flex-wrap gap-2", children: [supportsAction(config, 'edit') && can(config.permissions?.edit) ? (_jsx(Button, { size: "sm", variant: "outline", onClick: () => openEditModal(item), children: t(commonCopy.edit) })) : null, supportsAction(config, 'delete') && can(config.permissions?.delete) ? (_jsx(Button, { size: "sm", variant: "danger", onClick: () => setDeleteItem(item), children: t(commonCopy.delete) })) : null, config.getPasswordUserId && can(config.permissions?.edit) && config.getPasswordUserId(item) ? (_jsx(Button, { size: "sm", variant: "ghost", onClick: () => setPasswordResetItem(item), children: t(commonCopy.resetPassword) })) : null] })), [can, config, openEditModal, t]);
+    const renderActions = useCallback((item) => (_jsxs("div", { className: "flex flex-wrap gap-2", children: [supportsAction(config, 'edit') && canUpdate ? (_jsx(Button, { size: "sm", variant: "outline", onClick: () => openEditModal(item), children: t(commonCopy.edit) })) : null, supportsAction(config, 'delete') && canDelete ? (_jsx(Button, { size: "sm", variant: "danger", onClick: () => setDeleteItem(item), children: t(commonCopy.delete) })) : null, config.getPasswordUserId && canUpdate && config.getPasswordUserId(item) ? (_jsx(Button, { size: "sm", variant: "ghost", onClick: () => setPasswordResetItem(item), children: t(commonCopy.resetPassword) })) : null] })), [canDelete, canUpdate, config, openEditModal, t]);
     const handlePageChange = useCallback((nextPage) => {
         updateSearchParams({
             page: nextPage,
@@ -275,8 +283,11 @@ export default function ModulePage({ moduleKey }) {
     }, [updateSearchParams]);
     const hasForbiddenError = listQuery.error && listQuery.error?.response?.status === 403;
     const hasUnauthorizedError = listQuery.error && listQuery.error?.response?.status === 401;
-    const emptyAction = supportsAction(config, 'create') && can(config.permissions?.create) ? (_jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) })) : null;
-    return (_jsxs("div", { className: "space-y-6", children: [_jsx(PageHeader, { title: t(config.label), description: t(config.description), action: supportsAction(config, 'create') ? (_jsx(RoleGuard, { allow: config.permissions?.create, children: _jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) }) })) : null }), _jsx(Card, { title: t(commonCopy.filters), description: t(commonCopy.results), className: "relative z-20", children: _jsxs("form", { className: "grid gap-4 md:grid-cols-2 xl:grid-cols-4", onSubmit: submitFilters, children: [config.filters.map((filter) => {
+    const emptyAction = supportsAction(config, 'create') && canCreate ? (_jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) })) : null;
+    const hasTableActions = (supportsAction(config, 'edit') && canUpdate) ||
+        (supportsAction(config, 'delete') && canDelete) ||
+        Boolean(config.getPasswordUserId && canUpdate);
+    return (_jsxs("div", { className: "space-y-6", children: [_jsx(PageHeader, { title: t(config.label), description: t(config.description), action: supportsAction(config, 'create') && canCreate ? (_jsx(_Fragment, { children: _jsx(Button, { onClick: openCreateModal, children: t(commonCopy.createNew) }) })) : null }), isReadOnly ? (_jsx("div", { className: "flex", children: _jsx(Badge, { variant: "secondary", children: t(commonCopy.readOnly) }) })) : null, _jsx(Card, { title: t(commonCopy.filters), description: t(commonCopy.results), className: "relative z-20", children: _jsxs("form", { className: "grid gap-4 md:grid-cols-2 xl:grid-cols-4", onSubmit: submitFilters, children: [config.filters.map((filter) => {
                             const referenceOptions = filter.source ? references[filter.source] || [] : [];
                             const options = filter.source
                                 ? referenceOptions
@@ -300,7 +311,7 @@ export default function ModulePage({ moduleKey }) {
                             }), children: config.sortOptions.map((sortOption) => (_jsx("option", { value: sortOption.value, children: t(sortOption.label) }, sortOption.value))) }), _jsxs(Select, { label: t(commonCopy.order), value: order, onChange: (event) => updateSearchParams({
                                 order: event.target.value,
                                 page: 1,
-                            }), children: [_jsx("option", { value: "ASC", children: t(commonCopy.ascending) }), _jsx("option", { value: "DESC", children: t(commonCopy.descending) })] }), _jsxs("div", { className: "flex flex-wrap gap-3 md:col-span-2 xl:col-span-2 xl:items-end", children: [_jsx(Button, { type: "submit", children: t(commonCopy.search) }), _jsx(Button, { type: "button", variant: "outline", onClick: clearFilters, children: t(commonCopy.clear) })] })] }) }), hasUnauthorizedError ? (_jsx(EmptyState, { tone: "locked", title: t(commonCopy.unauthorizedTitle), description: t(commonCopy.unauthorizedDescription) })) : hasForbiddenError ? (_jsx(EmptyState, { tone: "locked", title: t(commonCopy.forbiddenTitle), description: t(commonCopy.forbiddenDescription) })) : listQuery.error ? (_jsx(EmptyState, { tone: "error", title: t(commonCopy.errorTitle), description: getErrorMessage(listQuery.error, t), action: _jsx(Button, { variant: "outline", onClick: () => listQuery.refetch(), children: t(commonCopy.retry) }) })) : !listQuery.data?.data.length && !listQuery.isLoading ? (_jsx(EmptyState, { title: t(commonCopy.emptyTitle), description: t(commonCopy.emptyDescription), action: emptyAction })) : (_jsxs(_Fragment, { children: [_jsx(Card, { title: t(commonCopy.results), className: "relative z-0", children: _jsx(DataTable, { rows: listQuery.data?.data || [], columns: config.columns, loading: listQuery.isLoading, actions: renderActions }) }), _jsx(Pagination, { page: page, totalPages: listQuery.data?.totalPages || 1, total: listQuery.data?.total || 0, limit: limit, limitOptions: config.listPageSizeOptions || [10, 20, 50], onPageChange: handlePageChange, onLimitChange: handleLimitChange })] })), _jsx(EntityFormModal, { open: formState.open, mode: formState.mode, config: config, item: currentItem, references: references, loading: detailQuery.isLoading || formReferenceLoading, error: detailQuery.error || formReferenceError, saving: saveMutation.isPending, onClose: closeFormModal, onRetry: retryFormState, onSubmit: (values) => {
+                            }), children: [_jsx("option", { value: "ASC", children: t(commonCopy.ascending) }), _jsx("option", { value: "DESC", children: t(commonCopy.descending) })] }), _jsxs("div", { className: "flex flex-wrap gap-3 md:col-span-2 xl:col-span-2 xl:items-end", children: [_jsx(Button, { type: "submit", children: t(commonCopy.search) }), _jsx(Button, { type: "button", variant: "outline", onClick: clearFilters, children: t(commonCopy.clear) })] })] }) }), !canRead ? (_jsx(EmptyState, { tone: "locked", title: t(commonCopy.forbiddenTitle), description: t(commonCopy.accessDeniedDescription) })) : hasUnauthorizedError ? (_jsx(EmptyState, { tone: "locked", title: t(commonCopy.unauthorizedTitle), description: t(commonCopy.unauthorizedDescription) })) : hasForbiddenError ? (_jsx(EmptyState, { tone: "locked", title: t(commonCopy.forbiddenTitle), description: t(commonCopy.forbiddenDescription) })) : listQuery.error ? (_jsx(EmptyState, { tone: "error", title: t(commonCopy.errorTitle), description: getErrorMessage(listQuery.error, t), action: _jsx(Button, { variant: "outline", onClick: () => listQuery.refetch(), children: t(commonCopy.retry) }) })) : !listQuery.data?.data.length && !listQuery.isLoading ? (_jsx(EmptyState, { title: t(commonCopy.emptyTitle), description: t(commonCopy.emptyDescription), action: emptyAction })) : (_jsxs(_Fragment, { children: [_jsx(Card, { title: t(commonCopy.results), className: "relative z-0", children: _jsx(DataTable, { rows: listQuery.data?.data || [], columns: config.columns, loading: listQuery.isLoading, actions: hasTableActions ? renderActions : undefined }) }), _jsx(Pagination, { page: page, totalPages: listQuery.data?.totalPages || 1, total: listQuery.data?.total || 0, limit: limit, limitOptions: config.listPageSizeOptions || [10, 20, 50], onPageChange: handlePageChange, onLimitChange: handleLimitChange })] })), _jsx(EntityFormModal, { open: formState.open, mode: formState.mode, config: config, item: currentItem, references: references, loading: detailQuery.isLoading || formReferenceLoading, error: detailQuery.error || formReferenceError, saving: saveMutation.isPending, readOnly: formState.mode === 'edit' && !canUpdate, onClose: closeFormModal, onRetry: retryFormState, onSubmit: (values) => {
                     saveMutation.mutate(values);
                 } }), _jsx(DeleteModal, { open: Boolean(deleteItem), itemTitle: deleteItem ? config.getItemTitle?.(deleteItem) || String(deleteItem.id) : '', deleting: deleteMutation.isPending, onClose: () => setDeleteItem(null), onConfirm: () => {
                     deleteMutation.mutate(deleteItem);

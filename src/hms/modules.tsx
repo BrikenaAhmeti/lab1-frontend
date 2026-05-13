@@ -1,13 +1,25 @@
 import { z } from 'zod';
 import Badge from '@/ui/atoms/Badge';
 import { lt } from './copy';
-import { createCrudService } from './lib/api';
-import { formatCurrency, formatDate, formatPersonName, getStatusVariant, getValue, stripEmptyValues } from './lib/utils';
+import { apiClient, createCrudService } from './lib/api';
+import {
+  deepCamelCaseKeys,
+  formatCurrency,
+  formatDate,
+  formatPersonName,
+  getStatusVariant,
+  getValue,
+  normalizeArrayResponse,
+  normalizeRoles,
+  stripEmptyValues,
+} from './lib/utils';
 import type { ModuleConfig, ModuleKey, OptionConfig, ReferenceConfig } from './types';
 
 const requiredText = 'This field is required.';
 const positiveNumberText = 'Enter a value greater than zero.';
 const phoneNumberText = 'Use a valid phone number like +38344111222.';
+const emailText = 'Enter a valid email address.';
+const usernameMinText = 'Username must be at least 3 characters.';
 const passwordMinText = 'Use at least 6 characters.';
 const passwordMaxText = 'Use 255 characters or fewer.';
 const listPageSizeOptions = [10, 20, 50];
@@ -22,6 +34,8 @@ const accountModeOptions = [
 const requiredString = () => z.string().trim().min(1, requiredText);
 const positiveNumber = () => z.coerce.number().gt(0, positiveNumberText);
 const optionalTrimmedString = () => z.string().trim().optional().or(z.literal(''));
+const emailRule = () => z.email(emailText);
+const usernameRule = () => z.string().min(3, usernameMinText).max(255);
 const passwordRule = () => z.string().min(6, passwordMinText).max(255, passwordMaxText);
 
 function option(value: string, en: string, de: string): OptionConfig {
@@ -73,6 +87,16 @@ const admissionStatuses = [
   option('DISCHARGED', 'Discharged', 'Entlassen'),
 ];
 
+const booleanStatusOptions = [
+  option('true', 'Yes', 'Ja'),
+  option('false', 'No', 'Nein'),
+];
+
+const activeStateOptions = [
+  option('true', 'Active', 'Aktiv'),
+  option('false', 'Inactive', 'Inaktiv'),
+];
+
 const invoiceStatuses = [
   option('PENDING', 'Pending', 'Ausstehend'),
   option('PAID', 'Paid', 'Bezahlt'),
@@ -115,6 +139,11 @@ function renderStatus(value: any) {
   return <Badge variant={getStatusVariant(text) as any}>{text || 'N/A'}</Badge>;
 }
 
+function renderBooleanStatus(value: any, activeText: string, inactiveText: string) {
+  const isEnabled = value === true || String(value).toLowerCase() === 'true';
+  return <Badge variant={isEnabled ? 'success' : 'secondary'}>{isEnabled ? activeText : inactiveText}</Badge>;
+}
+
 function withAdmissionPayload(values: any) {
   return stripEmptyValues(values);
 }
@@ -146,6 +175,8 @@ function buildDoctorPayload(values: Record<string, any>, mode: 'create' | 'edit'
   if (values.accountMode === 'new') {
     return stripEmptyValues({
       ...payload,
+      email: String(values.email || '').trim(),
+      username: String(values.username || '').trim(),
       password: String(values.password || '').trim(),
       userId: undefined,
     });
@@ -170,6 +201,8 @@ function buildNursePayload(values: Record<string, any>, mode: 'create' | 'edit')
   if (values.accountMode === 'new') {
     return stripEmptyValues({
       ...payload,
+      email: String(values.email || '').trim(),
+      username: String(values.username || '').trim(),
       password: String(values.password || '').trim(),
       userId: undefined,
     });
@@ -189,6 +222,8 @@ function createDoctorSchema(mode: 'create' | 'edit') {
       specialization: requiredString(),
       departmentId: requiredString(),
       phoneNumber: requiredString().regex(doctorPhonePattern, phoneNumberText),
+      email: optionalTrimmedString(),
+      username: optionalTrimmedString(),
       password: optionalTrimmedString(),
     })
     .superRefine((values, context) => {
@@ -197,24 +232,43 @@ function createDoctorSchema(mode: 'create' | 'edit') {
       }
 
       if (values.accountMode === 'new') {
-        if (!values.password?.trim()) {
-          context.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['password'],
-            message: requiredText,
-          });
-          return;
+        if (values.email?.trim()) {
+          const emailResult = emailRule().safeParse(values.email.trim());
+
+          if (!emailResult.success) {
+            emailResult.error.issues.forEach((issue) => {
+              context.addIssue({
+                ...issue,
+                path: ['email'],
+              });
+            });
+          }
         }
 
-        const passwordResult = passwordRule().safeParse(values.password.trim());
+        if (values.username?.trim()) {
+          const usernameResult = usernameRule().safeParse(values.username.trim());
 
-        if (!passwordResult.success) {
-          passwordResult.error.issues.forEach((issue) => {
-            context.addIssue({
-              ...issue,
-              path: ['password'],
+          if (!usernameResult.success) {
+            usernameResult.error.issues.forEach((issue) => {
+              context.addIssue({
+                ...issue,
+                path: ['username'],
+              });
             });
-          });
+          }
+        }
+
+        if (values.password?.trim()) {
+          const passwordResult = passwordRule().safeParse(values.password.trim());
+
+          if (!passwordResult.success) {
+            passwordResult.error.issues.forEach((issue) => {
+              context.addIssue({
+                ...issue,
+                path: ['password'],
+              });
+            });
+          }
         }
 
         return;
@@ -241,6 +295,8 @@ function createNurseSchema(mode: 'create' | 'edit') {
       lastName: requiredString(),
       departmentId: requiredString(),
       shift: z.enum(nurseShiftValues, { message: requiredText }),
+      email: optionalTrimmedString(),
+      username: optionalTrimmedString(),
       password: optionalTrimmedString(),
     })
     .superRefine((values, context) => {
@@ -249,24 +305,43 @@ function createNurseSchema(mode: 'create' | 'edit') {
       }
 
       if (values.accountMode === 'new') {
-        if (!values.password?.trim()) {
-          context.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ['password'],
-            message: requiredText,
-          });
-          return;
+        if (values.email?.trim()) {
+          const emailResult = emailRule().safeParse(values.email.trim());
+
+          if (!emailResult.success) {
+            emailResult.error.issues.forEach((issue) => {
+              context.addIssue({
+                ...issue,
+                path: ['email'],
+              });
+            });
+          }
         }
 
-        const passwordResult = passwordRule().safeParse(values.password.trim());
+        if (values.username?.trim()) {
+          const usernameResult = usernameRule().safeParse(values.username.trim());
 
-        if (!passwordResult.success) {
-          passwordResult.error.issues.forEach((issue) => {
-            context.addIssue({
-              ...issue,
-              path: ['password'],
+          if (!usernameResult.success) {
+            usernameResult.error.issues.forEach((issue) => {
+              context.addIssue({
+                ...issue,
+                path: ['username'],
+              });
             });
-          });
+          }
+        }
+
+        if (values.password?.trim()) {
+          const passwordResult = passwordRule().safeParse(values.password.trim());
+
+          if (!passwordResult.success) {
+            passwordResult.error.issues.forEach((issue) => {
+              context.addIssue({
+                ...issue,
+                path: ['password'],
+              });
+            });
+          }
         }
 
         return;
@@ -283,6 +358,176 @@ function createNurseSchema(mode: 'create' | 'edit') {
     });
 }
 
+function parseBooleanString(value: unknown, fallback: boolean) {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    if (value === 'true') {
+      return true;
+    }
+
+    if (value === 'false') {
+      return false;
+    }
+  }
+
+  return fallback;
+}
+
+function createReceptionistSchema(mode: 'create' | 'edit') {
+  return z.object({
+    firstName: requiredString(),
+    lastName: requiredString(),
+    email: emailRule(),
+    username: optionalTrimmedString().refine(
+      (value) => !value || value.trim().length >= 3,
+      usernameMinText
+    ),
+    password:
+      mode === 'create'
+        ? passwordRule()
+        : optionalTrimmedString().refine(
+            (value) => !value || value.trim().length >= 6,
+            passwordMinText
+          ),
+    phoneNumber: optionalTrimmedString(),
+    isActive: z.enum(['true', 'false']),
+    emailConfirmed: z.enum(['true', 'false']),
+    lockoutEnabled: z.enum(['true', 'false']),
+  });
+}
+
+function buildReceptionistPayload(values: Record<string, any>, mode: 'create' | 'edit') {
+  const payload = {
+    firstName: String(values.firstName || '').trim(),
+    lastName: String(values.lastName || '').trim(),
+    email: String(values.email || '').trim(),
+    username: String(values.username || '').trim(),
+    phoneNumber: String(values.phoneNumber || '').trim(),
+    emailConfirmed: parseBooleanString(values.emailConfirmed, false),
+    lockoutEnabled: parseBooleanString(values.lockoutEnabled, true),
+    isActive: parseBooleanString(values.isActive, true),
+  };
+
+  if (mode === 'create') {
+    return stripEmptyValues({
+      ...payload,
+      password: String(values.password || '').trim(),
+    });
+  }
+
+  return stripEmptyValues(payload);
+}
+
+function isReceptionistUser(item: any) {
+  return normalizeRoles(getValue(item, 'roles')).includes('RECEPTIONIST');
+}
+
+function matchesReceptionistSearch(item: any, search: string) {
+  const normalizedSearch = search.trim().toLowerCase();
+
+  if (!normalizedSearch) {
+    return true;
+  }
+
+  return [
+    getValue(item, 'firstName'),
+    getValue(item, 'lastName'),
+    getValue(item, 'email'),
+    getValue(item, 'username'),
+  ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+}
+
+function compareReceptionists(a: any, b: any, sortBy: string, order: 'ASC' | 'DESC') {
+  const direction = order === 'ASC' ? 1 : -1;
+  const normalizeDate = (value: any) => {
+    const timestamp = new Date(String(value || '')).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+  };
+  const normalizeText = (value: any) => String(value || '').trim().toLowerCase();
+  let result = 0;
+
+  switch (sortBy) {
+    case 'firstName':
+      result = normalizeText(getValue(a, 'firstName')).localeCompare(normalizeText(getValue(b, 'firstName')));
+      break;
+    case 'lastName':
+      result = normalizeText(getValue(a, 'lastName')).localeCompare(normalizeText(getValue(b, 'lastName')));
+      break;
+    case 'email':
+      result = normalizeText(getValue(a, 'email')).localeCompare(normalizeText(getValue(b, 'email')));
+      break;
+    case 'createdAt':
+    default:
+      result = normalizeDate(getValue(a, 'createdAt')) - normalizeDate(getValue(b, 'createdAt'));
+      break;
+  }
+
+  return result * direction;
+}
+
+const receptionistService = {
+  list: async (params: Record<string, any> = {}) => {
+    const response = await apiClient.get('/api/auth/users');
+    const users = normalizeArrayResponse(response.data).filter(isReceptionistUser);
+    const search = String(params.search || '');
+    const isActive = String(params.isActive || '');
+    const emailConfirmed = String(params.emailConfirmed || '');
+    const sortBy = String(params.sortBy || 'createdAt');
+    const order = String(params.order || 'DESC') === 'ASC' ? 'ASC' : 'DESC';
+    const page = Math.max(Number(params.page) || 1, 1);
+    const limit = Math.max(Number(params.limit) || listPageSizeOptions[0], 1);
+
+    const filtered = users
+      .filter((item: any) => matchesReceptionistSearch(item, search))
+      .filter((item: any) => {
+        if (!isActive) {
+          return true;
+        }
+
+        return String(Boolean(getValue(item, 'isActive'))) === isActive;
+      })
+      .filter((item: any) => {
+        if (!emailConfirmed) {
+          return true;
+        }
+
+        return String(Boolean(getValue(item, 'emailConfirmed'))) === emailConfirmed;
+      })
+      .sort((left: any, right: any) => compareReceptionists(left, right, sortBy, order));
+
+    const total = filtered.length;
+    const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
+    const safePage = Math.min(page, totalPages);
+    const start = (safePage - 1) * limit;
+
+    return {
+      data: filtered.slice(start, start + limit),
+      total,
+      page: safePage,
+      limit,
+      totalPages,
+    };
+  },
+  get: async (id: string) => {
+    const response = await apiClient.get(`/api/auth/users/${id}`);
+    return deepCamelCaseKeys(response.data);
+  },
+  create: async (payload: any) => {
+    const response = await apiClient.post('/api/auth/users/receptionists', payload);
+    return deepCamelCaseKeys(response.data);
+  },
+  update: async (id: string, payload: any) => {
+    const response = await apiClient.patch(`/api/auth/users/${id}`, payload);
+    return deepCamelCaseKeys(response.data);
+  },
+  remove: async () => {
+    return undefined;
+  },
+};
+
 function allowListParams(...allowedParams: string[]) {
   return { allowedListParams: allowedParams };
 }
@@ -298,6 +543,7 @@ export const moduleOrder: ModuleKey[] = [
   'admissions',
   'invoices',
   'nurses',
+  'receptionists',
 ];
 
 export const referenceConfigs: Record<string, ReferenceConfig> = {
@@ -464,7 +710,23 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         name: 'password',
         label: lt('Password', 'Passwort'),
         type: 'password',
-        hint: lt('Use at least 6 characters.', 'Verwenden Sie mindestens 6 Zeichen.'),
+        hint: lt('Optional. Use at least 6 characters if provided.', 'Optional. Verwenden Sie mindestens 6 Zeichen, falls angegeben.'),
+        modes: ['create'],
+        showWhen: (values) => values.accountMode === 'new',
+      },
+      {
+        name: 'email',
+        label: lt('Email', 'E-Mail'),
+        type: 'text',
+        hint: lt('Optional. Enter a valid email if provided.', 'Optional. Geben Sie eine gültige E-Mail-Adresse an, falls vorhanden.'),
+        modes: ['create'],
+        showWhen: (values) => values.accountMode === 'new',
+      },
+      {
+        name: 'username',
+        label: lt('Username', 'Benutzername'),
+        type: 'text',
+        hint: lt('Optional. Use at least 3 characters if provided.', 'Optional. Verwenden Sie mindestens 3 Zeichen, falls angegeben.'),
         modes: ['create'],
         showWhen: (values) => values.accountMode === 'new',
       },
@@ -478,6 +740,8 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     getSchema: createDoctorSchema,
     getInitialValues: (_item, mode) => ({
       accountMode: mode === 'create' ? 'existing' : '',
+      email: '',
+      username: '',
       password: '',
     }),
     cleanPayload: buildDoctorPayload,
@@ -936,7 +1200,23 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         name: 'password',
         label: lt('Password', 'Passwort'),
         type: 'password',
-        hint: lt('Use at least 6 characters.', 'Verwenden Sie mindestens 6 Zeichen.'),
+        hint: lt('Optional. Use at least 6 characters if provided.', 'Optional. Verwenden Sie mindestens 6 Zeichen, falls angegeben.'),
+        modes: ['create'],
+        showWhen: (values) => values.accountMode === 'new',
+      },
+      {
+        name: 'email',
+        label: lt('Email', 'E-Mail'),
+        type: 'text',
+        hint: lt('Optional. Enter a valid email if provided.', 'Optional. Geben Sie eine gültige E-Mail-Adresse an, falls vorhanden.'),
+        modes: ['create'],
+        showWhen: (values) => values.accountMode === 'new',
+      },
+      {
+        name: 'username',
+        label: lt('Username', 'Benutzername'),
+        type: 'text',
+        hint: lt('Optional. Use at least 3 characters if provided.', 'Optional. Verwenden Sie mindestens 3 Zeichen, falls angegeben.'),
         modes: ['create'],
         showWhen: (values) => values.accountMode === 'new',
       },
@@ -949,10 +1229,139 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     getSchema: createNurseSchema,
     getInitialValues: (_item, mode) => ({
       accountMode: mode === 'create' ? 'existing' : '',
+      email: '',
+      username: '',
       password: '',
     }),
     cleanPayload: buildNursePayload,
     getItemTitle: (item) => formatPersonName(item),
     getPasswordUserId: (item) => String(getValue(item, 'userId')),
+  },
+  receptionists: {
+    key: 'receptionists',
+    path: 'receptionists',
+    label: lt('Receptionists', 'Rezeptionisten'),
+    singular: lt('Receptionist', 'Rezeptionist'),
+    description: lt(
+      'Manage receptionist accounts, access status, and front desk logins.',
+      'Verwalten Sie Rezeptionistenkonten, Zugriffsstatus und Frontdesk-Anmeldungen.'
+    ),
+    endpoint: '/api/auth/users',
+    service: receptionistService,
+    sortOptions: [
+      option('createdAt', 'Created at', 'Erstellt am'),
+      option('firstName', 'First name', 'Vorname'),
+      option('lastName', 'Last name', 'Nachname'),
+      option('email', 'Email', 'E-Mail'),
+    ],
+    defaultSortBy: 'createdAt',
+    defaultOrder: 'DESC',
+    listPageSizeOptions,
+    permissions: {
+      create: ['ADMIN'],
+      edit: ['ADMIN'],
+      delete: [],
+    },
+    actions: {
+      delete: false,
+    },
+    createDefaults: {
+      isActive: 'true',
+      emailConfirmed: 'false',
+      lockoutEnabled: 'true',
+    },
+    filters: [
+      {
+        name: 'search',
+        label: lt('Search receptionist', 'Rezeptionist suchen'),
+        type: 'text',
+        placeholder: lt('First name, last name, email, or username', 'Vorname, Nachname, E-Mail oder Benutzername'),
+      },
+      {
+        name: 'isActive',
+        label: lt('Status', 'Status'),
+        type: 'select',
+        options: activeStateOptions,
+      },
+      {
+        name: 'emailConfirmed',
+        label: lt('Email confirmed', 'E-Mail bestätigt'),
+        type: 'select',
+        options: booleanStatusOptions,
+      },
+    ],
+    fields: [
+      { name: 'firstName', label: lt('First name', 'Vorname'), type: 'text' },
+      { name: 'lastName', label: lt('Last name', 'Nachname'), type: 'text' },
+      { name: 'email', label: lt('Email', 'E-Mail'), type: 'text' },
+      {
+        name: 'username',
+        label: lt('Username', 'Benutzername'),
+        type: 'text',
+        hint: lt('Optional. Use at least 3 characters if provided.', 'Optional. Verwenden Sie mindestens 3 Zeichen, falls angegeben.'),
+      },
+      {
+        name: 'password',
+        label: lt('Password', 'Passwort'),
+        type: 'password',
+        hint: lt('Required for new receptionist accounts. Use at least 6 characters.', 'Erforderlich für neue Rezeptionistenkonten. Verwenden Sie mindestens 6 Zeichen.'),
+        modes: ['create'],
+      },
+      { name: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), type: 'text' },
+      {
+        name: 'isActive',
+        label: lt('Status', 'Status'),
+        type: 'select',
+        options: activeStateOptions,
+      },
+      {
+        name: 'emailConfirmed',
+        label: lt('Email confirmed', 'E-Mail bestätigt'),
+        type: 'select',
+        options: booleanStatusOptions,
+      },
+      {
+        name: 'lockoutEnabled',
+        label: lt('Lockout enabled', 'Sperre aktiviert'),
+        type: 'select',
+        options: booleanStatusOptions,
+      },
+    ],
+    columns: [
+      { key: 'name', label: lt('Receptionist', 'Rezeptionist'), render: (item) => formatPersonName(item) },
+      { key: 'email', label: lt('Email', 'E-Mail'), render: (item) => String(getValue(item, 'email')) },
+      { key: 'username', label: lt('Username', 'Benutzername'), render: (item) => String(getValue(item, 'username')) || 'N/A' },
+      { key: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), render: (item) => String(getValue(item, 'phoneNumber')) || 'N/A' },
+      {
+        key: 'isActive',
+        label: lt('Status', 'Status'),
+        render: (item) => renderBooleanStatus(getValue(item, 'isActive'), 'Active', 'Inactive'),
+      },
+      {
+        key: 'emailConfirmed',
+        label: lt('Email confirmed', 'E-Mail bestätigt'),
+        render: (item) => renderBooleanStatus(getValue(item, 'emailConfirmed'), 'Confirmed', 'Unconfirmed'),
+      },
+      {
+        key: 'createdAt',
+        label: lt('Created at', 'Erstellt am'),
+        render: (item, language) => formatDate(String(getValue(item, 'createdAt')), language) || 'N/A',
+      },
+    ],
+    getSchema: createReceptionistSchema,
+    getInitialValues: (item) => ({
+      firstName: String(getValue(item, 'firstName')),
+      lastName: String(getValue(item, 'lastName')),
+      email: String(getValue(item, 'email')),
+      username: String(getValue(item, 'username')),
+      password: '',
+      phoneNumber: String(getValue(item, 'phoneNumber')),
+      isActive: String(parseBooleanString(getValue(item, 'isActive'), true)),
+      emailConfirmed: String(parseBooleanString(getValue(item, 'emailConfirmed'), false)),
+      lockoutEnabled: String(parseBooleanString(getValue(item, 'lockoutEnabled'), true)),
+    }),
+    cleanPayload: buildReceptionistPayload,
+    getItemTitle: (item) => formatPersonName(item) || String(getValue(item, 'email')),
+    getPasswordUserId: (item) => String(getValue(item, 'id')),
   },
 };

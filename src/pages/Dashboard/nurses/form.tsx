@@ -11,13 +11,21 @@ import {
   isKnownNurseShift,
   normalizeNurseShift,
 } from '@/domain/nurses/nurses.utils';
+import { useUsers } from '@/hooks/useUsers';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
 import NurseStateCard from './state-card';
 
+type UserLinkMode = 'existing' | 'new';
+
 type NurseFormValues = {
+  userLinkMode: UserLinkMode;
+  userId: string;
+  email: string;
+  username: string;
+  password: string;
   firstName: string;
   lastName: string;
   departmentId: string;
@@ -30,19 +38,56 @@ type SelectOption = {
 };
 
 const emptyForm: NurseFormValues = {
+  userLinkMode: 'existing',
+  userId: '',
+  email: '',
+  username: '',
+  password: '',
   firstName: '',
   lastName: '',
   departmentId: '',
   shift: '',
 };
 
-function validateForm(values: NurseFormValues, t: (key: string) => string) {
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function validateForm(
+  values: NurseFormValues,
+  isEdit: boolean,
+  t: (key: string) => string
+) {
   const errors: Record<string, string> = {};
+  const email = values.email.trim();
+  const username = values.username.trim();
+  const password = values.password.trim();
 
   if (!values.firstName.trim()) errors.firstName = t('validation.required');
   if (!values.lastName.trim()) errors.lastName = t('validation.required');
   if (!values.departmentId.trim()) errors.departmentId = t('validation.required');
   if (!values.shift.trim()) errors.shift = t('validation.required');
+
+  if (!isEdit && values.userLinkMode === 'existing') {
+    if (!values.userId.trim()) errors.userId = t('validation.required');
+    return errors;
+  }
+
+  if (isEdit) {
+    return errors;
+  }
+
+  if (email && !isValidEmail(email)) {
+    errors.email = t('validation.email');
+  }
+
+  if (username && username.length < 3) {
+    errors.username = t('validation.username');
+  }
+
+  if (password && password.length < 6) {
+    errors.password = t('validation.password');
+  }
 
   return errors;
 }
@@ -66,6 +111,7 @@ export default function NurseFormPage() {
   const isEdit = !!id;
   const nurseQuery = useNurse(id);
   const departmentsQuery = useDepartments();
+  const usersQuery = useUsers({ enabled: !isEdit });
   const createNurse = useCreateNurse();
   const updateNurse = useUpdateNurse();
   const [form, setForm] = useState<NurseFormValues>(emptyForm);
@@ -80,6 +126,11 @@ export default function NurseFormPage() {
     }
 
     setForm({
+      userLinkMode: 'existing',
+      userId: nurseQuery.data.userId ?? '',
+      email: '',
+      username: '',
+      password: '',
       firstName: nurseQuery.data.firstName,
       lastName: nurseQuery.data.lastName,
       departmentId: nurseQuery.data.departmentId,
@@ -90,6 +141,25 @@ export default function NurseFormPage() {
   const handleChange = (name: keyof NurseFormValues, value: string) => {
     setForm((current) => ({ ...current, [name]: value }));
     setErrors((current) => ({ ...current, [name]: '' }));
+    setFormError('');
+  };
+
+  const handleUserLinkModeChange = (userLinkMode: UserLinkMode) => {
+    setForm((current) => ({
+      ...current,
+      userLinkMode,
+      userId: userLinkMode === 'existing' ? current.userId : '',
+      email: userLinkMode === 'new' ? current.email : '',
+      username: userLinkMode === 'new' ? current.username : '',
+      password: userLinkMode === 'new' ? current.password : '',
+    }));
+    setErrors((current) => ({
+      ...current,
+      userId: '',
+      email: '',
+      username: '',
+      password: '',
+    }));
     setFormError('');
   };
 
@@ -106,7 +176,7 @@ export default function NurseFormPage() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const nextErrors = validateForm(form, t);
+    const nextErrors = validateForm(form, isEdit, t);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length) {
@@ -118,6 +188,18 @@ export default function NurseFormPage() {
       lastName: form.lastName.trim(),
       departmentId: form.departmentId.trim(),
       shift: normalizeNurseShift(form.shift) as NurseShift,
+      ...(!isEdit && form.userLinkMode === 'existing'
+        ? { userId: form.userId.trim() }
+        : {}),
+      ...(!isEdit && form.userLinkMode === 'new' && form.email.trim()
+        ? { email: form.email.trim() }
+        : {}),
+      ...(!isEdit && form.userLinkMode === 'new' && form.username.trim()
+        ? { username: form.username.trim() }
+        : {}),
+      ...(!isEdit && form.userLinkMode === 'new' && form.password.trim()
+        ? { password: form.password.trim() }
+        : {}),
     };
 
     try {
@@ -213,6 +295,10 @@ export default function NurseFormPage() {
     value: department.id,
     label: getDepartmentLabel(department.name, department.location),
   }));
+  const userOptions = (usersQuery.data ?? []).map((user) => ({
+    value: user.id,
+    label: [user.firstName, user.lastName].filter(Boolean).join(' ').trim() || user.email || user.id,
+  }));
   const shiftOptions = nurseShiftValues.map((value) => ({
     value,
     label: t(`shifts.${value}`),
@@ -225,6 +311,8 @@ export default function NurseFormPage() {
       : form.departmentId
   );
   const shiftSelectOptions = withFallbackOption(shiftOptions, form.shift, getShiftLabel(form.shift));
+  const userSelectOptions = withFallbackOption(userOptions, form.userId, form.userId);
+  const canChooseUser = !usersQuery.error;
 
   if (!isEdit && !departmentSelectOptions.length) {
     return (
@@ -258,7 +346,108 @@ export default function NurseFormPage() {
 
       <Card title={t('form.formTitle')} description={t('form.formDescription')}>
         <form className="space-y-4" noValidate onSubmit={handleSubmit}>
+          {!isEdit ? (
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-medium text-foreground">
+                {t('form.userLinkLegend')}
+              </legend>
+              <p className="text-sm text-muted-foreground">{t('form.userLinkDescription')}</p>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border/70 bg-background/50 p-4">
+                  <input
+                    checked={form.userLinkMode === 'existing'}
+                    className="mt-1"
+                    name="userLinkMode"
+                    type="radio"
+                    value="existing"
+                    onChange={() => handleUserLinkModeChange('existing')}
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-foreground">
+                      {t('form.linkExistingUser')}
+                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      {t('form.linkExistingUserHint')}
+                    </span>
+                  </span>
+                </label>
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border/70 bg-background/50 p-4">
+                  <input
+                    checked={form.userLinkMode === 'new'}
+                    className="mt-1"
+                    name="userLinkMode"
+                    type="radio"
+                    value="new"
+                    onChange={() => handleUserLinkModeChange('new')}
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-foreground">
+                      {t('form.createNewLinkedUser')}
+                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      {t('form.createNewLinkedUserHint')}
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+          ) : null}
+
           <div className="grid gap-4 md:grid-cols-2">
+            {isEdit || form.userLinkMode === 'existing' ? (
+              canChooseUser ? (
+                <Select
+                  required
+                  name="userId"
+                  label={t('fields.userId')}
+                  value={form.userId}
+                  error={errors.userId}
+                  onChange={(event) => handleChange('userId', event.target.value)}
+                >
+                  <option value="">{t('form.userPlaceholder')}</option>
+                  {userSelectOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              ) : (
+                <Input
+                  required
+                  disabled
+                  readOnly
+                  name="userId"
+                  label={t('fields.userId')}
+                  value={form.userId}
+                  error={errors.userId}
+                  hint={
+                    !isEdit && usersQuery.error
+                      ? t('form.userLoadFailedHint')
+                      : t('form.userReadOnlyHint')
+                  }
+                />
+              )
+            ) : (
+              <>
+                <Input
+                  name="email"
+                  label={t('fields.email')}
+                  value={form.email}
+                  error={errors.email}
+                  hint={t('form.emailHint')}
+                  onChange={(event) => handleChange('email', event.target.value)}
+                />
+                <Input
+                  name="username"
+                  label={t('fields.username')}
+                  value={form.username}
+                  error={errors.username}
+                  hint={t('form.usernameHint')}
+                  onChange={(event) => handleChange('username', event.target.value)}
+                />
+              </>
+            )}
+
             <Input
               required
               name="firstName"
@@ -305,6 +494,17 @@ export default function NurseFormPage() {
                 </option>
               ))}
             </Select>
+            {!isEdit && form.userLinkMode === 'new' ? (
+              <Input
+                type="password"
+                name="password"
+                label={t('fields.password')}
+                value={form.password}
+                error={errors.password}
+                hint={t('form.passwordHint')}
+                onChange={(event) => handleChange('password', event.target.value)}
+              />
+            ) : null}
           </div>
 
           {formError ? (

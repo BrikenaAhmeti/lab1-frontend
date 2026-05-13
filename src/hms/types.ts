@@ -16,7 +16,8 @@ export type ModuleKey =
   | 'rooms'
   | 'admissions'
   | 'invoices'
-  | 'nurses';
+  | 'nurses'
+  | 'receptionists';
 
 export type ReferenceKey =
   | 'patients'
@@ -32,6 +33,7 @@ export type User = {
   firstName?: string;
   lastName?: string;
   email?: string;
+  fullName?: string;
   roles: string[];
   [key: string]: any;
 };

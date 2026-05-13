@@ -9,6 +9,14 @@ vi.mock('../lib/api', () => ({
   fetchArrayWithFallback: vi.fn(),
 }));
 
+vi.mock('../contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: {
+      roles: ['ADMIN'],
+    },
+  }),
+}));
+
 function renderPage() {
   const queryClient = new QueryClient({
     defaultOptions: {

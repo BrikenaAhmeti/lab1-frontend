@@ -57,11 +57,16 @@ export function normalizeRoles(input) {
     return [];
 }
 export function normalizeUser(user) {
+    const normalized = deepCamelCaseKeys(user);
+    const firstName = getValue(normalized, 'firstName', 'first_name');
+    const lastName = getValue(normalized, 'lastName', 'last_name');
+    const fullName = [firstName, lastName].filter(Boolean).join(' ').trim();
     return {
-        ...deepCamelCaseKeys(user),
+        ...normalized,
         id: String(getValue(user, 'id')),
-        firstName: getValue(user, 'firstName', 'first_name'),
-        lastName: getValue(user, 'lastName', 'last_name'),
+        firstName,
+        lastName,
+        fullName: fullName || getValue(normalized, 'fullName', 'full_name'),
         email: getValue(user, 'email'),
         roles: normalizeRoles(getValue(user, 'roles', 'role')),
     };
@@ -154,9 +159,10 @@ export function getErrorMessage(error, translate) {
     return resolveCopy(commonCopy.genericError, translate);
 }
 export function formatPersonName(item) {
+    const fullName = getValue(item, 'fullName', 'full_name');
     const firstName = getValue(item, 'firstName', 'first_name');
     const lastName = getValue(item, 'lastName', 'last_name');
-    return `${firstName} ${lastName}`.trim();
+    return `${firstName} ${lastName}`.trim() || String(fullName || '');
 }
 export function formatDate(value, language) {
     if (!value) {

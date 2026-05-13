@@ -10,6 +10,7 @@ export type NurseDepartment = {
 
 export type Nurse = {
   id: string;
+  userId?: string;
   firstName: string;
   lastName: string;
   departmentId: string;
@@ -23,11 +24,27 @@ export type NursesListParams = {
   departmentId?: string;
 };
 
-export type CreateNurseDTO = {
+type NurseCreateBase = {
   firstName: string;
   lastName: string;
   departmentId: string;
   shift: NurseShift;
 };
 
-export type UpdateNurseDTO = Partial<CreateNurseDTO>;
+type NurseExistingUserCreate = NurseCreateBase & {
+  userId: string;
+  email?: never;
+  username?: never;
+  password?: never;
+};
+
+type NurseNewLinkedUserCreate = NurseCreateBase & {
+  userId?: undefined;
+  email?: string;
+  username?: string;
+  password?: string;
+};
+
+export type CreateNurseDTO = NurseExistingUserCreate | NurseNewLinkedUserCreate;
+
+export type UpdateNurseDTO = Partial<NurseCreateBase>;

@@ -9,6 +9,7 @@ import { moduleOrder, moduleRouteMeta } from './module-meta';
 const LoginPage = lazy(() => import('./pages/routes/LoginRoutePage'));
 const LandingPage = lazy(() => import('./pages/routes/LandingRoutePage'));
 const DashboardPage = lazy(() => import('./pages/routes/DashboardRoutePage'));
+const AccessDeniedPage = lazy(() => import('./pages/routes/AccessDeniedRoutePage'));
 const NotFoundPage = lazy(() => import('./pages/routes/NotFoundRoutePage'));
 const moduleRoutePages = {
     patients: lazy(() => import('./pages/routes/PatientsRoutePage')),
@@ -21,6 +22,7 @@ const moduleRoutePages = {
     admissions: lazy(() => import('./pages/routes/AdmissionsRoutePage')),
     invoices: lazy(() => import('./pages/routes/InvoicesRoutePage')),
     nurses: lazy(() => import('./pages/routes/NursesRoutePage')),
+    receptionists: lazy(() => import('./pages/routes/ReceptionistsRoutePage')),
 };
 function renderLazyPage(PageComponent, variant = 'page') {
     return (_jsx(Suspense, { fallback: _jsx(RouteSkeleton, { variant: variant }), children: _jsx(PageComponent, {}) }));
@@ -33,5 +35,5 @@ function GuestRoute() {
     return isAuthenticated ? _jsx(Navigate, { to: "/dashboard", replace: true }) : _jsx(Outlet, {});
 }
 export default function AppRouter() {
-    return (_jsxs(Routes, { children: [_jsxs(Route, { element: _jsx(GuestRoute, {}), children: [_jsx(Route, { index: true, element: renderLazyPage(LandingPage, 'fullscreen') }), _jsx(Route, { path: "login", element: renderLazyPage(LoginPage, 'fullscreen') })] }), _jsx(Route, { element: _jsx(PrivateRoute, {}), children: _jsxs(Route, { element: _jsx(AppLayout, {}), children: [_jsx(Route, { path: "/dashboard", element: renderLazyPage(DashboardPage) }), moduleOrder.map((key) => (_jsx(Route, { path: `/${moduleRouteMeta[key].path}`, element: renderLazyPage(moduleRoutePages[key]) }, key)))] }) }), _jsx(Route, { path: "*", element: _jsx(Suspense, { fallback: _jsx(RouteSkeleton, { variant: "fullscreen" }), children: _jsx(NotFoundPage, {}) }) })] }));
+    return (_jsxs(Routes, { children: [_jsxs(Route, { element: _jsx(GuestRoute, {}), children: [_jsx(Route, { index: true, element: renderLazyPage(LandingPage, 'fullscreen') }), _jsx(Route, { path: "login", element: renderLazyPage(LoginPage, 'fullscreen') })] }), _jsx(Route, { element: _jsx(PrivateRoute, {}), children: _jsxs(Route, { element: _jsx(AppLayout, {}), children: [_jsx(Route, { path: "/dashboard", element: renderLazyPage(DashboardPage) }), _jsx(Route, { path: "/unauthorized", element: renderLazyPage(AccessDeniedPage) }), moduleOrder.map((key) => (_jsx(Route, { path: `/${moduleRouteMeta[key].path}`, element: renderLazyPage(moduleRoutePages[key]) }, key)))] }) }), _jsx(Route, { path: "*", element: _jsx(Suspense, { fallback: _jsx(RouteSkeleton, { variant: "fullscreen" }), children: _jsx(NotFoundPage, {}) }) })] }));
 }

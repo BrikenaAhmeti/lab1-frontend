@@ -10,6 +10,7 @@ export const moduleOrder = [
     'admissions',
     'invoices',
     'nurses',
+    'receptionists',
 ];
 export const moduleRouteMeta = {
     patients: {
@@ -51,5 +52,9 @@ export const moduleRouteMeta = {
     nurses: {
         path: 'nurses',
         label: lt('Nurses', 'Pflegekräfte'),
+    },
+    receptionists: {
+        path: 'receptionists',
+        label: lt('Receptionists', 'Rezeptionisten'),
     },
 };

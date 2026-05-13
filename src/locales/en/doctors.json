@@ -21,9 +21,19 @@
     "editDescription": "Update the selected doctor.",
     "formTitle": "Doctor form",
     "formDescription": "Fill in the doctor details below.",
+    "userLinkLegend": "Linked user setup",
+    "userLinkDescription": "Choose whether to link an existing user account or create a new linked login for this doctor.",
+    "linkExistingUser": "Link existing user",
+    "linkExistingUserHint": "Attach this doctor to a user account that already exists.",
+    "createNewLinkedUser": "Create new linked user",
+    "createNewLinkedUserHint": "Optionally create a new login while creating the doctor record.",
     "userPlaceholder": "Select user account",
     "departmentPlaceholder": "Select department",
-    "userReadOnlyHint": "The linked user account is read only here."
+    "userReadOnlyHint": "The linked user account is read only here.",
+    "userLoadFailedHint": "We could not load user accounts right now. You can still choose Create new linked user.",
+    "emailHint": "Optional. Enter a valid email address if you want to set one now.",
+    "usernameHint": "Optional. Must be at least 3 characters if provided.",
+    "passwordHint": "Optional. Must be at least 6 characters if provided."
   },
   "actions": {
     "create": "Create doctor",
@@ -44,6 +54,9 @@
     "firstName": "First name",
     "lastName": "Last name",
     "userId": "User account",
+    "email": "Email",
+    "username": "Username",
+    "password": "Password",
     "specialization": "Specialization",
     "department": "Department",
     "departmentLocation": "Department location",
@@ -103,6 +116,9 @@
   },
   "validation": {
     "required": "This field is required.",
-    "phoneNumber": "Use a valid phone number like +38344111222."
+    "phoneNumber": "Use a valid phone number like +38344111222.",
+    "email": "Enter a valid email address.",
+    "username": "Username must be at least 3 characters.",
+    "password": "Password must be at least 6 characters."
   }
 }

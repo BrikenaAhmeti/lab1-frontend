@@ -12,6 +12,7 @@ import { useToast } from '../contexts/ToastContext';
 import { authApi } from '../lib/api';
 import { formatPersonName, getErrorMessage } from '../lib/utils';
 import { moduleOrder, moduleRouteMeta } from '../module-meta';
+import { hasPermission, moduleKeyToAppModule } from '../permissions';
 import type { ModuleKey } from '../types';
 
 type NavItem = {
@@ -32,6 +33,10 @@ const moduleDescriptions: Record<ModuleKey, ReturnType<typeof lt>> = {
   admissions: lt('Check-ins, stays, and discharge flow', 'Aufnahmen, Aufenthalte und Entlassungsabläufe'),
   invoices: lt('Billing, balances, and payments', 'Abrechnung, Salden und Zahlungen'),
   nurses: lt('Coverage, shifts, and ward support', 'Abdeckung, Schichten und Stationsunterstützung'),
+  receptionists: lt(
+    'Front desk accounts, access, and support staff',
+    'Empfangskonten, Zugriffe und Frontdesk-Unterstützung'
+  ),
 };
 
 function initialsFromUser(fullName: string, email?: string) {
@@ -128,6 +133,13 @@ function iconForKey(key: NavItem['key']) {
           <circle cx="12" cy="16.5" r="3.5" />
         </svg>
       );
+    case 'receptionists':
+      return (
+        <svg viewBox="0 0 24 24" className={iconClass} aria-hidden="true">
+          <path d="M5 7.5A2.5 2.5 0 0 1 7.5 5h9A2.5 2.5 0 0 1 19 7.5v9a2.5 2.5 0 0 1-2.5 2.5h-9A2.5 2.5 0 0 1 5 16.5Z" />
+          <path d="M8.5 10.5h7M8.5 14h5" />
+        </svg>
+      );
     default:
       return null;
   }
@@ -147,18 +159,38 @@ export default function AppLayout() {
   const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Navigation schließen') : lt('Open navigation', 'Navigation öffnen'));
 
   const navigationItems: NavItem[] = [
-    {
-      key: 'dashboard',
-      to: '/dashboard',
-      label: t(commonCopy.dashboard),
-      description: t(lt('Live hospital overview and operations', 'Live-Überblick über Krankenhausbetrieb und Abläufe')),
-    },
-    ...moduleOrder.map((key) => ({
-      key,
-      to: `/${moduleRouteMeta[key].path}`,
-      label: t(moduleRouteMeta[key].label),
-      description: t(moduleDescriptions[key]),
-    })),
+    ...(
+      hasPermission({
+        userRoles: user?.roles,
+        module: 'dashboard',
+        action: 'VIEW',
+      })
+        ? [
+            {
+              key: 'dashboard' as const,
+              to: '/dashboard',
+              label: t(commonCopy.dashboard),
+              description: t(
+                lt('Live hospital overview and operations', 'Live-Überblick über Krankenhausbetrieb und Abläufe')
+              ),
+            },
+          ]
+        : []
+    ),
+    ...moduleOrder
+      .filter((key) =>
+        hasPermission({
+          userRoles: user?.roles,
+          module: moduleKeyToAppModule[key],
+          action: 'VIEW',
+        })
+      )
+      .map((key) => ({
+        key,
+        to: `/${moduleRouteMeta[key].path}`,
+        label: t(moduleRouteMeta[key].label),
+        description: t(moduleDescriptions[key]),
+      })),
   ];
 
   const activeItem =

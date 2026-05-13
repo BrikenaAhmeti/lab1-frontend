@@ -3,7 +3,26 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import DoctorFormPage from '@/pages/Dashboard/doctors/form';
+import DoctorFormPage from '@/pages/Dashboard/doctors/form.tsx';
+
+const doctorTranslations = {
+  'states.createForbiddenTitle': 'Admin access required',
+  'actions.save': 'Save doctor',
+  'fields.userId': 'User account',
+  'fields.department': 'Department',
+  'fields.firstName': 'First name',
+  'fields.lastName': 'Last name',
+  'fields.specialization': 'Specialization',
+  'fields.phoneNumber': 'Phone number',
+  'fields.email': 'Email',
+  'fields.username': 'Username',
+  'fields.password': 'Password',
+  'form.createNewLinkedUser': 'Create new linked user',
+  'validation.required': 'This field is required.',
+  'validation.email': 'Enter a valid email address.',
+  'validation.username': 'Username must be at least 3 characters.',
+  'validation.password': 'Password must be at least 6 characters.',
+};
 
 const mockUseDoctor = vi.fn();
 const mockUseCreateDoctor = vi.fn();
@@ -23,6 +42,12 @@ vi.mock('@/domain/departments/departments.hooks', () => ({
 
 vi.mock('@/hooks/useUsers', () => ({
   useUsers: (options?: { enabled?: boolean }) => mockUseUsers(options),
+}));
+
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => doctorTranslations[key as keyof typeof doctorTranslations] ?? key,
+  }),
 }));
 
 const createDoctorMock = vi.fn();
@@ -189,5 +214,93 @@ describe('DoctorFormPage', () => {
         phoneNumber: '+38344111222',
       });
     });
+  });
+
+  it('submits create doctor with new linked user fields only', async () => {
+    renderPage('/app/doctors/new', ['ADMIN']);
+
+    fireEvent.click(screen.getByLabelText('Create new linked user'));
+    fireEvent.change(screen.getByLabelText('Department'), {
+      target: { value: 'dep-1' },
+    });
+    fireEvent.change(screen.getByLabelText('First name'), {
+      target: { value: ' Ava ' },
+    });
+    fireEvent.change(screen.getByLabelText('Last name'), {
+      target: { value: ' Taylor ' },
+    });
+    fireEvent.change(screen.getByLabelText('Specialization'), {
+      target: { value: ' Cardiology ' },
+    });
+    fireEvent.change(screen.getByLabelText('Phone number'), {
+      target: { value: '+38344111222' },
+    });
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: ' ava@example.com ' },
+    });
+    fireEvent.change(screen.getByLabelText('Username'), {
+      target: { value: ' avataylor ' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: ' secret123 ' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /save doctor/i }));
+
+    await waitFor(() => {
+      expect(createDoctorMock).toHaveBeenCalledWith({
+        firstName: 'Ava',
+        lastName: 'Taylor',
+        specialization: 'Cardiology',
+        departmentId: 'dep-1',
+        phoneNumber: '+38344111222',
+        email: 'ava@example.com',
+        username: 'avataylor',
+        password: 'secret123',
+      });
+    });
+
+    expect(createDoctorMock).not.toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: expect.anything(),
+      })
+    );
+  });
+
+  it('shows user-friendly validation for optional new linked user inputs', async () => {
+    renderPage('/app/doctors/new', ['ADMIN']);
+
+    fireEvent.click(screen.getByLabelText('Create new linked user'));
+    fireEvent.change(screen.getByLabelText('Department'), {
+      target: { value: 'dep-1' },
+    });
+    fireEvent.change(screen.getByLabelText('First name'), {
+      target: { value: 'Ava' },
+    });
+    fireEvent.change(screen.getByLabelText('Last name'), {
+      target: { value: 'Taylor' },
+    });
+    fireEvent.change(screen.getByLabelText('Specialization'), {
+      target: { value: 'Cardiology' },
+    });
+    fireEvent.change(screen.getByLabelText('Phone number'), {
+      target: { value: '+38344111222' },
+    });
+    fireEvent.change(screen.getByLabelText('Email'), {
+      target: { value: 'not-an-email' },
+    });
+    fireEvent.change(screen.getByLabelText('Username'), {
+      target: { value: 'ab' },
+    });
+    fireEvent.change(screen.getByLabelText('Password'), {
+      target: { value: '12345' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /save doctor/i }));
+
+    expect(await screen.findByText('Enter a valid email address.')).toBeInTheDocument();
+    expect(screen.getByText('Username must be at least 3 characters.')).toBeInTheDocument();
+    expect(screen.getByText('Password must be at least 6 characters.')).toBeInTheDocument();
+    expect(createDoctorMock).not.toHaveBeenCalled();
   });
 });

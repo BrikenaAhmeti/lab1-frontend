@@ -21,6 +21,18 @@
     "editDescription": "Aktualisieren Sie die ausgewählte Pflegekraft.",
     "formTitle": "Pflegekraft-Formular",
     "formDescription": "Füllen Sie die Angaben zur Pflegekraft unten aus.",
+    "userLinkLegend": "Verknüpftes Benutzerkonto",
+    "userLinkDescription": "Wählen Sie, ob Sie ein vorhandenes Benutzerkonto verknüpfen oder einen neuen Login für diese Pflegekraft anlegen möchten.",
+    "linkExistingUser": "Vorhandenen Benutzer verknüpfen",
+    "linkExistingUserHint": "Verknüpfen Sie diese Pflegekraft mit einem bereits vorhandenen Benutzerkonto.",
+    "createNewLinkedUser": "Neuen verknüpften Benutzer erstellen",
+    "createNewLinkedUserHint": "Erstellen Sie beim Anlegen der Pflegekraft optional einen neuen Login.",
+    "userPlaceholder": "Benutzerkonto auswählen",
+    "userReadOnlyHint": "Das verknüpfte Benutzerkonto ist hier schreibgeschützt.",
+    "userLoadFailedHint": "Benutzerkonten konnten gerade nicht geladen werden. Sie können weiterhin Neuen verknüpften Benutzer erstellen wählen.",
+    "emailHint": "Optional. Geben Sie eine gültige E-Mail-Adresse an, wenn Sie sie jetzt setzen möchten.",
+    "usernameHint": "Optional. Falls angegeben, sind mindestens 3 Zeichen erforderlich.",
+    "passwordHint": "Optional. Falls angegeben, sind mindestens 6 Zeichen erforderlich.",
     "departmentPlaceholder": "Abteilung auswählen",
     "shiftPlaceholder": "Schicht auswählen"
   },
@@ -48,6 +60,10 @@
   "fields": {
     "firstName": "Vorname",
     "lastName": "Nachname",
+    "userId": "Benutzerkonto",
+    "email": "E-Mail",
+    "username": "Benutzername",
+    "password": "Passwort",
     "department": "Abteilung",
     "departmentLocation": "Standort der Abteilung",
     "shift": "Schicht",
@@ -92,7 +108,10 @@
     "deleted": "Pflegekraft erfolgreich gelöscht."
   },
   "validation": {
-    "required": "Dieses Feld ist erforderlich."
+    "required": "Dieses Feld ist erforderlich.",
+    "email": "Geben Sie eine gültige E-Mail-Adresse ein.",
+    "username": "Der Benutzername muss mindestens 3 Zeichen lang sein.",
+    "password": "Das Passwort muss mindestens 6 Zeichen lang sein."
   },
   "shifts": {
     "Morning": "Morgen",

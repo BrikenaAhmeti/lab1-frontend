@@ -18,8 +18,7 @@ export type Doctor = {
   updatedAt?: string;
 };
 
-export type CreateDoctorDTO = {
-  userId: string;
+type DoctorCreateBase = {
   firstName: string;
   lastName: string;
   specialization: string;
@@ -27,4 +26,20 @@ export type CreateDoctorDTO = {
   phoneNumber: string;
 };
 
-export type UpdateDoctorDTO = Partial<CreateDoctorDTO>;
+type DoctorExistingUserCreate = DoctorCreateBase & {
+  userId: string;
+  email?: never;
+  username?: never;
+  password?: never;
+};
+
+type DoctorNewLinkedUserCreate = DoctorCreateBase & {
+  userId?: undefined;
+  email?: string;
+  username?: string;
+  password?: string;
+};
+
+export type CreateDoctorDTO = DoctorExistingUserCreate | DoctorNewLinkedUserCreate;
+
+export type UpdateDoctorDTO = Partial<DoctorCreateBase & { userId: string }>;

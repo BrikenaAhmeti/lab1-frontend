@@ -15,8 +15,14 @@ import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
 import DoctorStateCard from './state-card';
 
+type UserLinkMode = 'existing' | 'new';
+
 type DoctorFormValues = {
+  userLinkMode: UserLinkMode;
   userId: string;
+  email: string;
+  username: string;
+  password: string;
   firstName: string;
   lastName: string;
   specialization: string;
@@ -30,7 +36,11 @@ type SelectOption = {
 };
 
 const emptyForm: DoctorFormValues = {
+  userLinkMode: 'existing',
   userId: '',
+  email: '',
+  username: '',
+  password: '',
   firstName: '',
   lastName: '',
   specialization: '',
@@ -38,11 +48,21 @@ const emptyForm: DoctorFormValues = {
   phoneNumber: '',
 };
 
-function validateForm(values: DoctorFormValues, t: (key: string) => string) {
+function isValidEmail(value: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function validateForm(
+  values: DoctorFormValues,
+  isEdit: boolean,
+  t: (key: string) => string
+) {
   const errors: Record<string, string> = {};
+  const email = values.email.trim();
+  const username = values.username.trim();
+  const password = values.password.trim();
   const phoneNumber = values.phoneNumber.trim();
 
-  if (!values.userId.trim()) errors.userId = t('validation.required');
   if (!values.firstName.trim()) errors.firstName = t('validation.required');
   if (!values.lastName.trim()) errors.lastName = t('validation.required');
   if (!values.specialization.trim()) errors.specialization = t('validation.required');
@@ -51,6 +71,23 @@ function validateForm(values: DoctorFormValues, t: (key: string) => string) {
 
   if (phoneNumber && !doctorPhonePattern.test(phoneNumber)) {
     errors.phoneNumber = t('validation.phoneNumber');
+  }
+
+  if (isEdit || values.userLinkMode === 'existing') {
+    if (!values.userId.trim()) errors.userId = t('validation.required');
+    return errors;
+  }
+
+  if (email && !isValidEmail(email)) {
+    errors.email = t('validation.email');
+  }
+
+  if (username && username.length < 3) {
+    errors.username = t('validation.username');
+  }
+
+  if (password && password.length < 6) {
+    errors.password = t('validation.password');
   }
 
   return errors;
@@ -104,7 +141,11 @@ export default function DoctorFormPage() {
     }
 
     setForm({
+      userLinkMode: 'existing',
       userId: doctorQuery.data.userId,
+      email: '',
+      username: '',
+      password: '',
       firstName: doctorQuery.data.firstName,
       lastName: doctorQuery.data.lastName,
       specialization: doctorQuery.data.specialization,
@@ -119,10 +160,29 @@ export default function DoctorFormPage() {
     setFormError('');
   };
 
+  const handleUserLinkModeChange = (userLinkMode: UserLinkMode) => {
+    setForm((current) => ({
+      ...current,
+      userLinkMode,
+      userId: userLinkMode === 'existing' ? current.userId : '',
+      email: userLinkMode === 'new' ? current.email : '',
+      username: userLinkMode === 'new' ? current.username : '',
+      password: userLinkMode === 'new' ? current.password : '',
+    }));
+    setErrors((current) => ({
+      ...current,
+      userId: '',
+      email: '',
+      username: '',
+      password: '',
+    }));
+    setFormError('');
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const nextErrors = validateForm(form, t);
+    const nextErrors = validateForm(form, isEdit, t);
     setErrors(nextErrors);
 
     if (Object.keys(nextErrors).length) {
@@ -130,12 +190,23 @@ export default function DoctorFormPage() {
     }
 
     const payload = {
-      userId: form.userId.trim(),
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       specialization: form.specialization.trim(),
       departmentId: form.departmentId.trim(),
       phoneNumber: form.phoneNumber.trim(),
+      ...(isEdit || form.userLinkMode === 'existing'
+        ? { userId: form.userId.trim() }
+        : {}),
+      ...(!isEdit && form.userLinkMode === 'new' && form.email.trim()
+        ? { email: form.email.trim() }
+        : {}),
+      ...(!isEdit && form.userLinkMode === 'new' && form.username.trim()
+        ? { username: form.username.trim() }
+        : {}),
+      ...(!isEdit && form.userLinkMode === 'new' && form.password.trim()
+        ? { password: form.password.trim() }
+        : {}),
     };
 
     try {
@@ -240,19 +311,6 @@ export default function DoctorFormPage() {
     );
   }
 
-  if (!isEdit && isAdmin && usersQuery.error) {
-    return (
-      <DoctorStateCard
-        title={t('states.errorTitle')}
-        description={getDoctorApiMessage(usersQuery.error, t('errors.users'))}
-      >
-        <Button variant="outline" onClick={() => usersQuery.refetch()}>
-          {t('actions.retry')}
-        </Button>
-      </DoctorStateCard>
-    );
-  }
-
   const departmentOptions = (departmentsQuery.data ?? []).map((department) => ({
     value: department.id,
     label: getDepartmentLabel(department),
@@ -287,19 +345,6 @@ export default function DoctorFormPage() {
     );
   }
 
-  if (!isEdit && isAdmin && !userSelectOptions.length) {
-    return (
-      <DoctorStateCard
-        title={t('states.emptyUsersTitle')}
-        description={t('states.emptyUsersDescription')}
-      >
-        <Button variant="outline" onClick={() => navigate('/app/doctors')}>
-          {t('actions.back')}
-        </Button>
-      </DoctorStateCard>
-    );
-  }
-
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -325,33 +370,106 @@ export default function DoctorFormPage() {
             </div>
           ) : null}
 
+          {!isEdit ? (
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-medium text-foreground">
+                {t('form.userLinkLegend')}
+              </legend>
+              <p className="text-sm text-muted-foreground">{t('form.userLinkDescription')}</p>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border/70 bg-background/50 p-4">
+                  <input
+                    checked={form.userLinkMode === 'existing'}
+                    className="mt-1"
+                    name="userLinkMode"
+                    type="radio"
+                    value="existing"
+                    onChange={() => handleUserLinkModeChange('existing')}
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-foreground">
+                      {t('form.linkExistingUser')}
+                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      {t('form.linkExistingUserHint')}
+                    </span>
+                  </span>
+                </label>
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border/70 bg-background/50 p-4">
+                  <input
+                    checked={form.userLinkMode === 'new'}
+                    className="mt-1"
+                    name="userLinkMode"
+                    type="radio"
+                    value="new"
+                    onChange={() => handleUserLinkModeChange('new')}
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-foreground">
+                      {t('form.createNewLinkedUser')}
+                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      {t('form.createNewLinkedUserHint')}
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+          ) : null}
+
           <div className="grid gap-4 md:grid-cols-2">
-            {canChooseUser ? (
-              <Select
-                required
-                name="userId"
-                label={t('fields.userId')}
-                value={form.userId}
-                error={errors.userId}
-                onChange={(event) => handleChange('userId', event.target.value)}
-              >
-                <option value="">{t('form.userPlaceholder')}</option>
-                {userSelectOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </Select>
+            {isEdit || form.userLinkMode === 'existing' ? (
+              canChooseUser ? (
+                <Select
+                  required
+                  name="userId"
+                  label={t('fields.userId')}
+                  value={form.userId}
+                  error={errors.userId}
+                  onChange={(event) => handleChange('userId', event.target.value)}
+                >
+                  <option value="">{t('form.userPlaceholder')}</option>
+                  {userSelectOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </Select>
+              ) : (
+                <Input
+                  required
+                  disabled
+                  readOnly
+                  name="userId"
+                  label={t('fields.userId')}
+                  value={form.userId}
+                  error={errors.userId}
+                  hint={
+                    !isEdit && usersQuery.error
+                      ? t('form.userLoadFailedHint')
+                      : t('form.userReadOnlyHint')
+                  }
+                />
+              )
             ) : (
-              <Input
-                required
-                disabled
-                readOnly
-                name="userId"
-                label={t('fields.userId')}
-                value={form.userId}
-                hint={t('form.userReadOnlyHint')}
-              />
+              <>
+                <Input
+                  name="email"
+                  label={t('fields.email')}
+                  value={form.email}
+                  error={errors.email}
+                  hint={t('form.emailHint')}
+                  onChange={(event) => handleChange('email', event.target.value)}
+                />
+                <Input
+                  name="username"
+                  label={t('fields.username')}
+                  value={form.username}
+                  error={errors.username}
+                  hint={t('form.usernameHint')}
+                  onChange={(event) => handleChange('username', event.target.value)}
+                />
+              </>
             )}
 
             <Select
@@ -403,6 +521,17 @@ export default function DoctorFormPage() {
               placeholder="+38344111222"
               onChange={(event) => handleChange('phoneNumber', event.target.value)}
             />
+            {!isEdit && form.userLinkMode === 'new' ? (
+              <Input
+                type="password"
+                name="password"
+                label={t('fields.password')}
+                value={form.password}
+                error={errors.password}
+                hint={t('form.passwordHint')}
+                onChange={(event) => handleChange('password', event.target.value)}
+              />
+            ) : null}
           </div>
 
           <div className="flex flex-wrap justify-end gap-2">

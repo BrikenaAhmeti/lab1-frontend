@@ -59,4 +59,73 @@ describe('EntityFormModal', () => {
       );
     });
   });
+
+  it('submits doctor create values without userId when creating a new linked user', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <LanguageProvider>
+        <EntityFormModal
+          open
+          mode="create"
+          config={moduleConfigs.doctors}
+          item={null}
+          references={{
+            users: [{ value: 'user-1', label: 'Ava Taylor' }],
+            departments: [{ value: 'dep-1', label: 'Cardiology' }],
+          }}
+          loading={false}
+          saving={false}
+          onClose={vi.fn()}
+          onSubmit={onSubmit}
+        />
+      </LanguageProvider>
+    );
+
+    fireEvent.click(screen.getByRole('combobox', { name: /Account setup/i }));
+    fireEvent.click(screen.getByRole('option', { name: /Create new login/i }));
+    fireEvent.change(screen.getByLabelText('First name'), {
+      target: { value: 'Ava' },
+    });
+    fireEvent.change(screen.getByLabelText('Last name'), {
+      target: { value: 'Taylor' },
+    });
+    fireEvent.change(screen.getByLabelText('Specialization'), {
+      target: { value: 'Cardiology' },
+    });
+    fireEvent.click(screen.getByRole('combobox', { name: /Department/i }));
+    fireEvent.click(screen.getByRole('option', { name: /^Cardiology$/i }));
+    fireEvent.change(screen.getByLabelText('Phone number'), {
+      target: { value: '+38344111222' },
+    });
+    fireEvent.change(screen.getByRole('textbox', { name: /Email/i }), {
+      target: { value: 'ava@example.com' },
+    });
+    fireEvent.change(screen.getByRole('textbox', { name: /Username/i }), {
+      target: { value: 'avataylor' },
+    });
+    const passwordInput = document.getElementById('password');
+    expect(passwordInput).not.toBeNull();
+    fireEvent.change(passwordInput as HTMLElement, {
+      target: { value: 'secret123' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          accountMode: 'new',
+          firstName: 'Ava',
+          lastName: 'Taylor',
+          specialization: 'Cardiology',
+          departmentId: 'dep-1',
+          phoneNumber: '+38344111222',
+          email: 'ava@example.com',
+          username: 'avataylor',
+          password: 'secret123',
+        })
+      );
+    });
+  });
 });
