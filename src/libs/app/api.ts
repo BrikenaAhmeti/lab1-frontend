@@ -113,6 +113,13 @@ export const authApi = {
     const response = await apiClient.post(`${AUTH_BASE}/change-password`, payload);
     return response.data;
   },
+  confirmEmail: async (payload: { token: string }) => {
+    const response = await authClient.post(`${AUTH_BASE}/confirm-email`, payload);
+    return response.data;
+  },
+  resendConfirmationEmail: async (payload: { email: string }) => {
+    await authClient.post(`${AUTH_BASE}/resend-confirmation-email`, payload);
+  },
   resetUserPassword: async (userId: string, payload: { password: string }) => {
     const response = await apiClient.patch(`${AUTH_BASE}/users/${userId}/password`, payload);
     return response.data;

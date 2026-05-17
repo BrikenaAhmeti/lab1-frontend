@@ -232,17 +232,15 @@ function createDoctorSchema(mode: 'create' | 'edit') {
       }
 
       if (values.accountMode === 'new') {
-        if (values.email?.trim()) {
-          const emailResult = emailRule().safeParse(values.email.trim());
+        const emailResult = emailRule().safeParse(values.email?.trim() || '');
 
-          if (!emailResult.success) {
-            emailResult.error.issues.forEach((issue) => {
-              context.addIssue({
-                ...issue,
-                path: ['email'],
-              });
+        if (!emailResult.success) {
+          emailResult.error.issues.forEach((issue) => {
+            context.addIssue({
+              ...issue,
+              path: ['email'],
             });
-          }
+          });
         }
 
         if (values.username?.trim()) {
@@ -305,17 +303,15 @@ function createNurseSchema(mode: 'create' | 'edit') {
       }
 
       if (values.accountMode === 'new') {
-        if (values.email?.trim()) {
-          const emailResult = emailRule().safeParse(values.email.trim());
+        const emailResult = emailRule().safeParse(values.email?.trim() || '');
 
-          if (!emailResult.success) {
-            emailResult.error.issues.forEach((issue) => {
-              context.addIssue({
-                ...issue,
-                path: ['email'],
-              });
+        if (!emailResult.success) {
+          emailResult.error.issues.forEach((issue) => {
+            context.addIssue({
+              ...issue,
+              path: ['email'],
             });
-          }
+          });
         }
 
         if (values.username?.trim()) {
@@ -691,6 +687,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         name: 'accountMode',
         label: lt('Account setup', 'Kontoeinrichtung'),
         type: 'select',
+        hint: lt('New logins email the password with a confirmation link before first login.', 'Neue Logins senden das Passwort mit einem Bestätigungslink vor der ersten Anmeldung per E-Mail.'),
         options: accountModeOptions,
         modes: ['create'],
       },
@@ -707,18 +704,18 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
       { name: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), type: 'text' },
       {
-        name: 'password',
-        label: lt('Password', 'Passwort'),
-        type: 'password',
-        hint: lt('Optional. Use at least 6 characters if provided.', 'Optional. Verwenden Sie mindestens 6 Zeichen, falls angegeben.'),
+        name: 'email',
+        label: lt('Email', 'E-Mail'),
+        type: 'text',
+        hint: lt('Required for sending the password and confirmation link.', 'Erforderlich, um Passwort und Bestätigungslink zu senden.'),
         modes: ['create'],
         showWhen: (values) => values.accountMode === 'new',
       },
       {
-        name: 'email',
-        label: lt('Email', 'E-Mail'),
-        type: 'text',
-        hint: lt('Optional. Enter a valid email if provided.', 'Optional. Geben Sie eine gültige E-Mail-Adresse an, falls vorhanden.'),
+        name: 'password',
+        label: lt('Password', 'Passwort'),
+        type: 'password',
+        hint: lt('Optional. If left blank, MedSphere generates one and emails it with the confirmation link.', 'Optional. Wenn leer, generiert MedSphere ein Passwort und sendet es mit dem Bestätigungslink per E-Mail.'),
         modes: ['create'],
         showWhen: (values) => values.accountMode === 'new',
       },
@@ -1182,6 +1179,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         name: 'accountMode',
         label: lt('Account setup', 'Kontoeinrichtung'),
         type: 'select',
+        hint: lt('New logins email the password with a confirmation link before first login.', 'Neue Logins senden das Passwort mit einem Bestätigungslink vor der ersten Anmeldung per E-Mail.'),
         options: accountModeOptions,
         modes: ['create'],
       },
@@ -1197,18 +1195,18 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
       { name: 'shift', label: lt('Shift', 'Schicht'), type: 'select', options: nurseShifts },
       {
-        name: 'password',
-        label: lt('Password', 'Passwort'),
-        type: 'password',
-        hint: lt('Optional. Use at least 6 characters if provided.', 'Optional. Verwenden Sie mindestens 6 Zeichen, falls angegeben.'),
+        name: 'email',
+        label: lt('Email', 'E-Mail'),
+        type: 'text',
+        hint: lt('Required for sending the password and confirmation link.', 'Erforderlich, um Passwort und Bestätigungslink zu senden.'),
         modes: ['create'],
         showWhen: (values) => values.accountMode === 'new',
       },
       {
-        name: 'email',
-        label: lt('Email', 'E-Mail'),
-        type: 'text',
-        hint: lt('Optional. Enter a valid email if provided.', 'Optional. Geben Sie eine gültige E-Mail-Adresse an, falls vorhanden.'),
+        name: 'password',
+        label: lt('Password', 'Passwort'),
+        type: 'password',
+        hint: lt('Optional. If left blank, MedSphere generates one and emails it with the confirmation link.', 'Optional. Wenn leer, generiert MedSphere ein Passwort und sendet es mit dem Bestätigungslink per E-Mail.'),
         modes: ['create'],
         showWhen: (values) => values.accountMode === 'new',
       },
@@ -1293,7 +1291,12 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     fields: [
       { name: 'firstName', label: lt('First name', 'Vorname'), type: 'text' },
       { name: 'lastName', label: lt('Last name', 'Nachname'), type: 'text' },
-      { name: 'email', label: lt('Email', 'E-Mail'), type: 'text' },
+      {
+        name: 'email',
+        label: lt('Email', 'E-Mail'),
+        type: 'text',
+        hint: lt('The password and confirmation link are sent to this address.', 'Passwort und Bestätigungslink werden an diese Adresse gesendet.'),
+      },
       {
         name: 'username',
         label: lt('Username', 'Benutzername'),
@@ -1304,7 +1307,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         name: 'password',
         label: lt('Password', 'Passwort'),
         type: 'password',
-        hint: lt('Required for new receptionist accounts. Use at least 6 characters.', 'Erforderlich für neue Rezeptionistenkonten. Verwenden Sie mindestens 6 Zeichen.'),
+        hint: lt('Required for new receptionist accounts. It will be emailed with the confirmation link.', 'Erforderlich für neue Rezeptionistenkonten. Es wird mit dem Bestätigungslink per E-Mail gesendet.'),
         modes: ['create'],
       },
       { name: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), type: 'text' },

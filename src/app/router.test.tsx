@@ -38,6 +38,16 @@ vi.mock('@/pages/app/routes/LandingRoutePage', async () => {
   };
 });
 
+vi.mock('@/pages/app/ConfirmEmailPage', async () => {
+  await new Promise((resolve) => setTimeout(resolve, 0));
+
+  return {
+    default: function MockConfirmEmailPage() {
+      return <div>Lazy confirm email page</div>;
+    },
+  };
+});
+
 describe('AppRouter', () => {
   it('shows a suspense skeleton before a lazy route resolves', async () => {
     render(
@@ -58,5 +68,15 @@ describe('AppRouter', () => {
     );
 
     expect(await screen.findByText('Lazy landing page')).toBeInTheDocument();
+  });
+
+  it('shows the public confirm email page', async () => {
+    render(
+      <MemoryRouter initialEntries={['/confirm-email?token=abc']}>
+        <AppRouter />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('Lazy confirm email page')).toBeInTheDocument();
   });
 });

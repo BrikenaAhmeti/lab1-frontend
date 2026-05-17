@@ -9,6 +9,7 @@ import type { ModuleKey } from '@/types/app';
 
 const LoginPage = lazy(() => import('@/pages/app/routes/LoginRoutePage'));
 const LandingPage = lazy(() => import('@/pages/app/routes/LandingRoutePage'));
+const ConfirmEmailPage = lazy(() => import('@/pages/app/ConfirmEmailPage'));
 const DashboardPage = lazy(() => import('@/pages/app/routes/DashboardRoutePage'));
 const AccessDeniedPage = lazy(() => import('@/pages/app/routes/AccessDeniedRoutePage'));
 const NotFoundPage = lazy(() => import('@/pages/app/routes/NotFoundRoutePage'));
@@ -51,6 +52,7 @@ function GuestRoute() {
 export default function AppRouter() {
   return (
     <Routes>
+      <Route path="confirm-email" element={renderLazyPage(ConfirmEmailPage, 'fullscreen')} />
       <Route element={<GuestRoute />}>
         <Route index element={renderLazyPage(LandingPage, 'fullscreen')} />
         <Route path="login" element={renderLazyPage(LoginPage, 'fullscreen')} />

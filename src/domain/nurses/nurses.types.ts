@@ -40,7 +40,7 @@ type NurseExistingUserCreate = NurseCreateBase & {
 
 type NurseNewLinkedUserCreate = NurseCreateBase & {
   userId?: undefined;
-  email?: string;
+  email: string;
   username?: string;
   password?: string;
 };

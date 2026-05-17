@@ -79,7 +79,9 @@ function validateForm(
     return errors;
   }
 
-  if (email && !isValidEmail(email)) {
+  if (!email) {
+    errors.email = t('validation.required');
+  } else if (!isValidEmail(email)) {
     errors.email = t('validation.email');
   }
 
@@ -215,7 +217,7 @@ export default function DoctorFormPage() {
                 } satisfies CreateDoctorDTO)
               : ({
                   ...basePayload,
-                  ...(form.email.trim() ? { email: form.email.trim() } : {}),
+                  email: form.email.trim(),
                   ...(form.username.trim() ? { username: form.username.trim() } : {}),
                   ...(form.password.trim() ? { password: form.password.trim() } : {}),
                 } satisfies CreateDoctorDTO)
@@ -461,6 +463,7 @@ export default function DoctorFormPage() {
             ) : (
               <>
                 <Input
+                  required
                   name="email"
                   label={t('fields.email')}
                   value={form.email}

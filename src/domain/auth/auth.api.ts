@@ -40,6 +40,12 @@ export const AuthApi = {
   logoutAll: () =>
     api.core.post<void>(`${BASE}/logout-all`, undefined, { withCredentials: true }).then(() => undefined),
 
+  confirmEmail: (payload: { token: string }) =>
+    api.core.post<AuthUser>(`${BASE}/confirm-email`, payload).then((r) => r.data),
+
+  resendConfirmationEmail: (payload: { email: string }) =>
+    api.core.post<void>(`${BASE}/resend-confirmation-email`, payload).then(() => undefined),
+
   me: (accessToken?: string) =>
     api.core
       .get<AuthUser>(`${BASE}/me`, {

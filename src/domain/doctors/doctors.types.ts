@@ -35,7 +35,7 @@ type DoctorExistingUserCreate = DoctorCreateBase & {
 
 type DoctorNewLinkedUserCreate = DoctorCreateBase & {
   userId?: undefined;
-  email?: string;
+  email: string;
   username?: string;
   password?: string;
 };
