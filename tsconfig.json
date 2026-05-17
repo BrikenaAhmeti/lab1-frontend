@@ -10,7 +10,9 @@
     "target": "ES2022",
     "module": "ESNext",
     "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
     "jsx": "react-jsx",
+    "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
     "verbatimModuleSyntax": false,
@@ -21,16 +23,10 @@
     ]
   },
   "include": [
-    "src/main.tsx",
-    "src/App.tsx",
-    "src/config/theme.ts",
-    "src/hooks/useThemeMode.ts",
-    "src/ui/atoms/**/*.ts",
-    "src/ui/atoms/**/*.tsx",
-    "src/ui/molecules/ThemeToggle.tsx",
-    "src/ui/molecules/LanguageSwitch.tsx",
-    "src/hms/**/*.ts",
-    "src/hms/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
     "vite-env.d.ts"
   ]
 }

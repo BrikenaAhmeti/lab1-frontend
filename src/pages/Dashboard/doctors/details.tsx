@@ -15,7 +15,7 @@ import {
   getDoctorApiStatus,
   getDoctorFullName,
 } from '@/domain/doctors/doctors.utils';
-import Modal from '@/hms/components/Modal';
+import Modal from '@/ui/molecules/Modal';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';

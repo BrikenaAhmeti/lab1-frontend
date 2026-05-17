@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import AppLayout from '@/ui/layouts/AppLayout';
+import AppLayout from '@/ui/organisms/LegacyAppLayout';
 
 vi.mock('@/domain/auth/auth.thunks', () => ({
   logout: () => ({ type: 'auth/logout' }),

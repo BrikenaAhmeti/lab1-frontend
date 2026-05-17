@@ -38,7 +38,7 @@ export interface LoginDTO {
   password: string;
 }
 
-export interface RefreshDTO {}
+export type RefreshDTO = Record<string, never>;
 
 export interface AuthTokensResponse {
   user?: AuthUser;

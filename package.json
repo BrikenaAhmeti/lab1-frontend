@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "analyze": "tsc -b && ANALYZE=true vite build",
     "preview": "vite preview",
-    "lint": "eslint src/App.tsx src/main.tsx src/config/theme.ts src/hooks/useThemeMode.ts src/ui/atoms src/ui/molecules/ThemeToggle.tsx src/ui/molecules/LanguageSwitch.tsx src/hms",
+    "lint": "eslint src tests",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:ui": "vitest --ui"

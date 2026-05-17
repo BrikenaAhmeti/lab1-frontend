@@ -1,5 +1,5 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
-import AppLayout from '@/ui/layouts/AppLayout';
+import AppLayout from '@/ui/organisms/LegacyAppLayout';
 import { GuestOnly, RequireAuth } from '@/domain/auth/guards';
 
 import Login from '@/pages/Auth/login';

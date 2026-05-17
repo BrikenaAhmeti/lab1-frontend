@@ -7,6 +7,7 @@ import { isAdminUser } from '@/domain/auth/role.utils';
 import { useDepartments } from '@/domain/departments/departments.hooks';
 import type { Department } from '@/domain/departments/departments.types';
 import { useCreateDoctor, useDoctor, useUpdateDoctor } from '@/domain/doctors/doctors.hooks';
+import type { CreateDoctorDTO, UpdateDoctorDTO } from '@/domain/doctors/doctors.types';
 import { doctorPhonePattern, getDoctorApiMessage, getDoctorApiStatus } from '@/domain/doctors/doctors.utils';
 import { useUsers } from '@/hooks/useUsers';
 import Button from '@/ui/atoms/Button';
@@ -189,30 +190,36 @@ export default function DoctorFormPage() {
       return;
     }
 
-    const payload = {
+    const basePayload = {
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       specialization: form.specialization.trim(),
       departmentId: form.departmentId.trim(),
       phoneNumber: form.phoneNumber.trim(),
-      ...(isEdit || form.userLinkMode === 'existing'
-        ? { userId: form.userId.trim() }
-        : {}),
-      ...(!isEdit && form.userLinkMode === 'new' && form.email.trim()
-        ? { email: form.email.trim() }
-        : {}),
-      ...(!isEdit && form.userLinkMode === 'new' && form.username.trim()
-        ? { username: form.username.trim() }
-        : {}),
-      ...(!isEdit && form.userLinkMode === 'new' && form.password.trim()
-        ? { password: form.password.trim() }
-        : {}),
     };
 
     try {
       const doctor = isEdit
-        ? await updateDoctor.mutateAsync({ id, payload })
-        : await createDoctor.mutateAsync(payload);
+        ? await updateDoctor.mutateAsync({
+            id,
+            payload: {
+              ...basePayload,
+              userId: form.userId.trim(),
+            } satisfies UpdateDoctorDTO,
+          })
+        : await createDoctor.mutateAsync(
+            form.userLinkMode === 'existing'
+              ? ({
+                  ...basePayload,
+                  userId: form.userId.trim(),
+                } satisfies CreateDoctorDTO)
+              : ({
+                  ...basePayload,
+                  ...(form.email.trim() ? { email: form.email.trim() } : {}),
+                  ...(form.username.trim() ? { username: form.username.trim() } : {}),
+                  ...(form.password.trim() ? { password: form.password.trim() } : {}),
+                } satisfies CreateDoctorDTO)
+          );
 
       navigate(`/app/doctors/${doctor.id}`, {
         replace: true,

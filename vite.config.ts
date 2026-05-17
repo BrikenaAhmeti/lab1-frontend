@@ -23,7 +23,7 @@ function createChunkReportPlugin() {
           imports: chunk.imports,
           dynamicImports: chunk.dynamicImports,
           routeModules: Object.keys(chunk.modules)
-            .filter((moduleId) => moduleId.includes('/src/hms/pages/routes/'))
+            .filter((moduleId) => moduleId.includes('/src/pages/app/routes/'))
             .map((moduleId) => path.basename(moduleId)),
         }));
 
@@ -60,8 +60,14 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: ['./src/hms/test/setup.ts'],
-    include: ['./src/hms/**/*.test.ts', './src/hms/**/*.test.tsx'],
+    setupFiles: ['./src/app/test/setup.ts'],
+    include: [
+      './src/app/**/*.test.ts',
+      './src/app/**/*.test.tsx',
+      './src/libs/app/**/*.test.ts',
+      './src/pages/app/**/*.test.tsx',
+      './src/ui/**/*.test.tsx',
+    ],
   },
   server: {
     port: 3001

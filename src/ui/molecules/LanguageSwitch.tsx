@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import { commonCopy } from '@/hms/copy';
-import { useLanguage } from '@/hms/contexts/LanguageContext';
+import { commonCopy } from '@/config/copy';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 
 const langs = [
   { code: 'en', shortLabel: 'EN', label: 'English' },

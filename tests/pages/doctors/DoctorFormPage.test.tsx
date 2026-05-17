@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import DoctorFormPage from '@/pages/Dashboard/doctors/form.tsx';
+import DoctorFormPage from '@/pages/Dashboard/doctors/form';
 
 const doctorTranslations = {
   'states.createForbiddenTitle': 'Admin access required',

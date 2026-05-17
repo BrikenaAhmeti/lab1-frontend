@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDepartments } from '@/domain/departments/departments.hooks';
 import { useCreateNurse, useNurse, useUpdateNurse } from '@/domain/nurses/nurses.hooks';
-import type { NurseShift } from '@/domain/nurses/nurses.types';
+import type { CreateNurseDTO, NurseShift, UpdateNurseDTO } from '@/domain/nurses/nurses.types';
 import { nurseShiftValues } from '@/domain/nurses/nurses.types';
 import {
   getNurseApiMessage,
@@ -183,29 +183,32 @@ export default function NurseFormPage() {
       return;
     }
 
-    const payload = {
+    const basePayload = {
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       departmentId: form.departmentId.trim(),
       shift: normalizeNurseShift(form.shift) as NurseShift,
-      ...(!isEdit && form.userLinkMode === 'existing'
-        ? { userId: form.userId.trim() }
-        : {}),
-      ...(!isEdit && form.userLinkMode === 'new' && form.email.trim()
-        ? { email: form.email.trim() }
-        : {}),
-      ...(!isEdit && form.userLinkMode === 'new' && form.username.trim()
-        ? { username: form.username.trim() }
-        : {}),
-      ...(!isEdit && form.userLinkMode === 'new' && form.password.trim()
-        ? { password: form.password.trim() }
-        : {}),
     };
 
     try {
       const nurse = isEdit
-        ? await updateNurse.mutateAsync({ id, payload })
-        : await createNurse.mutateAsync(payload);
+        ? await updateNurse.mutateAsync({
+            id,
+            payload: basePayload satisfies UpdateNurseDTO,
+          })
+        : await createNurse.mutateAsync(
+            form.userLinkMode === 'existing'
+              ? ({
+                  ...basePayload,
+                  userId: form.userId.trim(),
+                } satisfies CreateNurseDTO)
+              : ({
+                  ...basePayload,
+                  ...(form.email.trim() ? { email: form.email.trim() } : {}),
+                  ...(form.username.trim() ? { username: form.username.trim() } : {}),
+                  ...(form.password.trim() ? { password: form.password.trim() } : {}),
+                } satisfies CreateNurseDTO)
+          );
 
       navigate(`/app/nurses/${nurse.id}`, {
         replace: true,

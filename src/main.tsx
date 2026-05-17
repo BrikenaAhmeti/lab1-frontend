@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/index.css';
-import '@/config/i18n';
-import { applyTheme, getInitialTheme } from '@/config/theme';
-import AppProviders from '@/hms/providers/AppProviders';
-import App from './App';
+import '@/config/i18n.ts';
+import { applyTheme, getInitialTheme } from '@/config/theme.ts';
+import AppProviders from '@/app/providers/AppProviders.tsx';
+import App from './App.tsx';
 
 applyTheme(getInitialTheme());
 
