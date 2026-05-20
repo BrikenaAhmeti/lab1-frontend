@@ -64,7 +64,7 @@ export default function AppRouter() {
           {moduleOrder.map((key) => (
             <Route
               key={key}
-              path={`/${moduleRouteMeta[key].path}`}
+              path={`/${moduleRouteMeta[key].path}${key === 'medical-records' ? '/*' : ''}`}
               element={renderLazyPage(moduleRoutePages[key])}
             />
           ))}

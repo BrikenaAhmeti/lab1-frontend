@@ -70,8 +70,8 @@ function validateFormWithDoctors(
 
 function getBackPath(patientId: string) {
   return patientId.trim()
-    ? `/app/medical-records?patientId=${encodeURIComponent(patientId.trim())}`
-    : '/app/medical-records';
+    ? `/medical-records?patientId=${encodeURIComponent(patientId.trim())}`
+    : '/medical-records';
 }
 
 export default function MedicalRecordFormPage() {
@@ -100,7 +100,9 @@ export default function MedicalRecordFormPage() {
   const [formError, setFormError] = useState('');
   const status = getMedicalRecordApiStatus(recordQuery.error);
   const saving = createMedicalRecord.isPending || updateMedicalRecord.isPending;
-  const currentDoctor = (doctorsQuery.data ?? []).find((doctor) => doctor.userId === userId);
+  const currentDoctor = (doctorsQuery.data ?? []).find(
+    (doctor) => doctor.userId === userId && doctor.isActive
+  );
 
   useEffect(() => {
     if (!isEdit && patientIdFromQuery && !form.patientId) {
@@ -144,10 +146,12 @@ export default function MedicalRecordFormPage() {
     selectedPatientLabel
   );
 
-  const doctorOptions = (doctorsQuery.data ?? []).map((doctor) => ({
-    value: doctor.id,
-    label: getMedicalRecordDoctorOptionLabel(doctor),
-  }));
+  const doctorOptions = (doctorsQuery.data ?? [])
+    .filter((doctor) => doctor.isActive)
+    .map((doctor) => ({
+      value: doctor.id,
+      label: getMedicalRecordDoctorOptionLabel(doctor),
+    }));
   const activeDoctorIds = new Set(doctorOptions.map((option) => option.value));
   const selectedDoctorLabel =
     doctorOptions.find((option) => option.value === form.doctorId)?.label
@@ -313,7 +317,7 @@ export default function MedicalRecordFormPage() {
         title={t('states.emptyPatientsTitle')}
         description={t('states.emptyPatientsDescription')}
       >
-        <Button variant="outline" onClick={() => navigate('/app/patients')}>
+        <Button variant="outline" onClick={() => navigate('/patients')}>
           {t('actions.viewPatients')}
         </Button>
       </MedicalRecordStateCard>
@@ -326,7 +330,7 @@ export default function MedicalRecordFormPage() {
         title={t('states.emptyDoctorsTitle')}
         description={t('states.emptyDoctorsDescription')}
       >
-        <Button variant="outline" onClick={() => navigate('/app/doctors')}>
+        <Button variant="outline" onClick={() => navigate('/doctors')}>
           {t('actions.viewDoctors')}
         </Button>
       </MedicalRecordStateCard>

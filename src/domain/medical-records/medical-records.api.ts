@@ -4,6 +4,9 @@ import type {
   CreateMedicalRecordDTO,
   MedicalRecord,
   MedicalRecordsListParams,
+  MedicalRecordsOrder,
+  MedicalRecordsSortBy,
+  PaginatedMedicalRecords,
   Prescription,
   UpdatePrescriptionDTO,
   UpdateMedicalRecordDTO,
@@ -11,6 +14,27 @@ import type {
 
 const BASE = '/api/medical-records';
 const PRESCRIPTIONS_BASE = '/api/prescriptions';
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
+
+function normalizePositiveInteger(value: unknown, fallback: number) {
+  const numberValue = Number(value);
+
+  return Number.isInteger(numberValue) && numberValue > 0 ? numberValue : fallback;
+}
+
+function normalizeLimit(value: unknown) {
+  return Math.min(normalizePositiveInteger(value, DEFAULT_LIMIT), MAX_LIMIT);
+}
+
+function normalizeSortBy(value: unknown): MedicalRecordsSortBy {
+  return value === 'created_at' || value === 'date' ? value : 'date';
+}
+
+function normalizeOrder(value: unknown): MedicalRecordsOrder {
+  return value === 'ASC' || value === 'DESC' ? value : 'DESC';
+}
 
 function buildMedicalRecordsQuery(params: MedicalRecordsListParams = {}) {
   const query = new URLSearchParams();
@@ -19,8 +43,12 @@ function buildMedicalRecordsQuery(params: MedicalRecordsListParams = {}) {
     query.set('patientId', params.patientId.trim());
   }
 
-  const value = query.toString();
-  return value ? `?${value}` : '';
+  query.set('page', String(normalizePositiveInteger(params.page, DEFAULT_PAGE)));
+  query.set('limit', String(normalizeLimit(params.limit)));
+  query.set('sortBy', normalizeSortBy(params.sortBy));
+  query.set('order', normalizeOrder(params.order));
+
+  return `?${query.toString()}`;
 }
 
 function getObjectList(value: unknown, key: 'items' | 'data') {
@@ -50,6 +78,28 @@ function normalizeList<T>(value: unknown, normalizeItem: (item: unknown) => T) {
   }
 
   return [];
+}
+
+function normalizePaginatedMedicalRecords(
+  value: unknown,
+  params: MedicalRecordsListParams
+): PaginatedMedicalRecords {
+  const data = normalizeList(value, normalizeMedicalRecord);
+  const page = normalizePositiveInteger(getValue(value, ['page']), params.page ?? DEFAULT_PAGE);
+  const limit = normalizeLimit(getValue(value, ['limit']) ?? params.limit);
+  const total = normalizePositiveInteger(getValue(value, ['total']), data.length);
+  const totalPages = normalizePositiveInteger(
+    getValue(value, ['totalPages', 'total_pages']),
+    Math.max(1, Math.ceil(total / limit))
+  );
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+    totalPages,
+  };
 }
 
 function getValue(source: unknown, keys: string[]) {
@@ -143,16 +193,14 @@ export const MedicalRecordsApi = {
   list: (params: MedicalRecordsListParams = {}) =>
     api.core
       .get<unknown>(`${BASE}${buildMedicalRecordsQuery(params)}`)
-      .then((r) => normalizeList(r.data, normalizeMedicalRecord)),
+      .then((r) => normalizePaginatedMedicalRecords(r.data, params)),
 
   get: (id: string) =>
     api.core.get<unknown>(`${BASE}/${id}`).then((r) => normalizeMedicalRecord(r.data)),
 
   listPrescriptions: (medicalRecordId: string) =>
     api.core
-      .get<unknown>(
-        `${PRESCRIPTIONS_BASE}?medicalRecordId=${encodeURIComponent(medicalRecordId)}`
-      )
+      .get<unknown>(`${BASE}/${encodeURIComponent(medicalRecordId)}/prescriptions`)
       .then((r) => normalizeList(r.data, normalizePrescription)),
 
   createPrescription: (payload: CreatePrescriptionDTO) =>

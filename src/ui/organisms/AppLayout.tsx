@@ -1,7 +1,9 @@
 import clsx from 'clsx';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Button from '@/ui/atoms/Button';
+import EntityDetailsModal from '@/ui/organisms/EntityDetailsModal';
 import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import ThemeToggle from '@/ui/molecules/ThemeToggle';
 import PasswordFormModal from './PasswordFormModal';
@@ -10,7 +12,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useToast } from '@/app/contexts/ToastContext';
 import { authApi } from '@/libs/app/api';
-import { formatPersonName, getErrorMessage } from '@/libs/app/utils';
+import { formatPersonName, getErrorMessage, getValue, normalizeRoles } from '@/libs/app/utils';
 import { moduleOrder, moduleRouteMeta } from '@/config/moduleMeta';
 import { hasPermission, moduleKeyToAppModule } from '@/config/permissions';
 import type { ModuleKey } from '@/types/app';
@@ -37,6 +39,22 @@ const moduleDescriptions: Record<ModuleKey, ReturnType<typeof lt>> = {
     'Front desk accounts, access, and support staff',
     'Empfangskonten, Zugriffe und Frontdesk-Unterstützung'
   ),
+};
+
+const profileDetailsConfig = {
+  singular: lt('Profile', 'Profil'),
+  columns: [
+    { key: 'name', label: lt('Name', 'Name'), render: (item: any) => formatPersonName(item) },
+    { key: 'email', label: lt('Email', 'E-Mail'), render: (item: any) => String(getValue(item, 'email')) },
+    { key: 'username', label: lt('Username', 'Benutzername'), render: (item: any) => String(getValue(item, 'username')) || 'N/A' },
+    {
+      key: 'roles',
+      label: lt('Roles', 'Rollen'),
+      render: (item: any) => normalizeRoles(getValue(item, 'roles', 'role')).join(', ') || 'N/A',
+    },
+  ],
+  fields: [],
+  getItemTitle: (item: any) => formatPersonName(item) || String(getValue(item, 'email')),
 };
 
 function initialsFromUser(fullName: string, email?: string) {
@@ -147,6 +165,7 @@ function iconForKey(key: NavItem['key']) {
 
 export default function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const location = useLocation();
@@ -157,6 +176,12 @@ export default function AppLayout() {
   const fullName = formatPersonName(user) || 'MedSphere User';
   const initials = initialsFromUser(fullName, user?.email);
   const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Navigation schließen') : lt('Open navigation', 'Navigation öffnen'));
+  const profileQuery = useQuery({
+    queryKey: ['auth', 'me'],
+    queryFn: () => authApi.me(),
+    enabled: isProfileModalOpen,
+    staleTime: 30_000,
+  });
 
   const navigationItems: NavItem[] = [
     ...(
@@ -310,6 +335,14 @@ export default function AppLayout() {
               <Button
                 variant="ghost"
                 className="mt-3 h-10 w-full rounded-[16px] border-white/10 text-white hover:bg-white/10"
+                onClick={() => setIsProfileModalOpen(true)}
+              >
+                {t(commonCopy.profileDetails)}
+              </Button>
+
+              <Button
+                variant="ghost"
+                className="mt-3 h-10 w-full rounded-[16px] border-white/10 text-white hover:bg-white/10"
                 onClick={() => setIsPasswordModalOpen(true)}
               >
                 {t(commonCopy.changePassword)}
@@ -409,6 +442,16 @@ export default function AppLayout() {
             setIsChangingPassword(false);
           }
         }}
+      />
+
+      <EntityDetailsModal
+        open={isProfileModalOpen}
+        config={profileDetailsConfig}
+        item={profileQuery.data || user}
+        loading={profileQuery.isLoading}
+        error={profileQuery.error}
+        onClose={() => setIsProfileModalOpen(false)}
+        onRetry={() => profileQuery.refetch()}
       />
     </div>
   );

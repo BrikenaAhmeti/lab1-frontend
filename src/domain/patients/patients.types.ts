@@ -21,6 +21,7 @@ export type PatientsListParams = {
 
 export type PatientsListResponse = {
   items: Patient[];
+  data: Patient[];
   page: number;
   limit: number;
   total: number;

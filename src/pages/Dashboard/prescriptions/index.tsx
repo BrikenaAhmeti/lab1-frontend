@@ -361,8 +361,8 @@ export default function PrescriptionsPage() {
           onClick={() =>
             navigate(
               patientId
-                ? `/app/medical-records?patientId=${encodeURIComponent(patientId)}`
-                : '/app/medical-records'
+                ? `/medical-records?patientId=${encodeURIComponent(patientId)}`
+                : '/medical-records'
             )
           }
         >
@@ -481,7 +481,7 @@ export default function PrescriptionsPage() {
           {selectedPatientQuery.data ? (
             <Button
               variant="ghost"
-              onClick={() => navigate(`/app/patients/${selectedPatientQuery.data.id}`)}
+              onClick={() => navigate('/patients')}
             >
               {t('actions.viewPatient')}
             </Button>
@@ -491,8 +491,8 @@ export default function PrescriptionsPage() {
             onClick={() =>
               navigate(
                 patientId
-                  ? `/app/medical-records?patientId=${encodeURIComponent(patientId)}`
-                  : '/app/medical-records'
+                  ? `/medical-records?patientId=${encodeURIComponent(patientId)}`
+                  : '/medical-records'
               )
             }
           >

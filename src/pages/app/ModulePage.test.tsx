@@ -235,6 +235,21 @@ describe('ModulePage', () => {
     expect(await screen.findByText('Deleted successfully.')).toBeInTheDocument();
   });
 
+  it('opens a detail popup with the module get endpoint', async () => {
+    renderPage();
+
+    expect(await screen.findByText('Jane Doe')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Details' }));
+
+    await waitFor(() => {
+      expect(moduleConfigs.patients.service.get).toHaveBeenCalledWith('patient-1');
+    });
+
+    expect(await screen.findByRole('heading', { name: 'Details: Patient' })).toBeInTheDocument();
+    expect(screen.getByText('Main Street')).toBeInTheDocument();
+  });
+
   it('shows a friendly error toast when saving fails', async () => {
     moduleConfigs.patients.service = {
       ...moduleConfigs.patients.service,

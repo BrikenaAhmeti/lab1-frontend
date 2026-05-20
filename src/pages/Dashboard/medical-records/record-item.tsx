@@ -66,7 +66,7 @@ export default function MedicalRecordItem({
           <Button
             size="sm"
             variant="ghost"
-            onClick={() => navigate(`/app/patients/${record.patientId}`)}
+            onClick={() => navigate('/patients')}
           >
             {t('actions.viewPatient')}
           </Button>

@@ -10,6 +10,7 @@ import { commonCopy } from '@/config/copy';
 import DataTable from '@/ui/organisms/DataTable';
 import DeleteModal from '@/ui/organisms/DeleteModal';
 import EmptyState from '@/ui/molecules/EmptyState';
+import EntityDetailsModal from '@/ui/organisms/EntityDetailsModal';
 import EntityFormModal from '@/ui/organisms/EntityFormModal';
 import PasswordFormModal from '@/ui/organisms/PasswordFormModal';
 import PageHeader from '@/ui/molecules/PageHeader';
@@ -105,6 +106,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     item: null,
   });
   const [deleteItem, setDeleteItem] = useState<any>(null);
+  const [detailItem, setDetailItem] = useState<any>(null);
   const [passwordResetItem, setPasswordResetItem] = useState<any>(null);
   const { t } = useLanguage();
   const { user } = useAuth();
@@ -175,6 +177,13 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     queryKey: [moduleKey, 'detail', formState.item?.id],
     queryFn: () => config.service.get(String(formState.item?.id)),
     enabled: canRead && formState.open && formState.mode === 'edit' && Boolean(formState.item?.id),
+    staleTime: 30_000,
+  });
+
+  const detailPopupQuery = useQuery({
+    queryKey: [moduleKey, 'detail', detailItem?.id],
+    queryFn: () => config.service.get(String(detailItem?.id)),
+    enabled: canRead && Boolean(detailItem?.id),
     staleTime: 30_000,
   });
 
@@ -300,8 +309,16 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     setFormState({ open: true, mode: 'edit', item });
   }, []);
 
+  const openDetailModal = useCallback((item: any) => {
+    setDetailItem(item);
+  }, []);
+
   const closeFormModal = useCallback(() => {
     setFormState({ open: false, mode: 'create', item: null });
+  }, []);
+
+  const closeDetailModal = useCallback(() => {
+    setDetailItem(null);
   }, []);
 
   const updateSearchParams = useCallback(
@@ -353,6 +370,9 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const renderActions = useCallback(
     (item: any) => (
       <div className="flex flex-wrap gap-2">
+        <Button size="sm" variant="ghost" onClick={() => openDetailModal(item)}>
+          {t(commonCopy.details)}
+        </Button>
         {supportsAction(config, 'edit') && canUpdate ? (
           <Button size="sm" variant="outline" onClick={() => openEditModal(item)}>
             {t(commonCopy.edit)}
@@ -370,7 +390,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         ) : null}
       </div>
     ),
-    [canDelete, canUpdate, config, openEditModal, t]
+    [canDelete, canUpdate, config, openDetailModal, openEditModal, t]
   );
 
   const handlePageChange = useCallback(
@@ -398,6 +418,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     <Button onClick={openCreateModal}>{t(commonCopy.createNew)}</Button>
   ) : null;
   const hasTableActions =
+    canRead ||
     (supportsAction(config, 'edit') && canUpdate) ||
     (supportsAction(config, 'delete') && canDelete) ||
     Boolean(config.getPasswordUserId && canUpdate);
@@ -586,6 +607,16 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         onSubmit={(values) => {
           saveMutation.mutate(values);
         }}
+      />
+
+      <EntityDetailsModal
+        open={Boolean(detailItem)}
+        config={config}
+        item={detailPopupQuery.data || detailItem}
+        loading={detailPopupQuery.isLoading}
+        error={detailPopupQuery.error}
+        onClose={closeDetailModal}
+        onRetry={() => detailPopupQuery.refetch()}
       />
 
       <DeleteModal

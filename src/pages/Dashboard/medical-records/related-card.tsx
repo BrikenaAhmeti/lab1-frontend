@@ -69,7 +69,7 @@ export default function RelatedMedicalRecordsCard({
               size="sm"
               variant="secondary"
               onClick={() =>
-                navigate(`/app/medical-records/new?patientId=${encodeURIComponent(patientId)}`)
+                navigate(`/medical-records/new?patientId=${encodeURIComponent(patientId)}`)
               }
             >
               {t('actions.create')}
@@ -79,7 +79,7 @@ export default function RelatedMedicalRecordsCard({
             size="sm"
             variant="outline"
             onClick={() =>
-              navigate(`/app/medical-records?patientId=${encodeURIComponent(patientId)}`)
+              navigate(`/medical-records?patientId=${encodeURIComponent(patientId)}`)
             }
           >
             {t('actions.viewAll')}

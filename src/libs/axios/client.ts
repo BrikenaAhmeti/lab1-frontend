@@ -51,9 +51,11 @@ function build(key: ApiKey): AxiosInstance {
   const instance = axios.create({ baseURL: base[key], timeout: 20000 });
 
   instance.interceptors.request.use((cfg) => {
+    cfg.headers = cfg.headers ?? {};
+    cfg.headers['Content-Type'] = cfg.headers['Content-Type'] ?? 'application/json';
+
     const token = store.getState().auth.tokens?.accessToken;
     if (token) {
-      cfg.headers = cfg.headers ?? {};
       cfg.headers.Authorization = `Bearer ${token}`;
     }
     return cfg;

@@ -23,7 +23,14 @@ export const medicalRecordsKeys = {
 export function useMedicalRecords(patientId: string) {
   return useQuery<MedicalRecord[]>({
     queryKey: medicalRecordsKeys.list(patientId),
-    queryFn: () => MedicalRecordsApi.list({ patientId }),
+    queryFn: () =>
+      MedicalRecordsApi.list({
+        patientId,
+        page: 1,
+        limit: 10,
+        sortBy: 'date',
+        order: 'DESC',
+      }).then((response) => response.data),
     enabled: !!patientId,
   });
 }

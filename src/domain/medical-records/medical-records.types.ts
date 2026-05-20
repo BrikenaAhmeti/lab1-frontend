@@ -36,8 +36,24 @@ export type Prescription = {
   updatedAt: string;
 };
 
+export type PaginatedMedicalRecords = {
+  data: MedicalRecord[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+export type MedicalRecordsSortBy = 'created_at' | 'date';
+
+export type MedicalRecordsOrder = 'ASC' | 'DESC';
+
 export type MedicalRecordsListParams = {
   patientId?: string;
+  page?: number;
+  limit?: number;
+  sortBy?: MedicalRecordsSortBy;
+  order?: MedicalRecordsOrder;
 };
 
 export type CreateMedicalRecordDTO = {

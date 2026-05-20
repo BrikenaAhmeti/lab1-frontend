@@ -169,7 +169,7 @@ export default function MedicalRecordsListPage() {
         {canManage ? (
           <Button
             onClick={() =>
-              navigate(`/app/medical-records/new?patientId=${encodeURIComponent(patientId)}`)
+              navigate(`/medical-records/new?patientId=${encodeURIComponent(patientId)}`)
             }
           >
             {t('actions.create')}
@@ -188,7 +188,7 @@ export default function MedicalRecordsListPage() {
             deleting={deleteMedicalRecord.isPending && deleteMedicalRecord.variables === record.id}
             onEdit={(nextRecord) =>
               navigate(
-                `/app/medical-records/${nextRecord.id}/edit?patientId=${encodeURIComponent(nextRecord.patientId)}`
+                `/medical-records/${nextRecord.id}/edit?patientId=${encodeURIComponent(nextRecord.patientId)}`
               )
             }
             onDelete={handleDelete}
@@ -210,7 +210,7 @@ export default function MedicalRecordsListPage() {
           {selectedPatientQuery.data ? (
             <Button
               variant="ghost"
-              onClick={() => navigate(`/app/patients/${selectedPatientQuery.data?.id}`)}
+              onClick={() => navigate('/patients')}
             >
               {t('actions.viewPatient')}
             </Button>
@@ -221,8 +221,8 @@ export default function MedicalRecordsListPage() {
               onClick={() =>
                 navigate(
                   patientId
-                    ? `/app/medical-records/new?patientId=${encodeURIComponent(patientId)}`
-                    : '/app/medical-records/new'
+                    ? `/medical-records/new?patientId=${encodeURIComponent(patientId)}`
+                    : '/medical-records/new'
                 )
               }
             >
