@@ -14,6 +14,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -57,6 +58,9 @@ export type SelectProps = Omit<SelectHTMLAttributes<HTMLSelectElement>, 'childre
   searchPlaceholder?: string;
 };
 
+const PANEL_MAX_HEIGHT = 240;
+const VIEWPORT_GAP = 12;
+
 const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
   {
     label,
@@ -92,6 +96,10 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [highlightIdx, setHighlightIdx] = useState(-1);
+  const [panelPlacement, setPanelPlacement] = useState<{
+    side: 'top' | 'bottom';
+    maxHeight: number;
+  }>({ side: 'bottom', maxHeight: PANEL_MAX_HEIGHT });
 
   const isControlled = valueProp !== undefined;
   const [internalValue, setInternalValue] = useState(() =>
@@ -139,6 +147,36 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
   }, [current, pickableRows, placeholderOption]);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
+
+  const updatePanelPlacement = useCallback(() => {
+    const root = rootRef.current;
+    if (!root) return;
+
+    const rect = root.getBoundingClientRect();
+    const below = Math.max(0, window.innerHeight - rect.bottom - VIEWPORT_GAP);
+    const above = Math.max(0, rect.top - VIEWPORT_GAP);
+    const shouldOpenUp = below < PANEL_MAX_HEIGHT && above > below;
+    const availableSpace = shouldOpenUp ? above : below;
+
+    setPanelPlacement({
+      side: shouldOpenUp ? 'top' : 'bottom',
+      maxHeight: Math.max(0, Math.min(PANEL_MAX_HEIGHT, availableSpace)),
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    updatePanelPlacement();
+
+    window.addEventListener('resize', updatePanelPlacement);
+    window.addEventListener('scroll', updatePanelPlacement, true);
+
+    return () => {
+      window.removeEventListener('resize', updatePanelPlacement);
+      window.removeEventListener('scroll', updatePanelPlacement, true);
+    };
+  }, [open, updatePanelPlacement]);
 
   const emitChange = useCallback(
     (nextRaw: string) => {
@@ -305,9 +343,13 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
           <div
             id={listboxId}
             role="listbox"
-            className="absolute left-0 right-0 z-50 mt-1 max-h-60 overflow-hidden rounded-xl border border-border bg-card py-2 shadow-soft"
+            className={clsx(
+              'absolute left-0 right-0 z-50 flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-soft',
+              panelPlacement.side === 'top' ? 'bottom-full mb-1' : 'top-full mt-1'
+            )}
+            style={{ maxHeight: panelPlacement.maxHeight }}
           >
-            <div className="border-b border-border/70 px-2 pb-2">
+            <div className="shrink-0 border-b border-border/70 px-2 pb-2 pt-2">
               <input
                 autoFocus
                 type="text"
@@ -319,7 +361,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
                 onMouseDown={(e) => e.stopPropagation()}
               />
             </div>
-            <ul className="max-h-[11.5rem] overflow-y-auto px-2 pt-2">
+            <ul className="min-h-0 flex-1 overflow-y-auto px-2 py-2">
               {filteredPickable.length === 0 ? (
                 <li className="px-2 py-2 text-sm text-muted-foreground">No matches</li>
               ) : (
