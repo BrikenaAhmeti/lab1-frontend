@@ -3,7 +3,7 @@ const withFallback = (value: string | undefined, fallback: string) => {
   return trimmed && trimmed.length > 0 ? trimmed : fallback;
 };
 
-const defaultCore = 'http://localhost:3006';
+const defaultCore = 'http://localhost:3005';
 
 export const env = {
   API_CORE: withFallback(import.meta.env.VITE_API_CORE as string | undefined, defaultCore),

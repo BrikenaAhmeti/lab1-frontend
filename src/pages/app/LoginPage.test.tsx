@@ -49,8 +49,9 @@ describe('LoginPage', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
 
-    expect(await screen.findByRole('status')).toHaveTextContent(
+    expect(await screen.findByRole('alert')).toHaveTextContent(
       'Too many login attempts, please try again in 15 minutes'
     );
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 });

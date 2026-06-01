@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
@@ -34,6 +35,7 @@ export default function LoginPage() {
   const { ready, isAuthenticated, login, errorMessage } = useAuth();
   const { t } = useLanguage();
   const { showToast } = useToast();
+  const [loginError, setLoginError] = useState('');
   const form = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -230,25 +232,31 @@ export default function LoginPage() {
             <form
               className="mt-6 space-y-4"
               onSubmit={form.handleSubmit(async (values) => {
+                setLoginError('');
+
                 try {
                   await login(values);
                   showToast(t(commonCopy.loginSuccess), 'success');
                   navigate(redirectTo, { replace: true });
                 } catch (error) {
-                  showToast(errorMessage(error, t), 'error');
+                  setLoginError(errorMessage(error, t));
                 }
               })}
             >
               <Input
                 label={t(commonCopy.identifier)}
                 error={String(form.formState.errors.identifier?.message || '')}
-                {...form.register('identifier')}
+                {...form.register('identifier', {
+                  onChange: () => setLoginError(''),
+                })}
               />
               <Input
                 type="password"
                 label={t(commonCopy.password)}
                 error={String(form.formState.errors.password?.message || '')}
-                {...form.register('password')}
+                {...form.register('password', {
+                  onChange: () => setLoginError(''),
+                })}
               />
               <Button
                 type="submit"
@@ -257,6 +265,14 @@ export default function LoginPage() {
               >
                 {t(commonCopy.signIn)}
               </Button>
+              {loginError ? (
+                <p
+                  role="alert"
+                  className="rounded-2xl border border-danger/25 bg-danger/10 px-4 py-3 text-sm font-medium text-danger"
+                >
+                  {loginError}
+                </p>
+              ) : null}
             </form>
 
             <div className="mt-5 rounded-[26px] border border-border/60 bg-background/65 p-4">

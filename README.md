@@ -20,7 +20,7 @@ Optional environment overrides (Vite). Restart the dev server after changing `.e
 
 - Create a `.env` file (see `.env.example` for the format).
 - Supported variables:
-  - `VITE_API_CORE` (default: `http://localhost:3006`)
+  - `VITE_API_CORE` (default: `http://localhost:3005`)
   - `VITE_API_DEVICE_INFO` (optional, defaults to `VITE_API_CORE`)
   - `VITE_API_URL` (optional HMS API, defaults to `VITE_API_CORE`)
 
