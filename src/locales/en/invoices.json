@@ -34,6 +34,8 @@
   },
   "fields": {
     "patient": "Patient",
+    "appointmentId": "Appointment ID",
+    "admissionId": "Admission ID",
     "amount": "Amount",
     "date": "Date",
     "description": "Description"
@@ -65,7 +67,8 @@
   "validation": {
     "required": "This field is required.",
     "amount": "Enter an amount greater than 0.",
-    "date": "Enter a valid date."
+    "date": "Enter a valid date.",
+    "singleCareEvent": "Use either appointment ID or admission ID, not both."
   },
   "states": {
     "loadingTitle": "Loading invoices",

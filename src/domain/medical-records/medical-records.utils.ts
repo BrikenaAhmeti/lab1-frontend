@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { isTechnicalMessage } from '@/libs/app/utils';
 import type { Doctor } from '@/domain/doctors/doctors.types';
 import type { Patient } from '@/domain/patients/patients.types';
 import type { MedicalRecord } from './medical-records.types';
@@ -41,7 +42,7 @@ export function getMedicalRecordApiMessage(
     return message;
   }
 
-  if (typeof error.message === 'string' && error.message.trim()) {
+  if (typeof error.message === 'string' && error.message.trim() && !isTechnicalMessage(error.message)) {
     return error.message;
   }
 

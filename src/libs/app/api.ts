@@ -13,6 +13,7 @@ const AUTH_BASE = '/api/auth';
 
 export const apiClient = axios.create({
   baseURL,
+  withCredentials: true,
 });
 
 const authClient = axios.create({
@@ -21,19 +22,16 @@ const authClient = axios.create({
 });
 
 let getAccessToken = () => '';
-let getRefreshToken = () => '';
 let onRefreshSuccess: (payload: AuthPayload) => void = () => {};
 let onRefreshFailure = () => {};
 let refreshRequest: Promise<AuthPayload> | null = null;
 
 export function configureApiClient(config: {
   getAccessToken: () => string;
-  getRefreshToken: () => string;
   onRefreshSuccess: (payload: AuthPayload) => void;
   onRefreshFailure: () => void;
 }) {
   getAccessToken = config.getAccessToken;
-  getRefreshToken = config.getRefreshToken;
   onRefreshSuccess = config.onRefreshSuccess;
   onRefreshFailure = config.onRefreshFailure;
 }
@@ -56,16 +54,20 @@ apiClient.interceptors.response.use(
     const isUnauthorized = error.response?.status === 401;
     const isRefreshCall = String(originalRequest?.url || '').includes('/auth/refresh');
 
-    if (!isUnauthorized || originalRequest?._retry || isRefreshCall) {
+    if (!isUnauthorized || isRefreshCall) {
+      throw error;
+    }
+
+    if (originalRequest?._retry) {
+      onRefreshFailure();
       throw error;
     }
 
     originalRequest._retry = true;
 
     if (!refreshRequest) {
-      const refreshToken = getRefreshToken();
       refreshRequest = authClient
-        .post<AuthPayload>(`${AUTH_BASE}/refresh`, refreshToken ? { refreshToken } : {})
+        .post<AuthPayload>(`${AUTH_BASE}/refresh`)
         .then((response) => response.data)
         .finally(() => {
           refreshRequest = null;
@@ -90,11 +92,8 @@ export const authApi = {
     const response = await authClient.post<AuthPayload>(`${AUTH_BASE}/login`, payload);
     return response.data;
   },
-  refresh: async (refreshToken?: string) => {
-    const response = await authClient.post<AuthPayload>(
-      `${AUTH_BASE}/refresh`,
-      refreshToken ? { refreshToken } : {}
-    );
+  refresh: async () => {
+    const response = await authClient.post<AuthPayload>(`${AUTH_BASE}/refresh`);
     return response.data;
   },
   logout: async () => {

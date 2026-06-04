@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { isTechnicalMessage } from '@/libs/app/utils';
 import type { RoomStatus, RoomType } from './rooms.types';
 import { roomStatusValues, roomTypeValues } from './rooms.types';
 
@@ -64,7 +65,7 @@ export function getRoomApiMessage(error: unknown, fallback: string) {
     return messages.join(', ');
   }
 
-  if (typeof error.message === 'string' && error.message.trim()) {
+  if (typeof error.message === 'string' && error.message.trim() && !isTechnicalMessage(error.message)) {
     return error.message;
   }
 

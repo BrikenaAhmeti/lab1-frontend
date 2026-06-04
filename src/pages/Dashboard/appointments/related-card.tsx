@@ -13,6 +13,8 @@ import { useDoctors } from '@/domain/doctors/doctors.hooks';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import EmptyState from '@/ui/molecules/EmptyState';
+import ListSkeleton from '@/ui/molecules/ListSkeleton';
 
 type RelatedAppointmentsCardProps = {
   patientId?: string;
@@ -39,27 +41,24 @@ export default function RelatedAppointmentsCard({
   let content = null;
 
   if (appointmentsQuery.isLoading) {
-    content = <p className="text-sm text-muted-foreground">{t('related.loading')}</p>;
+    content = <ListSkeleton items={2} />;
   } else if (appointmentsQuery.error) {
     content = (
-      <div className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
-        <div>{getAppointmentApiMessage(appointmentsQuery.error, t('errors.list'))}</div>
-        <Button
-          size="sm"
-          variant="outline"
-          className="mt-3"
-          onClick={() => appointmentsQuery.refetch()}
-        >
-          {t('actions.retry')}
-        </Button>
-      </div>
+      <EmptyState
+        compact
+        tone="error"
+        title={t('states.errorTitle')}
+        description={getAppointmentApiMessage(appointmentsQuery.error, t('errors.list'))}
+        action={
+          <Button size="sm" variant="outline" onClick={() => appointmentsQuery.refetch()}>
+            {t('actions.retry')}
+          </Button>
+        }
+      />
     );
   } else if (!results.length) {
     content = (
-      <div className="rounded-2xl border border-border/70 bg-background/45 px-4 py-5">
-        <p className="text-sm font-semibold text-foreground">{t('related.emptyTitle')}</p>
-        <p className="mt-1 text-sm text-muted-foreground">{t('related.emptyDescription')}</p>
-      </div>
+      <EmptyState compact title={t('related.emptyTitle')} description={t('related.emptyDescription')} />
     );
   } else {
     content = (

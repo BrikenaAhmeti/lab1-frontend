@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { isTechnicalMessage } from '@/libs/app/utils';
 import type { Admission, AdmissionRoom, AdmissionStatus } from './admissions.types';
 import { admissionStatusValues } from './admissions.types';
 
@@ -45,7 +46,7 @@ export function getAdmissionApiMessage(error: unknown, fallback: string) {
     return messages.join(', ');
   }
 
-  if (typeof error.message === 'string' && error.message.trim()) {
+  if (typeof error.message === 'string' && error.message.trim() && !isTechnicalMessage(error.message)) {
     return error.message;
   }
 

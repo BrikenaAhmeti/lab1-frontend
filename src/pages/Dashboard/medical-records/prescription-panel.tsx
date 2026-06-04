@@ -10,6 +10,8 @@ import type { Prescription } from '@/domain/medical-records/medical-records.type
 import { getMedicalRecordApiMessage } from '@/domain/medical-records/medical-records.utils';
 import Button from '@/ui/atoms/Button';
 import Input from '@/ui/atoms/Input';
+import EmptyState from '@/ui/molecules/EmptyState';
+import ListSkeleton from '@/ui/molecules/ListSkeleton';
 import Textarea from '@/ui/atoms/Textarea';
 
 type PrescriptionPanelProps = {
@@ -273,28 +275,40 @@ export default function PrescriptionPanel({
       ) : null}
 
       {prescriptionsQuery.isLoading ? (
-        <p className="mt-4 text-sm text-muted-foreground">{t('prescriptions.loading')}</p>
+        <ListSkeleton items={2} className="mt-4" />
       ) : prescriptionsQuery.error ? (
-        <div className="mt-4 rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
-          <div>{getMedicalRecordApiMessage(prescriptionsQuery.error, t('errors.prescriptions'))}</div>
-          <Button
-            size="sm"
-            variant="outline"
-            className="mt-3 print:hidden"
-            onClick={() => prescriptionsQuery.refetch()}
-          >
-            {t('actions.retry')}
-          </Button>
+        <div className="mt-4">
+          <EmptyState
+            compact
+            tone="error"
+            title={t('states.errorTitle')}
+            description={getMedicalRecordApiMessage(prescriptionsQuery.error, t('errors.prescriptions'))}
+            action={
+              <Button
+                size="sm"
+                variant="outline"
+                className="print:hidden"
+                onClick={() => prescriptionsQuery.refetch()}
+              >
+                {t('actions.retry')}
+              </Button>
+            }
+          />
         </div>
       ) : !prescriptions.length ? (
-        <div className="mt-4 rounded-2xl border border-border/70 bg-background/70 px-4 py-5">
-          <p className="text-sm font-semibold text-foreground">{t('prescriptions.emptyTitle')}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{t('prescriptions.empty')}</p>
-          {canManage ? (
-            <Button size="sm" className="mt-4 print:hidden" onClick={handleCreateClick}>
-              {t('actions.addPrescription')}
-            </Button>
-          ) : null}
+        <div className="mt-4">
+          <EmptyState
+            compact
+            title={t('prescriptions.emptyTitle')}
+            description={t('prescriptions.empty')}
+            action={
+              canManage ? (
+                <Button size="sm" className="print:hidden" onClick={handleCreateClick}>
+                  {t('actions.addPrescription')}
+                </Button>
+              ) : null
+            }
+          />
         </div>
       ) : (
         <div className="mt-4 space-y-3">

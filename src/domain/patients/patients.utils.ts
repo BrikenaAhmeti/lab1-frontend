@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { isTechnicalMessage } from '@/libs/app/utils';
 import type { PatientBloodType, PatientGender } from './patients.types';
 
 export const patientGenders: PatientGender[] = ['MALE', 'FEMALE', 'OTHER'];
@@ -26,7 +27,7 @@ export function getPatientApiMessage(error: unknown, fallback: string) {
     return message;
   }
 
-  if (typeof error.message === 'string' && error.message.trim()) {
+  if (typeof error.message === 'string' && error.message.trim() && !isTechnicalMessage(error.message)) {
     return error.message;
   }
 

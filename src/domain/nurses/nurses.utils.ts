@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { isTechnicalMessage } from '@/libs/app/utils';
 import type { Nurse, NurseShift } from './nurses.types';
 import { nurseShiftValues } from './nurses.types';
 
@@ -57,7 +58,7 @@ export function getNurseApiMessage(error: unknown, fallback: string) {
     return messages.join(', ');
   }
 
-  if (typeof error.message === 'string' && error.message.trim()) {
+  if (typeof error.message === 'string' && error.message.trim() && !isTechnicalMessage(error.message)) {
     return error.message;
   }
 

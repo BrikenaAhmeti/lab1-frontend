@@ -863,8 +863,8 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     label: lt('Medical records', 'Krankenakten'),
     singular: lt('Medical record', 'Krankenakte'),
     description: lt(
-      'Manage diagnosis, treatment, and prescription summaries.',
-      'Verwalten Sie Diagnosen, Behandlungen und Rezeptzusammenfassungen.'
+      'Manage diagnosis and treatment records.',
+      'Verwalten Sie Diagnosen und Behandlungen.'
     ),
     endpoint: '/api/medical-records',
     service: createCrudService(
@@ -893,7 +893,6 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       { name: 'date', label: lt('Record date', 'Akten-Datum'), type: 'date' },
       { name: 'diagnosis', label: lt('Diagnosis', 'Diagnose'), type: 'textarea' },
       { name: 'treatment', label: lt('Treatment', 'Behandlung'), type: 'textarea' },
-      { name: 'prescriptionsText', label: lt('Prescription summary', 'Rezeptzusammenfassung'), type: 'textarea' },
     ],
     columns: [
       { key: 'patient', label: lt('Patient', 'Patient'), render: (item) => getPatientName(item) || String(getValue(item, 'patientId')) },
@@ -907,7 +906,6 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       date: requiredString(),
       diagnosis: requiredString(),
       treatment: requiredString(),
-      prescriptionsText: z.string().optional(),
     }),
     cleanPayload: (values) => stripEmptyValues(values),
     getItemTitle: (item) => `${getPatientName(item)} - ${getValue(item, 'date', 'recordDate')}`,

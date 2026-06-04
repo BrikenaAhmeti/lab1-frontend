@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { Transaction, Page, CreateTransactionDTO, UpdateTransactionDTO, TransactionId } from './transactions.types';
 import { TransactionsApi } from './transactions.api';
+import { isTechnicalMessage } from '@/libs/app/utils';
 
 type State = {
   page: Page<Transaction> | null;
@@ -10,6 +11,11 @@ type State = {
 };
 
 const initialState: State = { page: null, byId: {}, loading: false };
+const fallbackListError = 'Unable to load transactions.';
+
+function getDisplayError(message?: string) {
+  return message && !isTechnicalMessage(message) ? message : fallbackListError;
+}
 
 export const fetchTransactions = createAsyncThunk(
   'transactions/fetch',
@@ -48,7 +54,7 @@ const slice = createSlice({
         s.loading = false; s.page = a.payload;
         for (const t of a.payload.items) s.byId[t.id] = t;
      })
-     .addCase(fetchTransactions.rejected, (s, a) => { s.loading = false; s.error = a.error.message; })
+     .addCase(fetchTransactions.rejected, (s, a) => { s.loading = false; s.error = getDisplayError(a.error.message); })
 
      .addCase(fetchTransaction.fulfilled, (s, a: PayloadAction<Transaction>) => { s.byId[a.payload.id] = a.payload; })
 

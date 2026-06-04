@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { isTechnicalMessage } from '@/libs/app/utils';
 import type { Appointment, AppointmentStatus } from './appointments.types';
 
 export const appointmentStatuses: AppointmentStatus[] = ['Scheduled', 'Completed', 'Cancelled'];
@@ -32,7 +33,7 @@ export function getAppointmentApiMessage(
     return message;
   }
 
-  if (typeof error.message === 'string' && error.message.trim()) {
+  if (typeof error.message === 'string' && error.message.trim() && !isTechnicalMessage(error.message)) {
     return error.message;
   }
 

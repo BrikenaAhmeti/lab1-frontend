@@ -19,6 +19,7 @@ import Textarea from '@/ui/atoms/Textarea';
 import PatientStateCard from './state-card';
 
 type PatientFormValues = {
+  userId: string;
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -29,6 +30,7 @@ type PatientFormValues = {
 };
 
 const emptyForm: PatientFormValues = {
+  userId: '',
   firstName: '',
   lastName: '',
   dateOfBirth: '',
@@ -80,6 +82,7 @@ export default function PatientFormPage() {
     }
 
     setForm({
+      userId: patientQuery.data.userId ?? '',
       firstName: patientQuery.data.firstName,
       lastName: patientQuery.data.lastName,
       dateOfBirth: patientQuery.data.dateOfBirth,
@@ -107,6 +110,7 @@ export default function PatientFormPage() {
     }
 
     const payload = {
+      userId: form.userId.trim() || null,
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       dateOfBirth: form.dateOfBirth,
@@ -203,6 +207,12 @@ export default function PatientFormPage() {
       <Card title={t('form.formTitle')} description={t('form.formDescription')}>
         <form className="space-y-4" noValidate onSubmit={handleSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
+            <Input
+              name="userId"
+              label={t('fields.userId')}
+              value={form.userId}
+              onChange={(event) => handleChange('userId', event.target.value)}
+            />
             <Input
               required
               name="firstName"

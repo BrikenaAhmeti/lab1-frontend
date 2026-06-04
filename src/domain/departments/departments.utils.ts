@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { isTechnicalMessage } from '@/libs/app/utils';
 
 export function getDepartmentApiStatus(error: unknown) {
   return isAxiosError(error) ? error.response?.status : undefined;
@@ -19,7 +20,7 @@ export function getDepartmentApiMessage(error: unknown, fallback: string) {
     return message;
   }
 
-  if (typeof error.message === 'string' && error.message.trim()) {
+  if (typeof error.message === 'string' && error.message.trim() && !isTechnicalMessage(error.message)) {
     return error.message;
   }
 

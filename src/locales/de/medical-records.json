@@ -28,7 +28,6 @@
     "patientSearchPlaceholder": "Patientenoptionen durchsuchen",
     "patientPlaceholder": "Patient auswählen",
     "doctorPlaceholder": "Arzt auswählen",
-    "prescriptionsPlaceholder": "Falls nötig, eine kurze Verschreibungsnotiz hinzufügen",
     "inactiveDoctorHint": "Dieser Arzt ist nicht mehr aktiv. Wählen Sie vor dem Speichern einen aktiven Arzt aus."
   },
   "actions": {
@@ -57,7 +56,6 @@
     "doctor": "Arzt",
     "diagnosis": "Diagnose",
     "treatment": "Behandlung",
-    "prescriptionsText": "Verschreibungsnotizen",
     "recordDate": "Eintragsdatum",
     "medicine": "Medikament",
     "dosage": "Dosierung",
@@ -69,7 +67,6 @@
     "loadingPatients": "Patienten werden geladen...",
     "loadingDoctors": "Ärzte werden geladen...",
     "notAvailable": "Nicht verfügbar",
-    "noPrescriptionsText": "Keine Verschreibungsnotizen hinzugefügt.",
     "noInstructions": "Keine Anweisungen hinzugefügt.",
     "inactiveDoctorSuffix": "(inaktiv)"
   },

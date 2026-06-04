@@ -7,6 +7,8 @@ import Textarea from '@/ui/atoms/Textarea';
 
 export type InvoiceFormValues = {
   patientId: string;
+  appointmentId: string;
+  admissionId: string;
   amount: string;
   invoiceDate: string;
   description: string;
@@ -67,6 +69,22 @@ export default function InvoiceForm({
               </option>
             ))}
           </Select>
+
+          <Input
+            label={t('fields.appointmentId')}
+            name="appointmentId"
+            value={form.appointmentId}
+            error={errors.appointmentId}
+            onChange={(event) => onChange('appointmentId', event.target.value)}
+          />
+
+          <Input
+            label={t('fields.admissionId')}
+            name="admissionId"
+            value={form.admissionId}
+            error={errors.admissionId}
+            onChange={(event) => onChange('admissionId', event.target.value)}
+          />
 
           <Input
             label={t('fields.amount')}

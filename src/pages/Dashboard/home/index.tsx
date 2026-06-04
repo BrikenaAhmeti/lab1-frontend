@@ -27,6 +27,8 @@ import { formatCurrency } from '@/utils/formatters/currency';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import EmptyState from '@/ui/molecules/EmptyState';
+import ListSkeleton from '@/ui/molecules/ListSkeleton';
 
 type SummaryCardProps = {
   title: string;
@@ -136,12 +138,17 @@ export default function Home() {
       </div>
 
       {statsQuery.error ? (
-        <div className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
-          <div>{t('dashboard:summary.error')}</div>
-          <Button size="sm" variant="outline" className="mt-3" onClick={() => statsQuery.refetch()}>
-            {t('dashboard:actions.retry')}
-          </Button>
-        </div>
+        <EmptyState
+          compact
+          tone="error"
+          title={t('dashboard:summary.error')}
+          description={t('dashboard:summary.unavailable')}
+          action={
+            <Button size="sm" variant="outline" onClick={() => statsQuery.refetch()}>
+              {t('dashboard:actions.retry')}
+            </Button>
+          }
+        />
       ) : null}
 
       {(statsQuery.isFetching || appointmentsQuery.isFetching || admissionsQuery.isFetching) &&
@@ -172,33 +179,28 @@ export default function Home() {
           }
         >
           {appointmentsQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">{t('dashboard:states.loading')}</p>
+            <ListSkeleton items={2} />
           ) : appointmentsQuery.error ? (
-            <div className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
-              <div>
-                {getAppointmentApiMessage(
-                  appointmentsQuery.error,
-                  t('dashboard:states.appointmentsError')
-                )}
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="mt-3"
-                onClick={() => appointmentsQuery.refetch()}
-              >
-                {t('dashboard:actions.retry')}
-              </Button>
-            </div>
+            <EmptyState
+              compact
+              tone="error"
+              title={t('dashboard:summary.error')}
+              description={getAppointmentApiMessage(
+                appointmentsQuery.error,
+                t('dashboard:states.appointmentsError')
+              )}
+              action={
+                <Button size="sm" variant="outline" onClick={() => appointmentsQuery.refetch()}>
+                  {t('dashboard:actions.retry')}
+                </Button>
+              }
+            />
           ) : !appointmentsQuery.data?.length ? (
-            <div className="rounded-2xl border border-border/70 bg-background/45 px-4 py-5">
-              <p className="text-sm font-semibold text-foreground">
-                {t('dashboard:states.appointmentsEmptyTitle')}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t('dashboard:states.appointmentsEmptyDescription')}
-              </p>
-            </div>
+            <EmptyState
+              compact
+              title={t('dashboard:states.appointmentsEmptyTitle')}
+              description={t('dashboard:states.appointmentsEmptyDescription')}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-[640px] w-full text-left text-sm">
@@ -258,30 +260,25 @@ export default function Home() {
           }
         >
           {admissionsQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">{t('dashboard:states.loading')}</p>
+            <ListSkeleton items={2} />
           ) : admissionsQuery.error ? (
-            <div className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
-              <div>
-                {getAdmissionApiMessage(admissionsQuery.error, t('dashboard:states.admissionsError'))}
-              </div>
-              <Button
-                size="sm"
-                variant="outline"
-                className="mt-3"
-                onClick={() => admissionsQuery.refetch()}
-              >
-                {t('dashboard:actions.retry')}
-              </Button>
-            </div>
+            <EmptyState
+              compact
+              tone="error"
+              title={t('dashboard:summary.error')}
+              description={getAdmissionApiMessage(admissionsQuery.error, t('dashboard:states.admissionsError'))}
+              action={
+                <Button size="sm" variant="outline" onClick={() => admissionsQuery.refetch()}>
+                  {t('dashboard:actions.retry')}
+                </Button>
+              }
+            />
           ) : !admissionsQuery.data?.length ? (
-            <div className="rounded-2xl border border-border/70 bg-background/45 px-4 py-5">
-              <p className="text-sm font-semibold text-foreground">
-                {t('dashboard:states.admissionsEmptyTitle')}
-              </p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {t('dashboard:states.admissionsEmptyDescription')}
-              </p>
-            </div>
+            <EmptyState
+              compact
+              title={t('dashboard:states.admissionsEmptyTitle')}
+              description={t('dashboard:states.admissionsEmptyDescription')}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-[700px] w-full text-left text-sm">

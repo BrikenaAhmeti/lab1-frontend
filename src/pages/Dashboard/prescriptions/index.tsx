@@ -31,6 +31,7 @@ import Card from '@/ui/atoms/Card';
 import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
 import Textarea from '@/ui/atoms/Textarea';
+import EmptyState from '@/ui/molecules/EmptyState';
 
 type PrescriptionFormValues = {
   medicine: string;
@@ -58,9 +59,7 @@ function PrescriptionsStateCard({
   children,
 }: PrescriptionsStateCardProps) {
   return (
-    <Card title={title} description={description}>
-      {children}
-    </Card>
+    <EmptyState compact title={title} description={description} action={children} />
   );
 }
 

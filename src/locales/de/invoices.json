@@ -34,6 +34,8 @@
   },
   "fields": {
     "patient": "Patient",
+    "appointmentId": "Termin-ID",
+    "admissionId": "Aufnahme-ID",
     "amount": "Betrag",
     "date": "Datum",
     "description": "Beschreibung"
@@ -65,7 +67,8 @@
   "validation": {
     "required": "Dieses Feld ist erforderlich.",
     "amount": "Geben Sie einen Betrag größer als 0 ein.",
-    "date": "Geben Sie ein gültiges Datum ein."
+    "date": "Geben Sie ein gültiges Datum ein.",
+    "singleCareEvent": "Verwenden Sie entweder Termin-ID oder Aufnahme-ID, nicht beide."
   },
   "states": {
     "loadingTitle": "Rechnungen werden geladen",

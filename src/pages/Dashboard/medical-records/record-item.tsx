@@ -42,21 +42,13 @@ export default function MedicalRecordItem({
         <Badge variant="secondary">{formatMedicalRecordDate(record.recordDate, i18n.language)}</Badge>
       </div>
 
-      <div className="mt-4 grid gap-4 md:grid-cols-2">
+      <div className="mt-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {t('fields.treatment')}
           </p>
           <p className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground">
             {record.treatment}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t('fields.prescriptionsText')}
-          </p>
-          <p className="mt-1 whitespace-pre-wrap break-words text-sm text-foreground">
-            {record.prescriptionsText?.trim() || t('labels.noPrescriptionsText')}
           </p>
         </div>
       </div>

@@ -6,9 +6,7 @@ import { useAppSelector } from '@/app/hooks';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user } = useAppSelector((s) => s.auth);
-  const storedRole = localStorage.getItem('role');
-  const roles = user?.roles?.length ? user.roles : storedRole ? [storedRole] : [];
-  const normalizedRoles = roles.map((role) => role.toUpperCase());
+  const normalizedRoles = (user?.roles ?? []).map((role) => role.toUpperCase());
   const showRightSidebar = normalizedRoles.includes('ADMIN') || normalizedRoles.includes('ADMINS');
 
   return (

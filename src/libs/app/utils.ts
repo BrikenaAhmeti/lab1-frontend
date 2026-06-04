@@ -142,7 +142,7 @@ function getApiMessage(error: any) {
   return '';
 }
 
-function isTechnicalMessage(message: string) {
+export function isTechnicalMessage(message: string) {
   const normalized = message.trim().toLowerCase();
 
   return (
@@ -169,7 +169,7 @@ export function getErrorMessage(error: any, translate?: (value: LocalizedText) =
     return resolveCopy(commonCopy.loginRateLimitError, translate);
   }
 
-  if (apiMessage) {
+  if (apiMessage && !isTechnicalMessage(apiMessage)) {
     return apiMessage;
   }
 

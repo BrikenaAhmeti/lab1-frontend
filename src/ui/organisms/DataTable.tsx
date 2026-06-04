@@ -2,6 +2,7 @@ import { memo, type ReactNode } from 'react';
 import type { ColumnConfig } from '@/types/app';
 import { commonCopy } from '@/config/copy';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import EmptyState from '@/ui/molecules/EmptyState';
 import TableSkeleton from '@/ui/molecules/TableSkeleton';
 
 type DataTableProps = {
@@ -16,6 +17,10 @@ function DataTable({ rows, columns, loading = false, actions }: DataTableProps) 
 
   if (loading) {
     return <TableSkeleton columns={columns.length + (actions ? 1 : 0)} />;
+  }
+
+  if (!rows.length) {
+    return <EmptyState compact title={t(commonCopy.emptyTitle)} description={t(commonCopy.noItems)} />;
   }
 
   return (

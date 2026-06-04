@@ -20,14 +20,7 @@ function clearStoredSession() {
 }
 
 function clearLegacySession() {
-  const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-  if (raw) {
-    clearStoredSession();
-  }
-}
-
-function persistUserRole(session: AuthSession) {
-  localStorage.setItem(ROLE_STORAGE_KEY, session.user.roles[0] ?? '');
+  clearStoredSession();
 }
 
 clearLegacySession();
@@ -44,7 +37,6 @@ const initialState: AuthState = {
 function applySession(state: AuthState, session: AuthSession) {
   state.user = session.user;
   state.tokens = session.tokens;
-  persistUserRole(session);
 }
 
 const slice = createSlice({
@@ -106,9 +98,6 @@ const slice = createSlice({
         s.loading = false;
         s.error = null;
         s.user = a.payload;
-        if (s.tokens) {
-          persistUserRole({ user: a.payload, tokens: s.tokens });
-        }
       })
       .addCase(fetchMe.rejected, (s, a) => {
         s.loading = false;

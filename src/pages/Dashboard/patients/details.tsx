@@ -12,8 +12,7 @@ import { useState } from 'react';
 import PatientStateCard from './state-card';
 
 function getIsAdmin(roles: string[]) {
-  const storedRole = localStorage.getItem('role');
-  const allRoles = [...roles, ...(storedRole ? [storedRole] : [])].map((role) => role.toUpperCase());
+  const allRoles = roles.map((role) => role.toUpperCase());
   return allRoles.includes('ADMIN') || allRoles.includes('ADMINS');
 }
 

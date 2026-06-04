@@ -1,4 +1,7 @@
+import { Link } from 'react-router-dom';
+import Button from '@/ui/atoms/Button';
 import { commonCopy } from '@/config/copy';
+import EmptyState from '@/ui/molecules/EmptyState';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
 export default function NotFoundPage() {
@@ -6,9 +9,16 @@ export default function NotFoundPage() {
 
   return (
     <div className="grid min-h-screen place-items-center px-4">
-      <div className="rounded-3xl border border-border bg-card px-6 py-10 text-center shadow-soft">
-        <h1 className="text-2xl font-bold text-foreground">404</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{t(commonCopy.emptyDescription)}</p>
+      <div className="w-full max-w-xl">
+        <EmptyState
+          title={t(commonCopy.notFoundTitle)}
+          description={t(commonCopy.notFoundPageDescription)}
+          action={
+            <Link to="/dashboard">
+              <Button>{t(commonCopy.backToDashboard)}</Button>
+            </Link>
+          }
+        />
       </div>
     </div>
   );

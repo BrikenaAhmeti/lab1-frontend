@@ -3,10 +3,7 @@ function normalizeRole(role: string) {
 }
 
 export function getUserRoles(roles: string[] = []) {
-  const storedRole =
-    typeof window !== 'undefined' ? window.localStorage.getItem('role') : null;
-
-  return [...roles, ...(storedRole ? [storedRole] : [])].map(normalizeRole);
+  return roles.map(normalizeRole);
 }
 
 export function hasAnyRole(roles: string[] = [], allowed: string[] = []) {

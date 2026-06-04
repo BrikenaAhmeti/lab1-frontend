@@ -31,7 +31,6 @@ type MedicalRecordFormValues = {
   doctorId: string;
   diagnosis: string;
   treatment: string;
-  prescriptionsText: string;
   date: string;
 };
 
@@ -40,7 +39,6 @@ const emptyForm: MedicalRecordFormValues = {
   doctorId: '',
   diagnosis: '',
   treatment: '',
-  prescriptionsText: '',
   date: '',
 };
 
@@ -126,7 +124,6 @@ export default function MedicalRecordFormPage() {
       doctorId: recordQuery.data.doctorId,
       diagnosis: recordQuery.data.diagnosis,
       treatment: recordQuery.data.treatment,
-      prescriptionsText: recordQuery.data.prescriptionsText ?? '',
       date: recordQuery.data.recordDate,
     });
   }, [isEdit, recordQuery.data]);
@@ -192,7 +189,6 @@ export default function MedicalRecordFormPage() {
       doctorId: form.doctorId.trim(),
       diagnosis: form.diagnosis.trim(),
       treatment: form.treatment.trim(),
-      prescriptionsText: form.prescriptionsText.trim() || null,
       date: form.date,
     };
 
@@ -439,14 +435,6 @@ export default function MedicalRecordFormPage() {
             value={form.treatment}
             error={errors.treatment}
             onChange={(event) => handleChange('treatment', event.target.value)}
-          />
-
-          <Textarea
-            name="prescriptionsText"
-            label={t('fields.prescriptionsText')}
-            value={form.prescriptionsText}
-            placeholder={t('form.prescriptionsPlaceholder')}
-            onChange={(event) => handleChange('prescriptionsText', event.target.value)}
           />
 
           {formError ? <p className="text-sm text-danger">{formError}</p> : null}

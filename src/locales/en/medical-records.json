@@ -28,7 +28,6 @@
     "patientSearchPlaceholder": "Search patient options",
     "patientPlaceholder": "Select patient",
     "doctorPlaceholder": "Select doctor",
-    "prescriptionsPlaceholder": "Add a short prescriptions note if needed",
     "inactiveDoctorHint": "This doctor is no longer active. Select an active doctor before saving."
   },
   "actions": {
@@ -57,7 +56,6 @@
     "doctor": "Doctor",
     "diagnosis": "Diagnosis",
     "treatment": "Treatment",
-    "prescriptionsText": "Prescription notes",
     "recordDate": "Record date",
     "medicine": "Medicine",
     "dosage": "Dosage",
@@ -69,7 +67,6 @@
     "loadingPatients": "Loading patients...",
     "loadingDoctors": "Loading doctors...",
     "notAvailable": "Not available",
-    "noPrescriptionsText": "No prescription notes added.",
     "noInstructions": "No instructions added.",
     "inactiveDoctorSuffix": "(inactive)"
   },

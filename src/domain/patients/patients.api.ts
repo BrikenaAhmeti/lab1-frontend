@@ -43,6 +43,16 @@ function normalizeDate(value: unknown) {
   return text.includes('T') ? text.split('T')[0] : text;
 }
 
+function normalizeNullableText(value: unknown) {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const text = normalizeText(value).trim();
+
+  return text || null;
+}
+
 function normalizeGender(value: unknown): PatientGender {
   const normalized = normalizeText(value).trim().toUpperCase();
 
@@ -73,6 +83,7 @@ function normalizePatient(value: unknown): Patient {
 
   return {
     id: normalizeText(getValue(patient, ['id'])),
+    userId: normalizeNullableText(getValue(patient, ['userId', 'user_id'])),
     firstName: normalizeText(getValue(patient, ['firstName', 'first_name'])),
     lastName: normalizeText(getValue(patient, ['lastName', 'last_name'])),
     dateOfBirth: normalizeDate(getValue(patient, ['dateOfBirth', 'date_of_birth'])),

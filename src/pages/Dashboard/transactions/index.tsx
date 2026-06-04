@@ -8,6 +8,7 @@ import {
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import EmptyState from '@/ui/molecules/EmptyState';
 
 const TransactionsPageRTK = () => {
   const { t } = useTranslation(['transactions', 'common']);
@@ -50,10 +51,29 @@ const TransactionsPageRTK = () => {
       </div>
 
       <Card title={t('transactions:listTitle')} description={t('transactions:listDescriptionRedux')}>
-        {error ? <p className="text-sm text-danger">{error}</p> : null}
+        {loading && !hasItems ? (
+          <EmptyState
+            compact
+            title={t('common:loading')}
+            description={t('transactions:listDescriptionRedux')}
+          />
+        ) : null}
 
-        {!error && !hasItems ? (
-          <p className="text-sm text-muted-foreground">{t('transactions:empty')}</p>
+        {!loading && error ? (
+          <EmptyState
+            compact
+            tone="error"
+            title="Unable to load transactions"
+            description={error}
+          />
+        ) : null}
+
+        {!loading && !error && !hasItems ? (
+          <EmptyState
+            compact
+            title={t('transactions:empty')}
+            description={t('transactions:listDescriptionRedux')}
+          />
         ) : null}
 
         {hasItems ? (

@@ -7,10 +7,12 @@ import {
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import EmptyState from '@/ui/molecules/EmptyState';
+import { getErrorMessage } from '@/libs/app/utils';
 
 const TransactionsPageRQ = () => {
   const { t } = useTranslation(['transactions', 'common']);
-  const { data, isLoading, refetch } = useTransactions(1, 20);
+  const { data, error, isLoading, refetch } = useTransactions(1, 20);
   const createTx = useCreateTransaction();
   const deleteTx = useDeleteTransaction();
   const hasItems = Boolean(data?.items?.length);
@@ -42,12 +44,30 @@ const TransactionsPageRQ = () => {
         title={t('transactions:listTitle')}
         description={t('transactions:listDescriptionQuery')}
       >
-        {isLoading ? <p className="text-sm text-muted-foreground">{t('common:loading')}</p> : null}
-        {!isLoading && !hasItems ? (
-          <p className="text-sm text-muted-foreground">{t('transactions:empty')}</p>
+        {isLoading ? (
+          <EmptyState
+            compact
+            title={t('common:loading')}
+            description={t('transactions:listDescriptionQuery')}
+          />
+        ) : null}
+        {!isLoading && error ? (
+          <EmptyState
+            compact
+            tone="error"
+            title="Unable to load transactions"
+            description={getErrorMessage(error, (value) => value.en)}
+          />
+        ) : null}
+        {!isLoading && !error && !hasItems ? (
+          <EmptyState
+            compact
+            title={t('transactions:empty')}
+            description={t('transactions:listDescriptionQuery')}
+          />
         ) : null}
 
-        {hasItems ? (
+        {!error && hasItems ? (
           <ul className="space-y-2">
             {data?.items.map((transactionItem) => (
               <li

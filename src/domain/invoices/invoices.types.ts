@@ -11,6 +11,8 @@ export type InvoicePatient = {
 export type Invoice = {
   id: string;
   patientId: string;
+  appointmentId: string | null;
+  admissionId: string | null;
   amount: number;
   invoiceDate: string;
   status: InvoiceStatus | string;
@@ -32,6 +34,8 @@ export type InvoiceListParams = {
 
 export type CreateInvoiceDTO = {
   patientId: string;
+  appointmentId?: string | null;
+  admissionId?: string | null;
   amount: number;
   invoiceDate: string;
   description?: string;
@@ -39,6 +43,8 @@ export type CreateInvoiceDTO = {
 
 export type UpdateInvoiceDTO = {
   patientId?: string;
+  appointmentId?: string | null;
+  admissionId?: string | null;
   amount?: number;
   invoiceDate?: string;
   description?: string | null;

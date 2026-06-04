@@ -62,6 +62,11 @@ export const commonCopy = {
     'We could not find the requested data.',
     'Die angeforderten Daten konnten nicht gefunden werden.'
   ),
+  notFoundTitle: lt('Page not found', 'Seite nicht gefunden'),
+  notFoundPageDescription: lt(
+    'This page is not available or may have been moved.',
+    'Diese Seite ist nicht verfügbar oder wurde möglicherweise verschoben.'
+  ),
   conflictError: lt(
     'This item could not be saved right now. Please refresh and try again.',
     'Dieses Element kann momentan nicht gespeichert werden. Aktualisieren Sie die Seite und versuchen Sie es erneut.'

@@ -48,7 +48,7 @@ const getRefreshPromise = () => {
 };
 
 function build(key: ApiKey): AxiosInstance {
-  const instance = axios.create({ baseURL: base[key], timeout: 20000 });
+  const instance = axios.create({ baseURL: base[key], timeout: 20000, withCredentials: true });
 
   instance.interceptors.request.use((cfg) => {
     cfg.headers = cfg.headers ?? {};
@@ -68,6 +68,12 @@ function build(key: ApiKey): AxiosInstance {
       const status = error.response?.status;
 
       if (!orig) return Promise.reject(error);
+
+      if (status === 401 && orig._retry && !shouldSkipRefresh(orig)) {
+        store.dispatch(clearSession());
+        redirectToLogin();
+        return Promise.reject(error);
+      }
 
       if (status === 401 && !orig._retry && !shouldSkipRefresh(orig)) {
         orig._retry = true;

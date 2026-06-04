@@ -1,11 +1,6 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
 
-const getStoredRoles = () => {
-  const role = localStorage.getItem('role');
-  return role ? [role] : [];
-};
-
 const normalizeRole = (role: string) => role.trim().toUpperCase();
 
 export function GuestOnly() {
@@ -28,7 +23,7 @@ export function RequireRole({ allow }: { allow: string[] }) {
   if (!initialized) return null;
 
   const allowedRoles = allow.map(normalizeRole);
-  const userRoles = [...(user?.roles ?? []), ...getStoredRoles()].map(normalizeRole);
+  const userRoles = (user?.roles ?? []).map(normalizeRole);
   const hasRole = userRoles.some((role) => allowedRoles.includes(role));
 
   if (!userRoles.length) return <Navigate to="/login" replace />;

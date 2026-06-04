@@ -1,4 +1,5 @@
 import { isAxiosError } from 'axios';
+import { isTechnicalMessage } from '@/libs/app/utils';
 import type { Doctor } from './doctors.types';
 
 export const doctorPhonePattern = /^\+\d{8,15}$/;
@@ -22,7 +23,7 @@ export function getDoctorApiMessage(error: unknown, fallback: string) {
     return message;
   }
 
-  if (typeof error.message === 'string' && error.message.trim()) {
+  if (typeof error.message === 'string' && error.message.trim() && !isTechnicalMessage(error.message)) {
     return error.message;
   }
 

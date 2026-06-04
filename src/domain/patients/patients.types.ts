@@ -4,6 +4,7 @@ export type PatientBloodType = 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' 
 
 export type Patient = {
   id: string;
+  userId: string | null;
   firstName: string;
   lastName: string;
   dateOfBirth: string;
@@ -29,6 +30,7 @@ export type PatientsListResponse = {
 };
 
 export type CreatePatientDTO = {
+  userId?: string | null;
   firstName: string;
   lastName: string;
   dateOfBirth: string;

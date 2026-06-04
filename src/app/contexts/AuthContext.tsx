@@ -1,6 +1,16 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import { store } from '@/app/store';
 import { authApi, configureApiClient } from '@/libs/app/api';
 import { getErrorMessage, normalizeRoles, normalizeUser } from '@/libs/app/utils';
+import { clearSession as clearReduxSession, setSession as setReduxSession } from '@/domain/auth/authSlice';
 import type { AuthPayload, LocalizedText, User } from '@/types/app';
 
 export const REFRESH_TOKEN_KEY = 'refreshToken';
@@ -19,51 +29,51 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-function clearLegacyRefreshToken() {
+function clearLegacyRefreshStorage() {
   if (typeof window === 'undefined') {
     return;
   }
 
   sessionStorage.removeItem(REFRESH_TOKEN_KEY);
-}
-
-function readRefreshToken() {
-  if (typeof window === 'undefined') {
-    return '';
-  }
-
-  return sessionStorage.getItem(REFRESH_TOKEN_KEY) || '';
-}
-
-function persistRefreshToken(refreshToken?: string) {
-  if (typeof window === 'undefined') {
-    return;
-  }
-
-  if (refreshToken) {
-    sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
-    return;
-  }
-
-  sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+  localStorage.removeItem('auth.session');
+  localStorage.removeItem('role');
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState('');
   const [ready, setReady] = useState(false);
+  const userRef = useRef<User | null>(null);
 
-  const clearSession = () => {
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  const clearSession = useCallback(() => {
+    userRef.current = null;
     setUser(null);
     setAccessToken('');
-    clearLegacyRefreshToken();
-  };
+    clearLegacyRefreshStorage();
+    store.dispatch(clearReduxSession());
+  }, []);
 
-  const applySession = (payload: AuthPayload) => {
-    setUser((currentUser) => (payload.user ? normalizeUser(payload.user) : currentUser));
+  const applySession = useCallback((payload: AuthPayload) => {
+    const nextUser = payload.user ? normalizeUser(payload.user) : userRef.current;
+
+    userRef.current = nextUser;
+    setUser(nextUser);
     setAccessToken(payload.accessToken);
-    persistRefreshToken(payload.refreshToken);
-  };
+    clearLegacyRefreshStorage();
+
+    if (nextUser) {
+      store.dispatch(
+        setReduxSession({
+          user: nextUser as any,
+          tokens: { accessToken: payload.accessToken },
+        })
+      );
+    }
+  }, []);
 
   const handleRefreshFailure = useCallback(() => {
     clearSession();
@@ -71,24 +81,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
       window.location.assign('/login');
     }
-  }, []);
+  }, [clearSession]);
 
   useEffect(() => {
     configureApiClient({
       getAccessToken: () => accessToken,
-      getRefreshToken: readRefreshToken,
       onRefreshSuccess: applySession,
       onRefreshFailure: handleRefreshFailure,
     });
-  }, [accessToken, handleRefreshFailure]);
+  }, [accessToken, applySession, handleRefreshFailure]);
 
   useEffect(() => {
     let cancelled = false;
 
     const restoreSession = async () => {
       try {
-        const refreshToken = readRefreshToken() || undefined;
-        const payload = await authApi.refresh(refreshToken);
+        clearLegacyRefreshStorage();
+        const payload = await authApi.refresh();
         const sessionUser = payload.user ?? (await authApi.me(payload.accessToken));
 
         if (!cancelled) {
@@ -110,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [applySession, clearSession]);
 
   const login = async (values: { identifier: string; password: string }) => {
     const payload = await authApi.login(values);

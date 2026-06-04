@@ -24,12 +24,15 @@ import { formatCurrency } from '@/utils/formatters/currency';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 import Select from '@/ui/atoms/Select';
+import ListSkeleton from '@/ui/molecules/ListSkeleton';
 import InvoiceForm, { type InvoiceFormValues } from './components/InvoiceForm';
 import InvoiceTable from './components/InvoiceTable';
 import InvoiceStateCard from './state-card';
 
 const createEmptyForm = (): InvoiceFormValues => ({
   patientId: '',
+  appointmentId: '',
+  admissionId: '',
   amount: '',
   invoiceDate: getTodayInvoiceDateValue(),
   description: '',
@@ -50,6 +53,11 @@ function validateForm(values: InvoiceFormValues, t: (key: string) => string) {
 
   if (!values.patientId.trim()) {
     errors.patientId = t('validation.required');
+  }
+
+  if (values.appointmentId.trim() && values.admissionId.trim()) {
+    errors.appointmentId = t('validation.singleCareEvent');
+    errors.admissionId = t('validation.singleCareEvent');
   }
 
   if (!values.amount.trim()) {
@@ -138,6 +146,8 @@ export default function InvoicesPage() {
     try {
       await createInvoice.mutateAsync({
         patientId: form.patientId.trim(),
+        appointmentId: form.appointmentId.trim() || null,
+        admissionId: form.admissionId.trim() || null,
         amount: Number(form.amount),
         invoiceDate: form.invoiceDate,
         description: form.description.trim() || undefined,
@@ -268,7 +278,7 @@ export default function InvoicesPage() {
               </Button>
             </div>
           ) : statsQuery.isLoading ? (
-            <p className="text-sm text-muted-foreground">{t('summary.loading')}</p>
+            <ListSkeleton items={1} />
           ) : (
             <p className="text-3xl font-bold text-foreground">
               {formatCurrency(statsQuery.data?.totalRevenue ?? 0, 'EUR', locale)}

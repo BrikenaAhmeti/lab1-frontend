@@ -34,6 +34,15 @@ Optional environment overrides (Vite). Restart the dev server after changing `.e
 - `npm run test:watch` runs Vitest in watch mode.
 - `npm run test:ui` runs Vitest with the UI runner.
 
+## Backend Contract Notes
+
+The dashboard is aligned with the Hospital Management System backend ERD:
+
+- Patients accept optional `userId` for portal login.
+- Appointments read `appointmentDateTime` while keeping separate date/time form inputs.
+- Medical records no longer send duplicated prescription text; medicine details belong in prescriptions.
+- Invoices can optionally link to either an appointment or an admission.
+
 ## Performance Checklist
 
 - All active HMS page routes are loaded with `React.lazy()` and rendered behind `Suspense`.
@@ -82,8 +91,6 @@ Shared CRUD route logic is intentionally extracted into shared async chunks such
 
 ## Verification
 
-Latest checks run successfully on May 9, 2026:
+Latest checks run successfully on June 4, 2026:
 
-- `npm run lint`
-- `npm test`
-- `npm run analyze`
+- `npm run build`

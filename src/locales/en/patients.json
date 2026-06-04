@@ -45,6 +45,7 @@
   },
   "fields": {
     "search": "Search",
+    "userId": "User account",
     "firstName": "First name",
     "lastName": "Last name",
     "dateOfBirth": "Date of birth",
