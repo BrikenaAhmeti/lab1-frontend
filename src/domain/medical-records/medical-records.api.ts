@@ -161,6 +161,8 @@ function normalizeMedicalRecord(value: unknown): MedicalRecord {
     doctorId: normalizeText(getValue(record, ['doctorId', 'doctor_id'])) || doctor.id,
     diagnosis: normalizeText(getValue(record, ['diagnosis', 'diagnoza'])),
     treatment: normalizeText(getValue(record, ['treatment', 'trajtimi'])),
+    prescriptionsText:
+      normalizeText(getValue(record, ['prescriptionsText', 'prescriptions_text', 'recetat'])) || null,
     recordDate: normalizeText(getValue(record, ['recordDate', 'date', 'data'])),
     patient,
     doctor,

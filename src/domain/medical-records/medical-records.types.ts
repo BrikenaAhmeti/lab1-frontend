@@ -17,6 +17,7 @@ export type MedicalRecord = {
   doctorId: string;
   diagnosis: string;
   treatment: string;
+  prescriptionsText: string | null;
   recordDate: string;
   patient: MedicalRecordPatient;
   doctor: MedicalRecordDoctor;
@@ -60,6 +61,7 @@ export type CreateMedicalRecordDTO = {
   doctorId: string;
   diagnosis: string;
   treatment: string;
+  prescriptionsText?: string | null;
   date: string;
 };
 

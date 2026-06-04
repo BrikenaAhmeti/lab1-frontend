@@ -397,12 +397,7 @@ export default function AppLayout() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-                <NavLink
-                  to="/"
-                  className="hidden h-11 items-center justify-center rounded-full border border-border/70 bg-card/70 px-4 text-sm font-semibold text-foreground transition hover:border-primary/30 hover:bg-card/90 lg:inline-flex"
-                >
-                  {t(lt('Guest site', 'Öffentliche Website'))}
-                </NavLink>
+           
                 <ThemeToggle compact />
                 <LanguageSwitch compact />
               </div>

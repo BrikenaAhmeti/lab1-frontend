@@ -17,7 +17,6 @@ export type Appointment = {
   id: string;
   patientId: string;
   doctorId: string;
-  appointmentDateTime: string;
   appointmentDate: string;
   appointmentTime: string;
   status: AppointmentStatus;

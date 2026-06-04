@@ -39,8 +39,9 @@ Optional environment overrides (Vite). Restart the dev server after changing `.e
 The dashboard is aligned with the Hospital Management System backend ERD:
 
 - Patients accept optional `userId` for portal login.
-- Appointments read `appointmentDateTime` while keeping separate date/time form inputs.
-- Medical records no longer send duplicated prescription text; medicine details belong in prescriptions.
+- Appointments use separate `appointmentDate` and `appointmentTime` fields.
+- Medical records send `prescriptionsText` only as a general summary; medicine details belong in prescription rows.
+- Nurses can be created with no portal account, an existing user account, or a newly provisioned user account.
 - Invoices can optionally link to either an appointment or an admission.
 
 ## Performance Checklist

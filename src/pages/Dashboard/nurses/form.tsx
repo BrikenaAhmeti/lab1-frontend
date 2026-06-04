@@ -18,7 +18,7 @@ import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
 import NurseStateCard from './state-card';
 
-type UserLinkMode = 'existing' | 'new';
+type UserLinkMode = 'none' | 'existing' | 'new';
 
 type NurseFormValues = {
   userLinkMode: UserLinkMode;
@@ -38,7 +38,7 @@ type SelectOption = {
 };
 
 const emptyForm: NurseFormValues = {
-  userLinkMode: 'existing',
+  userLinkMode: 'none',
   userId: '',
   email: '',
   username: '',
@@ -70,6 +70,10 @@ function validateForm(
 
   if (!isEdit && values.userLinkMode === 'existing') {
     if (!values.userId.trim()) errors.userId = t('validation.required');
+    return errors;
+  }
+
+  if (!isEdit && values.userLinkMode === 'none') {
     return errors;
   }
 
@@ -199,17 +203,19 @@ export default function NurseFormPage() {
             payload: basePayload satisfies UpdateNurseDTO,
           })
         : await createNurse.mutateAsync(
-            form.userLinkMode === 'existing'
-              ? ({
-                  ...basePayload,
-                  userId: form.userId.trim(),
-                } satisfies CreateNurseDTO)
-              : ({
-                  ...basePayload,
-                  email: form.email.trim(),
-                  ...(form.username.trim() ? { username: form.username.trim() } : {}),
-                  ...(form.password.trim() ? { password: form.password.trim() } : {}),
-                } satisfies CreateNurseDTO)
+            form.userLinkMode === 'none'
+              ? (basePayload satisfies CreateNurseDTO)
+              : form.userLinkMode === 'existing'
+                ? ({
+                    ...basePayload,
+                    userId: form.userId.trim(),
+                  } satisfies CreateNurseDTO)
+                : ({
+                    ...basePayload,
+                    email: form.email.trim(),
+                    ...(form.username.trim() ? { username: form.username.trim() } : {}),
+                    ...(form.password.trim() ? { password: form.password.trim() } : {}),
+                  } satisfies CreateNurseDTO)
           );
 
       navigate(`/app/nurses/${nurse.id}`, {
@@ -357,7 +363,25 @@ export default function NurseFormPage() {
                 {t('form.userLinkLegend')}
               </legend>
               <p className="text-sm text-muted-foreground">{t('form.userLinkDescription')}</p>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-3 md:grid-cols-3">
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border/70 bg-background/50 p-4">
+                  <input
+                    checked={form.userLinkMode === 'none'}
+                    className="mt-1"
+                    name="userLinkMode"
+                    type="radio"
+                    value="none"
+                    onChange={() => handleUserLinkModeChange('none')}
+                  />
+                  <span>
+                    <span className="block text-sm font-medium text-foreground">
+                      {t('form.noLinkedUser')}
+                    </span>
+                    <span className="mt-1 block text-xs text-muted-foreground">
+                      {t('form.noLinkedUserHint')}
+                    </span>
+                  </span>
+                </label>
                 <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border/70 bg-background/50 p-4">
                   <input
                     checked={form.userLinkMode === 'existing'}
@@ -402,7 +426,7 @@ export default function NurseFormPage() {
             {isEdit || form.userLinkMode === 'existing' ? (
               canChooseUser ? (
                 <Select
-                  required
+                  required={form.userLinkMode === 'existing'}
                   name="userId"
                   label={t('fields.userId')}
                   value={form.userId}
@@ -418,7 +442,7 @@ export default function NurseFormPage() {
                 </Select>
               ) : (
                 <Input
-                  required
+                  required={form.userLinkMode === 'existing'}
                   disabled
                   readOnly
                   name="userId"

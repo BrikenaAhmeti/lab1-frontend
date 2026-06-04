@@ -56,6 +56,7 @@
     "doctor": "Doctor",
     "diagnosis": "Diagnosis",
     "treatment": "Treatment",
+    "prescriptionsText": "Prescription summary",
     "recordDate": "Record date",
     "medicine": "Medicine",
     "dosage": "Dosage",
