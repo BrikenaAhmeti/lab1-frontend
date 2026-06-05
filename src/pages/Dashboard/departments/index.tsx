@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDeleteDepartment, useDepartments } from '@/domain/departments/departments.hooks';
 import {
   formatDepartmentDate,
@@ -10,16 +10,20 @@ import {
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import Input from '@/ui/atoms/Input';
 import DepartmentStateCard from './state-card';
 
 export default function DepartmentsListPage() {
   const { t, i18n } = useTranslation('departments');
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get('q')?.trim() ?? '';
   const departmentsQuery = useDepartments();
   const deleteDepartment = useDeleteDepartment();
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [searchValue, setSearchValue] = useState(search);
   const status = getDepartmentApiStatus(departmentsQuery.error);
 
   useEffect(() => {
@@ -30,8 +34,53 @@ export default function DepartmentsListPage() {
     }
 
     setActionSuccess(successMessage);
-    navigate(location.pathname, { replace: true, state: null });
-  }, [location.pathname, location.state, navigate]);
+    navigate(
+      { pathname: location.pathname, search: location.search },
+      { replace: true, state: null }
+    );
+  }, [location.pathname, location.search, location.state, navigate]);
+
+  useEffect(() => {
+    setSearchValue(search);
+  }, [search]);
+
+  const displayedDepartments = useMemo(() => {
+    const departments = departmentsQuery.data ?? [];
+    const normalizedSearch = search.toLowerCase();
+
+    if (!normalizedSearch) {
+      return departments;
+    }
+
+    return departments.filter((department) =>
+      [department.name, department.location, department.description ?? ''].some((value) =>
+        value.toLowerCase().includes(normalizedSearch)
+      )
+    );
+  }, [departmentsQuery.data, search]);
+
+  const updateSearch = (value: string | null) => {
+    const next = new URLSearchParams(searchParams);
+    const normalizedValue = value?.trim() ?? '';
+
+    if (normalizedValue) {
+      next.set('q', normalizedValue);
+    } else {
+      next.delete('q');
+    }
+
+    setSearchParams(next);
+  };
+
+  const handleSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updateSearch(searchValue);
+  };
+
+  const handleClearSearch = () => {
+    setSearchValue('');
+    updateSearch(null);
+  };
 
   const handleDelete = async (id: string) => {
     if (!window.confirm(t('details.deleteConfirm'))) {
@@ -92,10 +141,21 @@ export default function DepartmentsListPage() {
         <Button onClick={() => navigate('/app/departments/new')}>{t('actions.create')}</Button>
       </DepartmentStateCard>
     );
+  } else if (!displayedDepartments.length) {
+    content = (
+      <DepartmentStateCard
+        title={t('states.emptyFilteredTitle')}
+        description={t('states.emptyFilteredDescription')}
+      >
+        <Button type="button" variant="outline" onClick={handleClearSearch}>
+          {t('actions.clear')}
+        </Button>
+      </DepartmentStateCard>
+    );
   } else {
     content = (
       <div className="grid gap-4 xl:grid-cols-2">
-        {departmentsQuery.data.map((department) => (
+        {displayedDepartments.map((department) => (
           <div
             key={department.id}
             className="rounded-2xl border border-border/70 bg-background/50 p-5 transition-shadow duration-200 hover:shadow-soft"
@@ -177,11 +237,34 @@ export default function DepartmentsListPage() {
         <Button onClick={() => navigate('/app/departments/new')}>{t('actions.create')}</Button>
       </div>
 
+      <Card title={t('filters.title')} description={t('filters.description')}>
+        <form
+          className="grid gap-3 md:grid-cols-[minmax(0,1fr),auto,auto]"
+          onSubmit={handleSearch}
+        >
+          <Input
+            label={t('fields.search')}
+            name="q"
+            value={searchValue}
+            onChange={(event) => setSearchValue(event.target.value)}
+            placeholder={t('filters.searchPlaceholder')}
+          />
+
+          <Button type="submit" className="md:self-end">
+            {t('actions.search')}
+          </Button>
+
+          <Button type="button" variant="outline" className="md:self-end" onClick={handleClearSearch}>
+            {t('actions.clear')}
+          </Button>
+        </form>
+      </Card>
+
       <Card
         title={t('list.resultsTitle')}
         description={
           departmentsQuery.data
-            ? t('list.results', { count: departmentsQuery.data.length })
+            ? t('list.results', { count: displayedDepartments.length })
             : t('list.resultsDescription')
         }
       >

@@ -39,6 +39,11 @@
     "formDescription": "Fill in the department details below.",
     "descriptionPlaceholder": "Add an optional short description"
   },
+  "filters": {
+    "title": "Search",
+    "description": "Find departments by department, location, or description.",
+    "searchPlaceholder": "Search by department, location, or description"
+  },
   "actions": {
     "create": "Create department",
     "view": "View",
@@ -48,9 +53,12 @@
     "update": "Update department",
     "cancel": "Cancel",
     "back": "Back",
-    "retry": "Try again"
+    "retry": "Try again",
+    "search": "Search",
+    "clear": "Clear search"
   },
   "fields": {
+    "search": "Search",
     "name": "Name",
     "location": "Location",
     "description": "Description",
@@ -72,6 +80,8 @@
     "loadingDepartmentDescription": "Please wait a moment.",
     "emptyTitle": "No departments found",
     "emptyDescription": "Create a department to get started.",
+    "emptyFilteredTitle": "No departments match this search",
+    "emptyFilteredDescription": "Try another department, location, or description.",
     "unauthorizedTitle": "Unauthorized",
     "unauthorizedDescription": "Your session is not authorized for this request.",
     "forbiddenTitle": "Forbidden",

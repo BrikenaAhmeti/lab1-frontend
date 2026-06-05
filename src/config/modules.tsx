@@ -428,6 +428,45 @@ function compareReceptionists(a: any, b: any, sortBy: string, order: 'ASC' | 'DE
   return result * direction;
 }
 
+function matchesDepartmentSearch(item: any, search: string) {
+  const normalizedSearch = search.trim().toLowerCase();
+
+  if (!normalizedSearch) {
+    return true;
+  }
+
+  return [
+    getValue(item, 'name'),
+    getValue(item, 'location'),
+    getValue(item, 'description'),
+  ].some((value) => String(value || '').toLowerCase().includes(normalizedSearch));
+}
+
+function compareDepartments(a: any, b: any, sortBy: string, order: 'ASC' | 'DESC') {
+  const direction = order === 'ASC' ? 1 : -1;
+  const normalizeDate = (value: any) => {
+    const timestamp = new Date(String(value || '')).getTime();
+    return Number.isNaN(timestamp) ? 0 : timestamp;
+  };
+  const normalizeText = (value: any) => String(value || '').trim().toLowerCase();
+  let result = 0;
+
+  switch (sortBy) {
+    case 'name':
+      result = normalizeText(getValue(a, 'name')).localeCompare(normalizeText(getValue(b, 'name')));
+      break;
+    case 'location':
+      result = normalizeText(getValue(a, 'location')).localeCompare(normalizeText(getValue(b, 'location')));
+      break;
+    case 'createdAt':
+    default:
+      result = normalizeDate(getValue(a, 'createdAt')) - normalizeDate(getValue(b, 'createdAt'));
+      break;
+  }
+
+  return result * direction;
+}
+
 const receptionistService = {
   list: async (params: Record<string, any> = {}) => {
     const response = await apiClient.get('/api/auth/users');
@@ -491,6 +530,44 @@ const receptionistService = {
 function allowListParams(...allowedParams: string[]) {
   return { allowedListParams: allowedParams };
 }
+
+const departmentCrudService = createCrudService(
+  '/api/departments',
+  allowListParams('page', 'limit', 'sortBy', 'order')
+);
+
+const departmentService = {
+  ...departmentCrudService,
+  list: async (params: Record<string, any> = {}) => {
+    const search = String(params.search || '');
+
+    if (!search.trim()) {
+      return departmentCrudService.list(params);
+    }
+
+    const response = await apiClient.get('/api/departments/all?sortBy=name&order=ASC');
+    const departments = normalizeArrayResponse(response.data);
+    const sortBy = String(params.sortBy || 'createdAt');
+    const order = String(params.order || 'DESC') === 'ASC' ? 'ASC' : 'DESC';
+    const page = Math.max(Number(params.page) || 1, 1);
+    const limit = Math.max(Number(params.limit) || listPageSizeOptions[0], 1);
+    const filtered = departments
+      .filter((item: any) => matchesDepartmentSearch(item, search))
+      .sort((left: any, right: any) => compareDepartments(left, right, sortBy, order));
+    const total = filtered.length;
+    const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
+    const safePage = Math.min(page, totalPages);
+    const start = (safePage - 1) * limit;
+
+    return {
+      data: filtered.slice(start, start + limit),
+      total,
+      page: safePage,
+      limit,
+      totalPages,
+    };
+  },
+};
 
 export const moduleOrder: ModuleKey[] = [
   'patients',
@@ -700,10 +777,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       'Verwalten Sie Krankenhausabteilungen und ihre Standorte.'
     ),
     endpoint: '/api/departments',
-    service: createCrudService(
-      '/api/departments',
-      allowListParams('page', 'limit', 'sortBy', 'order')
-    ),
+    service: departmentService,
     sortOptions: [
       option('createdAt', 'Created at', 'Erstellt am'),
       option('name', 'Name', 'Name'),
@@ -717,7 +791,14 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       edit: ['ADMIN'],
       delete: ['ADMIN'],
     },
-    filters: [],
+    filters: [
+      {
+        name: 'search',
+        label: lt('Search departments', 'Abteilungen suchen'),
+        type: 'text',
+        placeholder: lt('Department, location, or description', 'Abteilung, Standort oder Beschreibung'),
+      },
+    ],
     fields: [
       { name: 'name', label: lt('Name', 'Name'), type: 'text' },
       { name: 'location', label: lt('Location', 'Standort'), type: 'text' },

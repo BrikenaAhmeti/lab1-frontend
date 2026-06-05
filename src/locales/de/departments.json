@@ -39,6 +39,11 @@
     "formDescription": "Geben Sie unten die Abteilungsdetails ein.",
     "descriptionPlaceholder": "Optional eine kurze Beschreibung hinzufügen"
   },
+  "filters": {
+    "title": "Suche",
+    "description": "Suchen Sie Abteilungen nach Abteilung, Standort oder Beschreibung.",
+    "searchPlaceholder": "Nach Abteilung, Standort oder Beschreibung suchen"
+  },
   "actions": {
     "create": "Abteilung erstellen",
     "view": "Ansehen",
@@ -48,9 +53,12 @@
     "update": "Abteilung aktualisieren",
     "cancel": "Abbrechen",
     "back": "Zurück",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "search": "Suchen",
+    "clear": "Suche löschen"
   },
   "fields": {
+    "search": "Suche",
     "name": "Name",
     "location": "Standort",
     "description": "Beschreibung",
@@ -72,6 +80,8 @@
     "loadingDepartmentDescription": "Bitte warten Sie einen Moment.",
     "emptyTitle": "Keine Abteilungen gefunden",
     "emptyDescription": "Erstellen Sie eine Abteilung, um zu beginnen.",
+    "emptyFilteredTitle": "Keine Abteilung passt zu dieser Suche",
+    "emptyFilteredDescription": "Versuchen Sie eine andere Abteilung, einen anderen Standort oder eine andere Beschreibung.",
     "unauthorizedTitle": "Nicht autorisiert",
     "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",
     "forbiddenTitle": "Zugriff verweigert",

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LanguageProvider } from '@/app/contexts/LanguageContext';
 import { ToastProvider } from '@/app/contexts/ToastContext';
 import { moduleConfigs } from '@/config/modules';
+import { apiClient } from '@/libs/app/api';
 import ModulePage from './ModulePage';
 
 vi.mock('@/app/contexts/AuthContext', () => ({
@@ -16,7 +17,10 @@ vi.mock('@/app/contexts/AuthContext', () => ({
   }),
 }));
 
-function renderPage(moduleKey: keyof typeof moduleConfigs = 'patients') {
+function renderPage(
+  moduleKey: keyof typeof moduleConfigs = 'patients',
+  route = `/${moduleConfigs[moduleKey].path}`
+) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
@@ -32,7 +36,7 @@ function renderPage(moduleKey: keyof typeof moduleConfigs = 'patients') {
     <LanguageProvider>
       <QueryClientProvider client={queryClient}>
         <ToastProvider>
-          <MemoryRouter initialEntries={[`/${moduleConfigs[moduleKey].path}`]}>
+          <MemoryRouter initialEntries={[route]}>
             <ModulePage moduleKey={moduleKey} />
           </MemoryRouter>
         </ToastProvider>
@@ -83,6 +87,7 @@ describe('ModulePage', () => {
     totalPages: 1,
   };
   const originalService = moduleConfigs.patients.service;
+  const originalDepartmentsService = moduleConfigs.departments.service;
   const originalReceptionistService = moduleConfigs.receptionists.service;
 
   beforeEach(() => {
@@ -98,7 +103,9 @@ describe('ModulePage', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     moduleConfigs.patients.service = originalService;
+    moduleConfigs.departments.service = originalDepartmentsService;
     moduleConfigs.receptionists.service = originalReceptionistService;
   });
 
@@ -285,5 +292,35 @@ describe('ModulePage', () => {
 
     expect(await screen.findByText('No data yet')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Create new' }).length).toBeGreaterThan(1);
+  });
+
+  it('passes department search through the active departments module', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue({
+      data: [
+        {
+          id: 'dep-1',
+          name: 'Cardiology',
+          location: 'North Wing',
+          description: 'Heart care unit',
+        },
+        {
+          id: 'dep-2',
+          name: 'Neurology',
+          location: 'East Clinic',
+          description: 'Brain and nerve care',
+        },
+      ],
+    });
+
+    renderPage('departments', '/departments?search=brain');
+
+    expect(await screen.findByText('Neurology')).toBeInTheDocument();
+    expect(screen.queryByText('Cardiology')).not.toBeInTheDocument();
+    expect(apiClient.get).toHaveBeenCalledWith('/api/departments/all?sortBy=name&order=ASC');
+
+    expect(screen.getByLabelText('Search departments')).toHaveAttribute(
+      'placeholder',
+      'Department, location, or description'
+    );
   });
 });
