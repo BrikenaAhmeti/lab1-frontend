@@ -69,6 +69,7 @@ export default defineConfig({
       './src/libs/app/**/*.test.ts',
       './src/pages/app/**/*.test.tsx',
       './src/ui/**/*.test.tsx',
+      './tests/libs/**/*.test.ts',
     ],
   },
   server: {

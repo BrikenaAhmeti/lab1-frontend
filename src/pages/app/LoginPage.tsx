@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
@@ -11,6 +11,12 @@ import { commonCopy, lt } from '@/config/copy';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useToast } from '@/app/contexts/ToastContext';
+import {
+  clearStoredAuthReturnTo,
+  getReturnToFromRouteState,
+  readStoredAuthReturnTo,
+  resolveAuthReturnTo,
+} from '@/libs/app/navigation';
 
 const schema = z.object({
   identifier: z.string().trim().min(1, 'Please enter your email or username.'),
@@ -44,10 +50,21 @@ export default function LoginPage() {
     },
   });
 
-  const redirectTo = (location.state as { from?: string } | null)?.from || '/dashboard';
+  const queryReturnTo = new URLSearchParams(location.search).get('returnTo');
+  const redirectTo = resolveAuthReturnTo([
+    queryReturnTo,
+    getReturnToFromRouteState(location.state),
+    readStoredAuthReturnTo(),
+  ]);
+
+  useEffect(() => {
+    if (ready && isAuthenticated) {
+      clearStoredAuthReturnTo();
+    }
+  }, [isAuthenticated, ready]);
 
   if (ready && isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={redirectTo} replace />;
   }
 
   return (
@@ -237,6 +254,7 @@ export default function LoginPage() {
                 try {
                   await login(values);
                   showToast(t(commonCopy.loginSuccess), 'success');
+                  clearStoredAuthReturnTo();
                   navigate(redirectTo, { replace: true });
                 } catch (error) {
                   setLoginError(errorMessage(error, t));

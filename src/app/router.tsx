@@ -1,9 +1,15 @@
 import { lazy, Suspense, type ComponentType, type LazyExoticComponent } from 'react';
-import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom';
 import AppLayout from '@/ui/organisms/AppLayout';
 import PrivateRoute from '@/app/routing/PrivateRoute';
 import RouteSkeleton from '@/ui/molecules/RouteSkeleton';
 import { useAuth } from '@/app/contexts/AuthContext';
+import {
+  DEFAULT_AUTH_REDIRECT,
+  LOGIN_PATH,
+  readStoredAuthReturnTo,
+  resolveAuthReturnTo,
+} from '@/libs/app/navigation';
 import { moduleOrder, moduleRouteMeta } from '@/config/moduleMeta';
 import type { ModuleKey } from '@/types/app';
 
@@ -40,13 +46,24 @@ function renderLazyPage(
 }
 
 function GuestRoute() {
+  const location = useLocation();
   const { ready, isAuthenticated } = useAuth();
 
   if (!ready) {
     return <RouteSkeleton variant="fullscreen" />;
   }
 
-  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Outlet />;
+  if (isAuthenticated) {
+    const queryReturnTo = new URLSearchParams(location.search).get('returnTo');
+    const redirectTo =
+      location.pathname === LOGIN_PATH
+        ? resolveAuthReturnTo([queryReturnTo, readStoredAuthReturnTo()])
+        : DEFAULT_AUTH_REDIRECT;
+
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  return <Outlet />;
 }
 
 export default function AppRouter() {

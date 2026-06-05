@@ -62,6 +62,7 @@ describe('axios refresh', () => {
   });
 
   it('retries the original request with cookie-based refresh', async () => {
+    window.history.replaceState({}, '', '/doctors/1?tab=schedule#notes');
     store.dispatch(setSession({ user: mockUser, tokens: { accessToken: 'old' } }));
 
     let protectedCalls = 0;
@@ -102,6 +103,9 @@ describe('axios refresh', () => {
     expect(store.getState().auth.user).toEqual(mockUser);
     expect(store.getState().auth.tokens).toEqual({ accessToken: 'new' });
     expect(res.data.ok).toBe(true);
+    expect(`${window.location.pathname}${window.location.search}${window.location.hash}`).toBe(
+      '/doctors/1?tab=schedule#notes'
+    );
 
     api.core.defaults.adapter = originalCoreAdapter;
     axios.defaults.adapter = originalGlobalAdapter;
@@ -173,7 +177,9 @@ describe('axios refresh', () => {
 
     expect(store.getState().auth.user).toBe(null);
     expect(store.getState().auth.tokens).toBe(null);
-    expect(window.location.pathname).toBe('/login');
+    expect(`${window.location.pathname}${window.location.search}`).toBe(
+      '/login?returnTo=%2Fapp'
+    );
 
     api.core.defaults.adapter = originalCoreAdapter;
     axios.defaults.adapter = originalGlobalAdapter;

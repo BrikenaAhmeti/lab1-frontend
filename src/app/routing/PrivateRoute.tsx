@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import RouteSkeleton from '@/ui/molecules/RouteSkeleton';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { buildLocationPath } from '@/libs/app/navigation';
 
 export default function PrivateRoute() {
   const location = useLocation();
@@ -11,7 +12,7 @@ export default function PrivateRoute() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    return <Navigate to="/login" replace state={{ from: buildLocationPath(location) }} />;
   }
 
   return <Outlet />;

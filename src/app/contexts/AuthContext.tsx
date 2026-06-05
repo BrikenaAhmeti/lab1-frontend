@@ -12,6 +12,12 @@ import { authApi, configureApiClient } from '@/libs/app/api';
 import { getErrorMessage, normalizeRoles, normalizeUser } from '@/libs/app/utils';
 import { clearSession as clearReduxSession, setSession as setReduxSession } from '@/domain/auth/authSlice';
 import type { AuthPayload, LocalizedText, User } from '@/types/app';
+import {
+  buildLoginPath,
+  getCurrentAuthReturnTo,
+  LOGIN_PATH,
+  rememberAuthReturnTo,
+} from '@/libs/app/navigation';
 
 export const REFRESH_TOKEN_KEY = 'refreshToken';
 
@@ -79,8 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleRefreshFailure = useCallback(() => {
     clearSession();
 
-    if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
-      window.location.assign('/login');
+    if (typeof window !== 'undefined' && window.location.pathname !== LOGIN_PATH) {
+      const returnTo = getCurrentAuthReturnTo();
+      rememberAuthReturnTo(returnTo);
+      window.location.assign(buildLoginPath(returnTo));
     }
   }, [clearSession]);
 

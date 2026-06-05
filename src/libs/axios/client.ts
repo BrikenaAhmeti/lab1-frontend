@@ -5,6 +5,12 @@ import { clearSession, setSession } from '@/domain/auth/authSlice';
 import { env } from '@/config/env';
 import type { AuthTokensResponse } from '@/domain/auth/types';
 import { toAuthSession } from '@/domain/auth/types';
+import {
+  buildLoginPath,
+  getCurrentAuthReturnTo,
+  LOGIN_PATH,
+  rememberAuthReturnTo,
+} from '@/libs/app/navigation';
 
 type ApiKey = 'core' | 'deviceInfo';
 const base: Record<ApiKey, string> = { core: env.API_CORE, deviceInfo: env.API_DEVICE_INFO };
@@ -26,8 +32,11 @@ const shouldSkipRefresh = (cfg: RetryableConfig) => {
 
 const redirectToLogin = () => {
   if (typeof window === 'undefined') return;
-  if (window.location.pathname === '/login') return;
-  window.history.replaceState({}, '', '/login');
+  if (window.location.pathname === LOGIN_PATH) return;
+
+  const returnTo = getCurrentAuthReturnTo();
+  rememberAuthReturnTo(returnTo);
+  window.history.replaceState({}, '', buildLoginPath(returnTo));
   window.dispatchEvent(new PopStateEvent('popstate'));
 };
 
