@@ -41,6 +41,12 @@ type DetailEntry = {
   full?: boolean;
 };
 
+type DetailSection = {
+  key: string;
+  title: string;
+  entries: DetailEntry[];
+};
+
 const detailAliases: Record<string, string[]> = {
   date: ['appointmentDate', 'recordDate', 'invoiceDate'],
   duration: ['frequency'],
@@ -204,6 +210,42 @@ function shouldUseFullWidth(value: ReactNode, field?: FormFieldConfig) {
   return field?.type === 'textarea' || (typeof value === 'string' && value.length > 90);
 }
 
+function getInitials(value: string) {
+  const words = value
+    .replace(/[^a-zA-Z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+
+  if (!words.length) {
+    return 'ID';
+  }
+
+  if (words.length === 1) {
+    return words[0].slice(0, 2).toUpperCase();
+  }
+
+  return `${words[0][0]}${words[1][0]}`.toUpperCase();
+}
+
+function getEntryText(value: ReactNode) {
+  return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+}
+
+function getHighlightedEntries(entries: DetailEntry[]) {
+  const prioritized = entries.filter((entry) =>
+    /status|date|time|type|amount|total|capacity|department|phone|blood/i.test(entry.key)
+  );
+  const selected = [...prioritized, ...entries].filter(
+    (entry, index, list) => list.findIndex((item) => item.key === entry.key) === index
+  );
+
+  return selected.slice(0, 4);
+}
+
+function isHighlightedEntry(entry: DetailEntry, highlightedEntries: DetailEntry[]) {
+  return highlightedEntries.some((highlighted) => highlighted.key === entry.key);
+}
+
 function buildConfiguredEntries(
   config: EntityDetailsConfig,
   item: any,
@@ -311,7 +353,7 @@ function buildNestedSections(
     return [];
   }
 
-  return Object.entries(item).reduce<Array<{ key: string; title: string; entries: DetailEntry[] }>>(
+  return Object.entries(item).reduce<DetailSection[]>(
     (sections, [key, value]) => {
       if (isSensitiveKey(key) || !isPlainObject(value)) {
         return sections;
@@ -349,18 +391,100 @@ function buildNestedSections(
   );
 }
 
+function DetailHero({
+  itemTitle,
+  entityLabel,
+  entries,
+}: {
+  itemTitle: string;
+  entityLabel: string;
+  entries: DetailEntry[];
+}) {
+  const { t } = useLanguage();
+  const summaryText = entries
+    .map((entry) => getEntryText(entry.value))
+    .find((value) => value && value !== itemTitle);
+
+  return (
+    <div className="overflow-hidden rounded-[24px] border border-border/75 bg-background/75">
+      <div className="flex flex-col gap-5 border-b border-border/70 bg-muted/45 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex min-w-0 items-center gap-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary text-base font-bold text-primary-foreground shadow-soft">
+            {getInitials(itemTitle)}
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {entityLabel}
+            </p>
+            <h3 className="mt-1 truncate text-xl font-semibold text-foreground">
+              {itemTitle}
+            </h3>
+            {summaryText ? (
+              <p className="mt-1 truncate text-sm text-muted-foreground">{summaryText}</p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+
+      {entries.length ? (
+        <div className="grid gap-px bg-border/70 sm:grid-cols-2 lg:grid-cols-4">
+          {entries.map((entry) => (
+            <div key={entry.key} className="min-w-0 bg-card/80 px-4 py-3">
+              <p className="truncate text-[0.68rem] font-semibold uppercase tracking-wide text-muted-foreground">
+                {t(entry.label)}
+              </p>
+              <div className="mt-1 truncate text-sm font-semibold text-foreground">{entry.value}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
 function DetailGrid({ entries }: { entries: DetailEntry[] }) {
   const { t } = useLanguage();
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-3 md:grid-cols-2">
       {entries.map((entry) => (
-        <div key={entry.key} className={entry.full ? 'md:col-span-2' : undefined}>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <div
+          key={entry.key}
+          className={`min-w-0 rounded-2xl border border-border/70 bg-background/55 p-4 shadow-sm ${
+            entry.full ? 'md:col-span-2' : ''
+          }`}
+        >
+          <p className="truncate text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {t(entry.label)}
           </p>
-          <div className="mt-1 break-words text-sm text-foreground">{entry.value}</div>
+          <div className="mt-2 break-words text-sm font-medium leading-6 text-foreground">
+            {entry.value}
+          </div>
         </div>
+      ))}
+    </div>
+  );
+}
+
+function NestedSections({ sections }: { sections: DetailSection[] }) {
+  if (!sections.length) {
+    return null;
+  }
+
+  return (
+    <div className="space-y-3">
+      {sections.map((section) => (
+        <section
+          key={section.key}
+          className="overflow-hidden rounded-[22px] border border-border/70 bg-background/50"
+        >
+          <div className="border-b border-border/70 bg-muted/35 px-4 py-3">
+            <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
+          </div>
+          <div className="p-4">
+            <DetailGrid entries={section.entries} />
+          </div>
+        </section>
       ))}
     </div>
   );
@@ -388,6 +512,10 @@ export default function EntityDetailsModal({
     : [];
   const nestedSections = item ? buildNestedSections(item, language, t) : [];
   const entries = [...configured.entries, ...extraEntries];
+  const highlightedEntries = getHighlightedEntries(entries);
+  const detailEntries = entries.filter(
+    (entry) => !isHighlightedEntry(entry, highlightedEntries) && getEntryText(entry.value) !== itemTitle
+  );
 
   return (
     <Modal open={open} title={title} description={itemTitle} onClose={onClose}>
@@ -409,23 +537,15 @@ export default function EntityDetailsModal({
         />
       ) : entries.length || nestedSections.length ? (
         <div className="space-y-6">
-          {entries.length ? <DetailGrid entries={entries} /> : null}
+          <DetailHero
+            itemTitle={itemTitle}
+            entityLabel={t(config.singular)}
+            entries={highlightedEntries}
+          />
 
-          {nestedSections.length ? (
-            <div className="space-y-3">
-              {nestedSections.map((section) => (
-                <section
-                  key={section.key}
-                  className="rounded-2xl border border-border/70 bg-background/45 p-4"
-                >
-                  <h3 className="text-sm font-semibold text-foreground">{section.title}</h3>
-                  <div className="mt-4">
-                    <DetailGrid entries={section.entries} />
-                  </div>
-                </section>
-              ))}
-            </div>
-          ) : null}
+          {detailEntries.length ? <DetailGrid entries={detailEntries} /> : null}
+
+          <NestedSections sections={nestedSections} />
         </div>
       ) : (
         <EmptyState compact title={t(commonCopy.emptyTitle)} description={t(commonCopy.noItems)} />
