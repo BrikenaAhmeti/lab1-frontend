@@ -22,11 +22,26 @@ import { authApi, fetchArrayWithFallback } from '@/libs/app/api';
 import { getErrorMessage, normalizeArrayResponse, stripEmptyValues } from '@/libs/app/utils';
 import { moduleConfigs, referenceConfigs } from '@/config/modules';
 import { getModulePermissionFlags, moduleKeyToAppModule } from '@/config/permissions';
-import type { ModuleKey, ReferenceOption, SortOrder } from '@/types/app';
+import type { FilterConfig, ModuleKey, ReferenceOption, SortOrder } from '@/types/app';
 
 function getPositiveNumber(value: string | null, fallback: number) {
   const parsed = Number(value);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+function normalizeOptionValue(value: string, options?: Array<{ value: string }>) {
+  const normalizedValue = value.trim().toLowerCase();
+  const option = options?.find((entry) => entry.value.toLowerCase() === normalizedValue);
+
+  return option?.value ?? value;
+}
+
+function normalizeFilterValue(value: string, filter: FilterConfig) {
+  if (filter.type !== 'select' || filter.source) {
+    return value;
+  }
+
+  return normalizeOptionValue(value, filter.options);
 }
 
 function buildNextSearchParams(current: URLSearchParams, values: Record<string, string | number | null>) {
@@ -130,7 +145,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
       const params = new URLSearchParams(searchParamsKey);
 
       return config.filters.reduce<Record<string, string>>((values, filter) => {
-        values[filter.name] = params.get(filter.name) || '';
+        values[filter.name] = normalizeFilterValue(params.get(filter.name) || '', filter);
         return values;
       }, {});
     },

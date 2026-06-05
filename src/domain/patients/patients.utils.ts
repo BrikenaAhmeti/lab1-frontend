@@ -8,6 +8,15 @@ export const patientPageSizes = [10, 20, 50];
 export const patientDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 export const patientPhonePattern = /^\+\d{8,15}$/;
 
+export function isKnownPatientGender(value: string): value is PatientGender {
+  return patientGenders.includes(value as PatientGender);
+}
+
+export function normalizePatientGender(value: unknown) {
+  const normalized = String(value ?? '').trim().toUpperCase();
+  return isKnownPatientGender(normalized) ? normalized : '';
+}
+
 export function getPatientApiStatus(error: unknown) {
   return isAxiosError(error) ? error.response?.status : undefined;
 }

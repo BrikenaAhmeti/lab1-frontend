@@ -13,7 +13,7 @@ import {
   normalizeRoles,
   stripEmptyValues,
 } from '@/libs/app/utils';
-import type { ModuleConfig, ModuleKey, OptionConfig, ReferenceConfig } from '@/types/app';
+import type { Language, ModuleConfig, ModuleKey, OptionConfig, ReferenceConfig } from '@/types/app';
 
 const requiredText = 'This field is required.';
 const positiveNumberText = 'Enter a value greater than zero.';
@@ -142,6 +142,31 @@ function renderStatus(value: any) {
 function renderBooleanStatus(value: any, activeText: string, inactiveText: string) {
   const isEnabled = value === true || String(value).toLowerCase() === 'true';
   return <Badge variant={isEnabled ? 'success' : 'secondary'}>{isEnabled ? activeText : inactiveText}</Badge>;
+}
+
+function normalizeConfiguredOptionValue(value: any, options: OptionConfig[]) {
+  const text = String(value ?? '').trim();
+  const normalizedText = text.toLowerCase();
+  const option = options.find((entry) => entry.value.toLowerCase() === normalizedText);
+
+  return option?.value ?? text;
+}
+
+function formatConfiguredOptionLabel(value: any, options: OptionConfig[], language: Language) {
+  const normalizedValue = normalizeConfiguredOptionValue(value, options);
+  const option = options.find((entry) => entry.value === normalizedValue);
+
+  return option?.label[language] ?? normalizedValue;
+}
+
+function buildPatientPayload(values: Record<string, any>) {
+  const payload = stripEmptyValues(values);
+
+  if ('gender' in payload) {
+    payload.gender = normalizeConfiguredOptionValue(payload.gender, genders);
+  }
+
+  return payload;
 }
 
 function withAdmissionPayload(values: any) {
@@ -635,7 +660,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     columns: [
       { key: 'name', label: lt('Patient', 'Patient'), render: (item) => formatPersonName(item) },
       { key: 'dateOfBirth', label: lt('Birth date', 'Geburtsdatum'), render: (item, language) => formatDate(String(getValue(item, 'dateOfBirth')), language) },
-      { key: 'gender', label: lt('Gender', 'Geschlecht'), render: (item) => String(getValue(item, 'gender')) },
+      { key: 'gender', label: lt('Gender', 'Geschlecht'), render: (item, language) => formatConfiguredOptionLabel(getValue(item, 'gender'), genders, language) },
       { key: 'bloodType', label: lt('Blood type', 'Blutgruppe'), render: (item) => String(getValue(item, 'bloodType')) },
       { key: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), render: (item) => String(getValue(item, 'phoneNumber')) },
     ],
@@ -648,6 +673,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       bloodType: requiredString(),
       address: requiredString(),
     }),
+    cleanPayload: buildPatientPayload,
     getItemTitle: (item) => formatPersonName(item),
   },
   doctors: {

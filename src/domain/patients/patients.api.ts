@@ -8,9 +8,9 @@ import type {
   PatientsListResponse,
   UpdatePatientDTO,
 } from './patients.types';
+import { normalizePatientGender } from './patients.utils';
 
 const BASE = '/api/patients';
-const patientGenders: PatientGender[] = ['MALE', 'FEMALE', 'OTHER'];
 const patientBloodTypes: PatientBloodType[] = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
 function getValue(source: unknown, keys: string[]) {
@@ -54,11 +54,9 @@ function normalizeNullableText(value: unknown) {
 }
 
 function normalizeGender(value: unknown): PatientGender {
-  const normalized = normalizeText(value).trim().toUpperCase();
+  const normalized = normalizePatientGender(value);
 
-  return patientGenders.includes(normalized as PatientGender)
-    ? normalized as PatientGender
-    : 'OTHER';
+  return normalized || 'OTHER';
 }
 
 function normalizeBloodType(value: unknown): PatientBloodType {
@@ -127,7 +125,24 @@ function buildPatientsQuery(params: PatientsListParams) {
     query.set('search', params.search.trim());
   }
 
+  const gender = normalizePatientGender(params.gender);
+
+  if (gender) {
+    query.set('gender', gender);
+  }
+
   return query.toString();
+}
+
+function normalizePatientPayload<T extends CreatePatientDTO | UpdatePatientDTO>(payload: T): T {
+  if (!('gender' in payload) || payload.gender === undefined) {
+    return payload;
+  }
+
+  return {
+    ...payload,
+    gender: normalizeGender(payload.gender),
+  };
 }
 
 export const PatientsApi = {
@@ -140,10 +155,12 @@ export const PatientsApi = {
     api.core.get<unknown>(`${BASE}/${id}`).then((r) => normalizePatient(r.data)),
 
   create: (payload: CreatePatientDTO) =>
-    api.core.post<unknown>(BASE, payload).then((r) => normalizePatient(r.data)),
+    api.core.post<unknown>(BASE, normalizePatientPayload(payload)).then((r) => normalizePatient(r.data)),
 
   update: (id: string, payload: UpdatePatientDTO) =>
-    api.core.put<unknown>(`${BASE}/${id}`, payload).then((r) => normalizePatient(r.data)),
+    api.core
+      .put<unknown>(`${BASE}/${id}`, normalizePatientPayload(payload))
+      .then((r) => normalizePatient(r.data)),
 
   remove: (id: string) =>
     api.core.delete<void>(`${BASE}/${id}`).then(() => undefined),

@@ -5,6 +5,7 @@ import { useCreatePatient, usePatient, useUpdatePatient } from '@/domain/patient
 import {
   getPatientApiMessage,
   getPatientApiStatus,
+  normalizePatientGender,
   patientBloodTypes,
   patientDatePattern,
   patientGenders,
@@ -46,7 +47,7 @@ function validateForm(values: PatientFormValues, t: (key: string) => string) {
   if (!values.firstName.trim()) errors.firstName = t('validation.required');
   if (!values.lastName.trim()) errors.lastName = t('validation.required');
   if (!values.dateOfBirth.trim()) errors.dateOfBirth = t('validation.required');
-  if (!values.gender.trim()) errors.gender = t('validation.required');
+  if (!normalizePatientGender(values.gender)) errors.gender = t('validation.required');
   if (!values.phoneNumber.trim()) errors.phoneNumber = t('validation.required');
   if (!values.address.trim()) errors.address = t('validation.required');
   if (!values.bloodType.trim()) errors.bloodType = t('validation.required');
@@ -86,7 +87,7 @@ export default function PatientFormPage() {
       firstName: patientQuery.data.firstName,
       lastName: patientQuery.data.lastName,
       dateOfBirth: patientQuery.data.dateOfBirth,
-      gender: patientQuery.data.gender,
+      gender: normalizePatientGender(patientQuery.data.gender),
       phoneNumber: patientQuery.data.phoneNumber,
       address: patientQuery.data.address,
       bloodType: patientQuery.data.bloodType,
@@ -114,7 +115,7 @@ export default function PatientFormPage() {
       firstName: form.firstName.trim(),
       lastName: form.lastName.trim(),
       dateOfBirth: form.dateOfBirth,
-      gender: form.gender as PatientGender,
+      gender: normalizePatientGender(form.gender) as PatientGender,
       phoneNumber: form.phoneNumber.trim(),
       address: form.address.trim(),
       bloodType: form.bloodType as PatientBloodType,

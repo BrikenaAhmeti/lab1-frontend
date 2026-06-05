@@ -18,6 +18,7 @@ export type PatientsListParams = {
   page?: number;
   limit?: number;
   search?: string;
+  gender?: PatientGender;
 };
 
 export type PatientsListResponse = {

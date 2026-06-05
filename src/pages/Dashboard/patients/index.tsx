@@ -7,6 +7,8 @@ import {
   formatPatientDate,
   getPatientApiMessage,
   getPatientApiStatus,
+  normalizePatientGender,
+  patientGenders,
   patientPageSizes,
 } from '@/domain/patients/patients.utils';
 import Badge from '@/ui/atoms/Badge';
@@ -40,9 +42,10 @@ export default function PatientsListPage() {
   const page = getPositiveNumber(searchParams.get('page'), 1);
   const limit = getLimitNumber(searchParams.get('limit'), 10);
   const search = searchParams.get('search')?.trim() ?? '';
+  const gender = normalizePatientGender(searchParams.get('gender'));
   const [searchValue, setSearchValue] = useState(search);
   const [actionError, setActionError] = useState('');
-  const patientsQuery = usePatients({ page, limit, search });
+  const patientsQuery = usePatients({ page, limit, search, gender: gender || undefined });
   const deletePatient = useDeletePatient();
 
   useEffect(() => {
@@ -81,6 +84,7 @@ export default function PatientsListPage() {
     event.preventDefault();
     updateParams({
       search: searchValue.trim() || null,
+      gender: gender || null,
       page: '1',
       limit: String(limit),
     });
@@ -90,6 +94,7 @@ export default function PatientsListPage() {
     setSearchValue('');
     updateParams({
       search: null,
+      gender: null,
       page: '1',
       limit: String(limit),
     });
@@ -98,8 +103,18 @@ export default function PatientsListPage() {
   const handleLimitChange = (value: string) => {
     updateParams({
       search: search || null,
+      gender: gender || null,
       page: '1',
       limit: value,
+    });
+  };
+
+  const handleGenderChange = (value: string) => {
+    updateParams({
+      search: search || null,
+      gender: normalizePatientGender(value) || null,
+      page: '1',
+      limit: String(limit),
     });
   };
 
@@ -117,6 +132,7 @@ export default function PatientsListPage() {
       if (shouldGoBack) {
         updateParams({
           search: search || null,
+          gender: gender || null,
           page: String(page - 1),
           limit: String(limit),
         });
@@ -245,7 +261,7 @@ export default function PatientsListPage() {
       </div>
 
       <Card title={t('list.filtersTitle')} description={t('list.filtersDescription')}>
-        <form className="grid gap-3 lg:grid-cols-[minmax(0,1fr),180px,auto,auto]" onSubmit={handleSearch}>
+        <form className="grid gap-3 lg:grid-cols-[minmax(0,1fr),180px,180px,auto,auto]" onSubmit={handleSearch}>
           <Input
             label={t('fields.search')}
             name="search"
@@ -262,6 +278,19 @@ export default function PatientsListPage() {
             {patientPageSizes.map((value) => (
               <option key={value} value={value}>
                 {value}
+              </option>
+            ))}
+          </Select>
+          <Select
+            label={t('fields.gender')}
+            name="gender"
+            value={gender}
+            onChange={(event) => handleGenderChange(event.target.value)}
+          >
+            <option value="">{t('list.allGenders')}</option>
+            {patientGenders.map((value) => (
+              <option key={value} value={value}>
+                {t(`genders.${value}`)}
               </option>
             ))}
           </Select>
@@ -301,6 +330,7 @@ export default function PatientsListPage() {
                   onClick={() =>
                     updateParams({
                       search: search || null,
+                      gender: gender || null,
                       page: String(page - 1),
                       limit: String(limit),
                     })
@@ -319,6 +349,7 @@ export default function PatientsListPage() {
                   onClick={() =>
                     updateParams({
                       search: search || null,
+                      gender: gender || null,
                       page: String(page + 1),
                       limit: String(limit),
                     })

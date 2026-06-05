@@ -290,6 +290,13 @@ export function getFieldInputValue(item: any, field: FormFieldConfig) {
     return rawValue === '' ? '' : Number(rawValue);
   }
 
+  if (field.type === 'select' && field.options?.length) {
+    const normalizedValue = String(rawValue ?? '').trim().toLowerCase();
+    const option = field.options.find((entry) => entry.value.toLowerCase() === normalizedValue);
+
+    return option?.value ?? rawValue ?? '';
+  }
+
   return rawValue ?? '';
 }
 

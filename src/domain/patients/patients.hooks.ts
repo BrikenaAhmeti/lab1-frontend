@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PatientsApi } from './patients.api';
+import { normalizePatientGender } from './patients.utils';
 import type {
   CreatePatientDTO,
   Patient,
@@ -11,7 +12,13 @@ export const patientsKeys = {
   all: ['patients'] as const,
   lists: () => [...patientsKeys.all, 'list'] as const,
   list: (params: PatientsListParams) =>
-    [...patientsKeys.lists(), params.page ?? 1, params.limit ?? 10, params.search?.trim() ?? ''] as const,
+    [
+      ...patientsKeys.lists(),
+      params.page ?? 1,
+      params.limit ?? 10,
+      params.search?.trim() ?? '',
+      normalizePatientGender(params.gender),
+    ] as const,
   details: () => [...patientsKeys.all, 'detail'] as const,
   detail: (id: string) => [...patientsKeys.details(), id] as const,
 };

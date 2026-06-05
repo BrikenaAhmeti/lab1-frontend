@@ -182,7 +182,8 @@ function getOptionLabel(
   value: unknown,
   translate: (value: LocalizedText) => string
 ) {
-  const option = field.options?.find((entry) => String(entry.value) === String(value));
+  const normalizedValue = String(value ?? '').trim().toLowerCase();
+  const option = field.options?.find((entry) => entry.value.toLowerCase() === normalizedValue);
   return option ? translate(option.label) : value;
 }
 

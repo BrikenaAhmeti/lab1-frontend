@@ -64,6 +64,8 @@ export default defineConfig({
     include: [
       './src/app/**/*.test.ts',
       './src/app/**/*.test.tsx',
+      './src/domain/**/*.test.ts',
+      './src/pages/Dashboard/**/*.test.tsx',
       './src/libs/app/**/*.test.ts',
       './src/pages/app/**/*.test.tsx',
       './src/ui/**/*.test.tsx',
