@@ -6,19 +6,19 @@ import {
   useRef,
   useState,
   type ChangeEvent,
+  type ChangeEventHandler,
   type ForwardedRef,
   type InputHTMLAttributes,
 } from 'react';
 
 type TimePickerProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'value' | 'defaultValue' | 'onChange'
+  'type'
 > & {
   label?: string;
   hint?: string;
   error?: string;
-  value?: string | null;
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 };
 
 const hours = Array.from({ length: 24 }, (_, index) => String(index).padStart(2, '0'));
@@ -48,6 +48,21 @@ function setForwardedRef(ref: ForwardedRef<HTMLInputElement>, node: HTMLInputEle
   }
 }
 
+function stringifyInputValue(value: TimePickerProps['value'] | TimePickerProps['defaultValue']) {
+  if (Array.isArray(value)) {
+    return String(value[0] ?? '');
+  }
+
+  return value === undefined || value === null ? '' : String(value);
+}
+
+function createChangeEvent(name: string | undefined, value: string) {
+  return {
+    target: { name: name ?? '', value },
+    currentTarget: { name: name ?? '', value },
+  } as ChangeEvent<HTMLInputElement>;
+}
+
 function ClockIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -71,7 +86,9 @@ const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(function TimePi
     id,
     name,
     value,
+    defaultValue,
     onChange,
+    onValueChange,
     onBlur,
     disabled,
     placeholder = 'HH:mm',
@@ -80,7 +97,9 @@ const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(function TimePi
   ref
 ) {
   const fieldId = id ?? name;
-  const currentValue = String(value ?? '');
+  const isControlled = value !== undefined;
+  const [internalValue, setInternalValue] = useState(() => stringifyInputValue(defaultValue));
+  const currentValue = isControlled ? stringifyInputValue(value) : internalValue;
   const selectedTime = useMemo(() => parseTimeValue(currentValue), [currentValue]);
   const selectedHour = selectedTime?.hour ?? '09';
   const selectedMinute = selectedTime?.minute ?? '00';
@@ -103,16 +122,27 @@ const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(function TimePi
     return () => document.removeEventListener('mousedown', handleMouseDown);
   }, []);
 
+  const emitValue = (next: string, event?: ChangeEvent<HTMLInputElement>) => {
+    if (!isControlled) {
+      setInternalValue(next);
+    }
+
+    onValueChange?.(next);
+    (onChange as ChangeEventHandler<HTMLInputElement> | undefined)?.(
+      event ?? createChangeEvent(name, next)
+    );
+  };
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const next = event.target.value;
 
     if (/^\d{0,2}:?\d{0,2}$/.test(next) && next.length <= 5) {
-      onChange?.(next);
+      emitValue(next, event);
     }
   };
 
   const commitTime = (hour: string, minute: string) => {
-    onChange?.(`${hour}:${minute}`);
+    emitValue(`${hour}:${minute}`);
   };
 
   return (
@@ -143,7 +173,7 @@ const TimePicker = forwardRef<HTMLInputElement, TimePickerProps>(function TimePi
           onChange={handleInputChange}
           onBlur={(event) => {
             if (event.currentTarget.value && !parseTimeValue(event.currentTarget.value)) {
-              onChange?.('');
+              emitValue('');
             }
 
             onBlur?.(event);

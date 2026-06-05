@@ -18,7 +18,6 @@ import {
 import { usePatient, usePatients } from '@/domain/patients/patients.hooks';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
-import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
 import MedicalRecordItem from './record-item';
 import MedicalRecordStateCard from './state-card';
@@ -31,10 +30,9 @@ export default function MedicalRecordsListPage() {
   const roles = useAppSelector((state) => state.auth.user?.roles ?? []);
   const canManage = isDoctorOrAdminUser(roles);
   const patientId = searchParams.get('patientId')?.trim() ?? '';
-  const [patientSearch, setPatientSearch] = useState('');
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
-  const patientsQuery = usePatients({ page: 1, limit: 50, search: patientSearch });
+  const patientsQuery = usePatients({ page: 1, limit: 100, search: '' });
   const selectedPatientQuery = usePatient(patientId);
   const recordsQuery = useMedicalRecords(patientId);
   const deleteMedicalRecord = useDeleteMedicalRecord();
@@ -237,18 +235,12 @@ export default function MedicalRecordsListPage() {
         description={t('filters.description')}
         className="relative z-20"
       >
-        <div className="grid gap-4 md:grid-cols-2">
-          <Input
-            name="patientSearch"
-            label={t('fields.patientSearch')}
-            value={patientSearch}
-            placeholder={t('filters.patientSearchPlaceholder')}
-            onChange={(event) => setPatientSearch(event.target.value)}
-          />
+        <div className="grid gap-4 md:max-w-md">
           <Select
             name="patientId"
             label={t('fields.patient')}
             value={patientId}
+            searchPlaceholder={t('filters.patientSearchPlaceholder')}
             hint={patientsQuery.isLoading ? t('labels.loadingPatients') : undefined}
             error={patientsQuery.error ? getMedicalRecordApiMessage(patientsQuery.error, t('errors.patients')) : ''}
             onChange={(event) => updatePatientId(event.target.value)}

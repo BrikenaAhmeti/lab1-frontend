@@ -1,7 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
-import { getAdmissionStatusVariant } from '@/domain/admissions/admissions.utils';
+import { useAdmissions } from '@/domain/admissions/admissions.hooks';
+import {
+  getAdmissionApiMessage,
+  getAdmissionStatusVariant,
+} from '@/domain/admissions/admissions.utils';
 import { isAdminUser } from '@/domain/auth/role.utils';
 import { useRoom } from '@/domain/rooms/rooms.hooks';
 import {
@@ -57,6 +61,7 @@ export default function RoomDetailsPage() {
   const roles = useAppSelector((state) => state.auth.user?.roles ?? []);
   const isAdmin = isAdminUser(roles);
   const roomQuery = useRoom(id);
+  const admissionsQuery = useAdmissions({ status: 'ACTIVE', roomId: id });
   const status = getRoomApiStatus(roomQuery.error);
   const room = roomQuery.data;
 
@@ -115,7 +120,14 @@ export default function RoomDetailsPage() {
 
   const normalizedType = normalizeRoomType(room.type);
   const normalizedStatus = normalizeRoomStatus(room.status);
-  const currentAdmissions = room.currentAdmissions ?? [];
+  const roomAdmissions = admissionsQuery.data?.filter((admission) =>
+    admission.roomId === room.id || admission.room?.id === room.id
+  );
+  const currentAdmissions = roomAdmissions ?? room.currentAdmissions ?? [];
+  const hasEmbeddedAdmissions = Boolean(room.currentAdmissions?.length);
+  const showAdmissionsLoading = admissionsQuery.isLoading && !hasEmbeddedAdmissions;
+  const showAdmissionsError = Boolean(admissionsQuery.error && !hasEmbeddedAdmissions);
+  const showAdmissionsFallbackNotice = Boolean(admissionsQuery.error && hasEmbeddedAdmissions);
   const fields = [
     { label: t('fields.department'), value: room.department?.name || t('labels.noDepartment') },
     {
@@ -196,7 +208,32 @@ export default function RoomDetailsPage() {
         title={t('details.currentAdmissionsTitle')}
         description={t('details.currentAdmissionsDescription', { count: currentAdmissions.length })}
       >
-        {!currentAdmissions.length ? (
+        {showAdmissionsLoading ? (
+          <div className="rounded-2xl border border-border/70 bg-background/45 px-4 py-5">
+            <p className="text-sm font-semibold text-foreground">
+              {t('details.loadingAdmissionsTitle')}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t('details.loadingAdmissionsDescription')}
+            </p>
+          </div>
+        ) : showAdmissionsError ? (
+          <div className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-5">
+            <p className="text-sm font-semibold text-danger">{t('states.errorTitle')}</p>
+            <p className="mt-1 text-sm text-danger">
+              {getAdmissionApiMessage(admissionsQuery.error, t('errors.currentAdmissions'))}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="mt-3"
+              onClick={() => admissionsQuery.refetch()}
+            >
+              {t('actions.retry')}
+            </Button>
+          </div>
+        ) : !currentAdmissions.length ? (
           <div className="rounded-2xl border border-border/70 bg-background/45 px-4 py-5">
             <p className="text-sm font-semibold text-foreground">
               {t('details.noAdmissionsTitle')}
@@ -207,6 +244,11 @@ export default function RoomDetailsPage() {
           </div>
         ) : (
           <div className="space-y-3">
+            {showAdmissionsFallbackNotice ? (
+              <div className="rounded-2xl border border-warning/20 bg-warning/10 px-4 py-3 text-sm text-warning">
+                {getAdmissionApiMessage(admissionsQuery.error, t('errors.currentAdmissions'))}
+              </div>
+            ) : null}
             {currentAdmissions.map((admission) => {
               const patientName = getPatientName(admission.patient) || t('labels.notAvailable');
               const admissionDate = formatAdmissionDate(
@@ -214,6 +256,11 @@ export default function RoomDetailsPage() {
                 i18n.language
               ) || t('labels.notAvailable');
               const admissionStatus = normalizeRoomStatus(admission.status);
+              const patientId = typeof admission.patient?.id === 'string' && admission.patient.id.trim()
+                ? admission.patient.id
+                : typeof admission.patientId === 'string'
+                  ? admission.patientId
+                  : '';
 
               return (
                 <div
@@ -227,11 +274,23 @@ export default function RoomDetailsPage() {
                         {t('fields.admissionDate')}: {admissionDate}
                       </p>
                     </div>
-                    <Badge variant={getAdmissionStatusVariant(admission.status || '')}>
-                      {isKnownRoomStatus(admissionStatus)
-                        ? t(`statuses.${admissionStatus}`)
-                        : admission.status || t('labels.notAvailable')}
-                    </Badge>
+                    <div className="flex flex-wrap justify-end gap-2">
+                      <Badge variant={getAdmissionStatusVariant(admission.status || '')}>
+                        {isKnownRoomStatus(admissionStatus)
+                          ? t(`statuses.${admissionStatus}`)
+                          : admission.status || t('labels.notAvailable')}
+                      </Badge>
+                      {patientId ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => navigate(`/app/patients/${patientId}`)}
+                        >
+                          {t('actions.viewPatient')}
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               );

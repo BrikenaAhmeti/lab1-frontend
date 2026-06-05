@@ -7,7 +7,12 @@ export const admissionsKeys = {
   all: ['admissions'] as const,
   lists: () => [...admissionsKeys.all, 'list'] as const,
   list: (params: AdmissionsListParams = {}) =>
-    [...admissionsKeys.lists(), params.status?.trim() ?? ''] as const,
+    [
+      ...admissionsKeys.lists(),
+      params.status?.trim() ?? '',
+      params.patientId?.trim() ?? '',
+      params.roomId?.trim() ?? '',
+    ] as const,
   active: () => [...admissionsKeys.all, 'active'] as const,
 };
 

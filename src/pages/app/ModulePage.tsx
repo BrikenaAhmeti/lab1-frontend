@@ -12,6 +12,7 @@ import DeleteModal from '@/ui/organisms/DeleteModal';
 import EmptyState from '@/ui/molecules/EmptyState';
 import EntityDetailsModal from '@/ui/organisms/EntityDetailsModal';
 import EntityFormModal from '@/ui/organisms/EntityFormModal';
+import ListSkeleton from '@/ui/molecules/ListSkeleton';
 import Modal from '@/ui/molecules/Modal';
 import PageHeader from '@/ui/molecules/PageHeader';
 import Pagination from '@/ui/molecules/Pagination';
@@ -19,10 +20,17 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useToast } from '@/app/contexts/ToastContext';
 import { authApi, fetchArrayWithFallback } from '@/libs/app/api';
-import { getErrorMessage, normalizeArrayResponse, stripEmptyValues } from '@/libs/app/utils';
+import {
+  formatDate,
+  formatPersonName,
+  getErrorMessage,
+  getValue,
+  normalizeArrayResponse,
+  stripEmptyValues,
+} from '@/libs/app/utils';
 import { moduleConfigs, referenceConfigs } from '@/config/modules';
 import { getModulePermissionFlags, moduleKeyToAppModule } from '@/config/permissions';
-import type { FilterConfig, ModuleKey, ReferenceOption, SortOrder } from '@/types/app';
+import type { FilterConfig, Language, LocalizedText, ModuleKey, ReferenceOption, SortOrder } from '@/types/app';
 
 function getPositiveNumber(value: string | null, fallback: number) {
   const parsed = Number(value);
@@ -111,6 +119,99 @@ function supportsAction(config: (typeof moduleConfigs)[ModuleKey], action: 'crea
   return config.actions?.[action] ?? true;
 }
 
+function getAdmissionPatientLabel(admission: any) {
+  const patient = getValue(admission, 'patient');
+  return formatPersonName(patient) || String(getValue(admission, 'patientName', 'patientId'));
+}
+
+function getAdmissionDateLabel(admission: any, language: Language) {
+  const value = String(getValue(admission, 'admissionDate', 'admittedAt', 'createdAt'));
+  return formatDate(value, language) || value;
+}
+
+function RoomCurrentPatientsPanel({
+  admissions,
+  loading,
+  error,
+  language,
+  t,
+  onRetry,
+}: {
+  admissions: any[];
+  loading: boolean;
+  error?: any;
+  language: Language;
+  t: (value: LocalizedText) => string;
+  onRetry: () => Promise<unknown> | unknown;
+}) {
+  return (
+    <section className="space-y-3">
+      <div>
+        <h3 className="text-sm font-semibold text-foreground">
+          {t(lt('Current patients', 'Aktuelle Patienten'))}
+        </h3>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {t(lt('Patients currently staying in this room.', 'Patienten, die aktuell in diesem Zimmer liegen.'))}
+        </p>
+      </div>
+
+      {loading ? (
+        <ListSkeleton items={2} itemClassName="h-16" />
+      ) : error ? (
+        <EmptyState
+          compact
+          tone="error"
+          title={t(commonCopy.errorTitle)}
+          description={getErrorMessage(error, t)}
+          action={
+            <Button variant="outline" onClick={onRetry}>
+              {t(commonCopy.retry)}
+            </Button>
+          }
+        />
+      ) : admissions.length ? (
+        <div className="grid gap-3 md:grid-cols-2">
+          {admissions.map((admission) => {
+            const patientName = getAdmissionPatientLabel(admission) || t(commonCopy.notAvailable);
+            const admissionDate = getAdmissionDateLabel(admission, language) || t(commonCopy.notAvailable);
+            const status = String(getValue(admission, 'status'));
+
+            return (
+              <div
+                key={String(getValue(admission, 'id'))}
+                className="rounded-2xl border border-border/70 bg-background/55 p-4 shadow-sm"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="break-words text-sm font-semibold text-foreground">
+                      {patientName}
+                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t(lt('Admission date', 'Aufnahmedatum'))}: {admissionDate}
+                    </p>
+                  </div>
+                  {status ? <Badge variant="success">{status}</Badge> : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <EmptyState
+          compact
+          title={t(lt('No current patients', 'Keine aktuellen Patienten'))}
+          description={t(
+            lt(
+              'There are no active admissions assigned to this room.',
+              'Diesem Zimmer sind aktuell keine aktiven Aufnahmen zugeordnet.'
+            )
+          )}
+        />
+      )}
+    </section>
+  );
+}
+
 export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const config = moduleConfigs[moduleKey];
   const [searchParams, setSearchParams] = useSearchParams();
@@ -123,7 +224,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const [deleteItem, setDeleteItem] = useState<any>(null);
   const [detailItem, setDetailItem] = useState<any>(null);
   const [passwordResetItem, setPasswordResetItem] = useState<any>(null);
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { user } = useAuth();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
@@ -199,6 +300,19 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     queryKey: [moduleKey, 'detail', detailItem?.id],
     queryFn: () => config.service.get(String(detailItem?.id)),
     enabled: canRead && Boolean(detailItem?.id),
+    staleTime: 30_000,
+  });
+
+  const roomAdmissionsQuery = useQuery({
+    queryKey: [moduleKey, 'detail', 'active-admissions', detailItem?.id],
+    queryFn: () =>
+      moduleConfigs.admissions.service.list({
+        page: 1,
+        limit: 100,
+        status: 'ACTIVE',
+        roomId: String(detailItem?.id),
+      }),
+    enabled: canRead && moduleKey === 'rooms' && Boolean(detailItem?.id),
     staleTime: 30_000,
   });
 
@@ -315,6 +429,28 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   });
 
   const currentItem = formState.mode === 'edit' ? detailQuery.data || formState.item : formState.item;
+  const currentRoomAdmissions = useMemo(() => {
+    if (moduleKey !== 'rooms' || !detailItem?.id) {
+      return [];
+    }
+
+    const roomId = String(detailItem.id);
+
+    return (roomAdmissionsQuery.data?.data ?? []).filter((admission) =>
+      String(getValue(admission, 'roomId', 'room.id')) === roomId
+    );
+  }, [detailItem?.id, moduleKey, roomAdmissionsQuery.data?.data]);
+
+  const detailExtraContent = moduleKey === 'rooms' && detailItem ? (
+    <RoomCurrentPatientsPanel
+      admissions={currentRoomAdmissions}
+      loading={roomAdmissionsQuery.isLoading}
+      error={roomAdmissionsQuery.error}
+      language={language}
+      t={t}
+      onRetry={() => roomAdmissionsQuery.refetch()}
+    />
+  ) : null;
 
   const openCreateModal = useCallback(() => {
     setFormState({ open: true, mode: 'create', item: null });
@@ -630,6 +766,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         item={detailPopupQuery.data || detailItem}
         loading={detailPopupQuery.isLoading}
         error={detailPopupQuery.error}
+        extraContent={detailExtraContent}
         onClose={closeDetailModal}
         onRetry={() => detailPopupQuery.refetch()}
       />

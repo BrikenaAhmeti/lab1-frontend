@@ -1,10 +1,10 @@
 import '@/config/i18n';
 import { render, screen } from '@testing-library/react';
-import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
+import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import RoomDetailsPage from '@/pages/Dashboard/rooms/details';
+import RoomDetailsPage from './details';
 
 const mockUseRoom = vi.fn();
 const mockUseAdmissions = vi.fn();
@@ -17,27 +17,23 @@ vi.mock('@/domain/admissions/admissions.hooks', () => ({
   useAdmissions: (params?: { status?: string; roomId?: string }) => mockUseAdmissions(params),
 }));
 
-function createUser(roles: string[]) {
-  return {
-    id: 'u-1',
-    firstName: 'Ava',
-    lastName: 'Taylor',
-    email: 'ava@example.com',
-    phoneNumber: null,
-    emailConfirmed: true,
-    isActive: true,
-    lockoutEnabled: false,
-    accessFailedCount: 0,
-    roles,
-    createdAt: '2026-04-16T00:00:00.000Z',
-    updatedAt: '2026-04-16T00:00:00.000Z',
-  };
-}
-
-function renderPage(route: string, roles: string[]) {
+function renderPage(route: string) {
   const preloadedState = {
     auth: {
-      user: createUser(roles),
+      user: {
+        id: 'u-1',
+        firstName: 'Ava',
+        lastName: 'Taylor',
+        email: 'ava@example.com',
+        phoneNumber: null,
+        emailConfirmed: true,
+        isActive: true,
+        lockoutEnabled: false,
+        accessFailedCount: 0,
+        roles: ['ADMIN'],
+        createdAt: '2026-04-16T00:00:00.000Z',
+        updatedAt: '2026-04-16T00:00:00.000Z',
+      },
       tokens: { accessToken: 'access-token', refreshToken: 'refresh-token' },
       finishedGetStarted: false,
       loading: false,
@@ -72,8 +68,6 @@ function renderPage(route: string, roles: string[]) {
       <MemoryRouter initialEntries={[route]}>
         <Routes>
           <Route path="/app/rooms/:id" element={<RoomDetailsPage />} />
-          <Route path="/app/rooms" element={<div>Rooms list</div>} />
-          <Route path="/app/departments/:id" element={<div>Department details</div>} />
         </Routes>
       </MemoryRouter>
     </Provider>
@@ -90,27 +84,16 @@ describe('RoomDetailsPage', () => {
         roomNumber: '101',
         departmentId: 'dep-1',
         type: 'GENERAL',
-        status: 'AVAILABLE',
+        status: 'OCCUPIED',
         capacity: 3,
-        activeAdmissionsCount: 2,
-        availableCapacity: 1,
+        activeAdmissionsCount: 1,
+        availableCapacity: 2,
         department: {
           id: 'dep-1',
           name: 'Cardiology',
           location: 'Floor 2',
         },
-        currentAdmissions: [
-          {
-            id: 'admission-1',
-            status: 'ACTIVE',
-            admissionDate: '2099-10-10T00:00:00.000Z',
-            patient: {
-              id: 'patient-1',
-              firstName: 'Lena',
-              lastName: 'Morris',
-            },
-          },
-        ],
+        currentAdmissions: [],
       },
       isLoading: false,
       error: null,
@@ -131,6 +114,18 @@ describe('RoomDetailsPage', () => {
             lastName: 'Morris',
           },
         },
+        {
+          id: 'admission-2',
+          roomId: 'room-2',
+          patientId: 'patient-2',
+          status: 'ACTIVE',
+          admissionDate: '2099-10-11T00:00:00.000Z',
+          patient: {
+            id: 'patient-2',
+            firstName: 'Noah',
+            lastName: 'Stone',
+          },
+        },
       ],
       isLoading: false,
       error: null,
@@ -138,15 +133,15 @@ describe('RoomDetailsPage', () => {
     });
   });
 
-  it('renders room information and the current admissions list', () => {
-    renderPage('/app/rooms/room-1', ['ADMIN']);
+  it('loads active room admissions from the backend and shows the patients staying there', () => {
+    renderPage('/app/rooms/room-1');
 
-    expect(screen.getByRole('heading', { name: '101' })).toBeInTheDocument();
-    expect(screen.getByText('Room details')).toBeInTheDocument();
-    expect(screen.getByText('Current admissions')).toBeInTheDocument();
+    expect(mockUseAdmissions).toHaveBeenCalledWith({
+      status: 'ACTIVE',
+      roomId: 'room-1',
+    });
     expect(screen.getByText('Lena Morris')).toBeInTheDocument();
-    expect(screen.getByText('ACTIVE')).toBeInTheDocument();
-    expect(screen.getByText(/2099/)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /^Edit$/i })).toBeInTheDocument();
+    expect(screen.queryByText('Noah Stone')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'View patient' })).toBeInTheDocument();
   });
 });

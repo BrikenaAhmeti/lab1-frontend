@@ -15,6 +15,8 @@
     "notFoundDescription": "This room record is no longer available.",
     "currentAdmissionsTitle": "Current admissions",
     "currentAdmissionsDescription": "{{count}} active admissions in this room.",
+    "loadingAdmissionsTitle": "Loading current admissions",
+    "loadingAdmissionsDescription": "Checking who is currently staying in this room.",
     "noAdmissionsTitle": "No active admissions",
     "noAdmissionsDescription": "There are no active admissions assigned to this room."
   },
@@ -30,7 +32,8 @@
   },
   "filters": {
     "title": "Filters",
-    "description": "Filter rooms by department, type, or availability.",
+    "description": "Search rooms and filter by department, type, or availability.",
+    "searchPlaceholder": "Search by room number or department",
     "allDepartments": "All departments",
     "allTypes": "All room types"
   },
@@ -44,14 +47,17 @@
     "cancel": "Cancel",
     "back": "Back",
     "retry": "Try again",
+    "search": "Search",
     "clear": "Clear filters",
     "showAll": "All rooms",
     "showAvailable": "Available only",
     "viewDepartments": "View departments",
     "viewDepartment": "View department",
+    "viewPatient": "View patient",
     "viewAvailable": "View available rooms"
   },
   "fields": {
+    "search": "Search",
     "roomNumber": "Room number",
     "department": "Department",
     "departmentLocation": "Department location",
@@ -98,6 +104,7 @@
     "save": "We could not save the room.",
     "delete": "We could not delete the room.",
     "departments": "We could not load the departments for this screen.",
+    "currentAdmissions": "We could not load the current admissions for this room.",
     "available": "We could not load the available rooms."
   },
   "messages": {

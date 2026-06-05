@@ -6,19 +6,19 @@ import {
   useRef,
   useState,
   type ChangeEvent,
+  type ChangeEventHandler,
   type ForwardedRef,
   type InputHTMLAttributes,
 } from 'react';
 
 type DatePickerProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'value' | 'defaultValue' | 'onChange'
+  'type'
 > & {
   label?: string;
   hint?: string;
   error?: string;
-  value?: string | null;
-  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
 };
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -82,6 +82,21 @@ function setForwardedRef(ref: ForwardedRef<HTMLInputElement>, node: HTMLInputEle
   }
 }
 
+function stringifyInputValue(value: DatePickerProps['value'] | DatePickerProps['defaultValue']) {
+  if (Array.isArray(value)) {
+    return String(value[0] ?? '');
+  }
+
+  return value === undefined || value === null ? '' : String(value);
+}
+
+function createChangeEvent(name: string | undefined, value: string) {
+  return {
+    target: { name: name ?? '', value },
+    currentTarget: { name: name ?? '', value },
+  } as ChangeEvent<HTMLInputElement>;
+}
+
 function CalendarIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -118,7 +133,9 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
     id,
     name,
     value,
+    defaultValue,
     onChange,
+    onValueChange,
     onBlur,
     disabled,
     placeholder = 'YYYY-MM-DD',
@@ -127,7 +144,9 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
   ref
 ) {
   const fieldId = id ?? name;
-  const currentValue = String(value ?? '');
+  const isControlled = value !== undefined;
+  const [internalValue, setInternalValue] = useState(() => stringifyInputValue(defaultValue));
+  const currentValue = isControlled ? stringifyInputValue(value) : internalValue;
   const selectedDate = useMemo(() => parseDateValue(currentValue), [currentValue]);
   const [open, setOpen] = useState(false);
   const [monthCursor, setMonthCursor] = useState(() => startOfMonth(selectedDate ?? new Date()));
@@ -161,16 +180,27 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
     year: 'numeric',
   }).format(monthCursor);
 
+  const emitValue = (next: string, event?: ChangeEvent<HTMLInputElement>) => {
+    if (!isControlled) {
+      setInternalValue(next);
+    }
+
+    onValueChange?.(next);
+    (onChange as ChangeEventHandler<HTMLInputElement> | undefined)?.(
+      event ?? createChangeEvent(name, next)
+    );
+  };
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const next = event.target.value;
 
     if (/^[0-9-]{0,10}$/.test(next)) {
-      onChange?.(next);
+      emitValue(next, event);
     }
   };
 
   const commitDate = (date: Date) => {
-    onChange?.(formatDateValue(date));
+    emitValue(formatDateValue(date));
     setOpen(false);
   };
 
@@ -202,7 +232,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
           onChange={handleInputChange}
           onBlur={(event) => {
             if (event.currentTarget.value && !parseDateValue(event.currentTarget.value)) {
-              onChange?.('');
+              emitValue('');
             }
 
             onBlur?.(event);

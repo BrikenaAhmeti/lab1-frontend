@@ -108,7 +108,6 @@ export default function PrescriptionsPage() {
   const canManage = isDoctorOrAdminUser(roles);
   const patientId = searchParams.get('patientId')?.trim() ?? '';
   const recordId = searchParams.get('recordId')?.trim() ?? '';
-  const [patientSearch, setPatientSearch] = useState('');
   const [form, setForm] = useState<PrescriptionFormValues>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState('');
@@ -116,7 +115,7 @@ export default function PrescriptionsPage() {
   const [actionSuccess, setActionSuccess] = useState('');
   const [editingId, setEditingId] = useState('');
   const [showForm, setShowForm] = useState(false);
-  const patientsQuery = usePatients({ page: 1, limit: 50, search: patientSearch });
+  const patientsQuery = usePatients({ page: 1, limit: 100, search: '' });
   const selectedPatientQuery = usePatient(patientId);
   const recordsQuery = useMedicalRecords(patientId);
   const prescriptionsQuery = useMedicalRecordPrescriptions(recordId);
@@ -507,19 +506,17 @@ export default function PrescriptionsPage() {
         </div>
       </div>
 
-      <Card title={t('filters.title')} description={t('filters.description')}>
-        <div className="grid gap-4 xl:grid-cols-3">
-          <Input
-            name="patientSearch"
-            label={t('fields.patientSearch')}
-            value={patientSearch}
-            placeholder={t('filters.patientSearchPlaceholder')}
-            onChange={(event) => setPatientSearch(event.target.value)}
-          />
+      <Card
+        title={t('filters.title')}
+        description={t('filters.description')}
+        className="relative z-20"
+      >
+        <div className="grid gap-4 xl:grid-cols-2">
           <Select
             name="patientId"
             label={t('fields.patient')}
             value={patientId}
+            searchPlaceholder={t('filters.patientSearchPlaceholder')}
             hint={patientsQuery.isLoading ? t('labels.loadingPatients') : undefined}
             error={patientsQuery.error ? getPatientApiMessage(patientsQuery.error, t('errors.patients')) : ''}
             onChange={(event) =>
@@ -631,7 +628,11 @@ export default function PrescriptionsPage() {
         </Card>
       ) : null}
 
-      <Card title={t('list.resultsTitle')} description={t('list.resultsDescription')}>
+      <Card
+        title={t('list.resultsTitle')}
+        description={t('list.resultsDescription')}
+        className="relative z-0"
+      >
         <div className="space-y-4">
           {prescriptionsQuery.isFetching && !prescriptionsQuery.isLoading ? (
             <p className="text-sm text-muted-foreground">{t('list.refreshing')}</p>

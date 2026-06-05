@@ -44,6 +44,8 @@ export type Admission = {
 
 export type AdmissionsListParams = {
   status?: string;
+  patientId?: string;
+  roomId?: string;
 };
 
 export type CreateAdmissionDTO = {

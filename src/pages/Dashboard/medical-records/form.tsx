@@ -74,6 +74,20 @@ function getBackPath(patientId: string) {
     : '/medical-records';
 }
 
+function toDateInputValue(value: string) {
+  if (!value) {
+    return '';
+  }
+
+  if (medicalRecordDatePattern.test(value)) {
+    return value;
+  }
+
+  const [datePart] = value.split('T');
+
+  return medicalRecordDatePattern.test(datePart) ? datePart : value;
+}
+
 export default function MedicalRecordFormPage() {
   const { t } = useTranslation('medicalRecords');
   const navigate = useNavigate();
@@ -87,8 +101,7 @@ export default function MedicalRecordFormPage() {
   const isAdmin = isAdminUser(roles);
   const recordQuery = useMedicalRecord(id);
   const doctorsQuery = useDoctors();
-  const [patientSearch, setPatientSearch] = useState('');
-  const patientsQuery = usePatients({ page: 1, limit: 50, search: patientSearch });
+  const patientsQuery = usePatients({ page: 1, limit: 100, search: '' });
   const [form, setForm] = useState<MedicalRecordFormValues>({
     ...emptyForm,
     patientId: patientIdFromQuery,
@@ -127,7 +140,7 @@ export default function MedicalRecordFormPage() {
       diagnosis: recordQuery.data.diagnosis,
       treatment: recordQuery.data.treatment,
       prescriptionsText: recordQuery.data.prescriptionsText ?? '',
-      date: recordQuery.data.recordDate,
+      date: toDateInputValue(recordQuery.data.recordDate),
     });
   }, [isEdit, recordQuery.data]);
 
@@ -368,13 +381,6 @@ export default function MedicalRecordFormPage() {
       <Card title={t('form.formTitle')} description={t('form.formDescription')}>
         <form className="space-y-4" noValidate onSubmit={handleSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
-            <Input
-              name="patientSearch"
-              label={t('fields.patientSearch')}
-              value={patientSearch}
-              placeholder={t('form.patientSearchPlaceholder')}
-              onChange={(event) => setPatientSearch(event.target.value)}
-            />
             <Select
               required
               name="patientId"
@@ -382,6 +388,7 @@ export default function MedicalRecordFormPage() {
               value={form.patientId}
               error={errors.patientId}
               hint={patientsQuery.isLoading ? t('labels.loadingPatients') : undefined}
+              searchPlaceholder={t('form.patientSearchPlaceholder')}
               onChange={(event) => handleChange('patientId', event.target.value)}
             >
               <option value="">{t('form.patientPlaceholder')}</option>

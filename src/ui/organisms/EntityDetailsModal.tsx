@@ -30,6 +30,7 @@ type EntityDetailsModalProps = {
   item: any;
   loading: boolean;
   error?: any;
+  extraContent?: ReactNode;
   onClose: () => void;
   onRetry?: () => Promise<unknown> | unknown;
 };
@@ -496,6 +497,7 @@ export default function EntityDetailsModal({
   item,
   loading,
   error,
+  extraContent,
   onClose,
   onRetry,
 }: EntityDetailsModalProps) {
@@ -535,7 +537,7 @@ export default function EntityDetailsModal({
             ) : null
           }
         />
-      ) : entries.length || nestedSections.length ? (
+      ) : entries.length || nestedSections.length || extraContent ? (
         <div className="space-y-6">
           <DetailHero
             itemTitle={itemTitle}
@@ -544,6 +546,8 @@ export default function EntityDetailsModal({
           />
 
           {detailEntries.length ? <DetailGrid entries={detailEntries} /> : null}
+
+          {extraContent}
 
           <NestedSections sections={nestedSections} />
         </div>

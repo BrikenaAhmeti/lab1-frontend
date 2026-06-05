@@ -15,6 +15,8 @@
     "notFoundDescription": "Dieser Zimmereintrag ist nicht mehr verfügbar.",
     "currentAdmissionsTitle": "Aktuelle Aufnahmen",
     "currentAdmissionsDescription": "{{count}} aktive Aufnahmen in diesem Zimmer.",
+    "loadingAdmissionsTitle": "Aktuelle Aufnahmen werden geladen",
+    "loadingAdmissionsDescription": "Es wird geprüft, wer derzeit in diesem Zimmer liegt.",
     "noAdmissionsTitle": "Keine aktiven Aufnahmen",
     "noAdmissionsDescription": "Diesem Zimmer sind derzeit keine aktiven Aufnahmen zugeordnet."
   },
@@ -30,7 +32,8 @@
   },
   "filters": {
     "title": "Filter",
-    "description": "Filtern Sie Zimmer nach Abteilung, Typ oder Verfügbarkeit.",
+    "description": "Suchen Sie Zimmer und filtern Sie nach Abteilung, Typ oder Verfügbarkeit.",
+    "searchPlaceholder": "Nach Zimmernummer oder Abteilung suchen",
     "allDepartments": "Alle Abteilungen",
     "allTypes": "Alle Zimmertypen"
   },
@@ -44,14 +47,17 @@
     "cancel": "Abbrechen",
     "back": "Zurück",
     "retry": "Erneut versuchen",
+    "search": "Suchen",
     "clear": "Filter zurücksetzen",
     "showAll": "Alle Zimmer",
     "showAvailable": "Nur verfügbar",
     "viewDepartments": "Abteilungen ansehen",
     "viewDepartment": "Abteilung ansehen",
+    "viewPatient": "Patient ansehen",
     "viewAvailable": "Verfügbare Zimmer ansehen"
   },
   "fields": {
+    "search": "Suche",
     "roomNumber": "Zimmernummer",
     "department": "Abteilung",
     "departmentLocation": "Standort der Abteilung",
@@ -98,6 +104,7 @@
     "save": "Das Zimmer konnte nicht gespeichert werden.",
     "delete": "Das Zimmer konnte nicht gelöscht werden.",
     "departments": "Die Abteilungen für diesen Bereich konnten nicht geladen werden.",
+    "currentAdmissions": "Die aktuellen Aufnahmen für dieses Zimmer konnten nicht geladen werden.",
     "available": "Die verfügbaren Zimmer konnten nicht geladen werden."
   },
   "messages": {

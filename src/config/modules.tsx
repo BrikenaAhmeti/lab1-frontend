@@ -1010,7 +1010,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     endpoint: '/api/rooms',
     service: createCrudService(
       '/api/rooms',
-      allowListParams('page', 'limit', 'departmentId', 'type')
+      allowListParams('page', 'limit', 'sortBy', 'order', 'search', 'departmentId', 'type')
     ),
     sortOptions: [
       option('createdAt', 'Created at', 'Erstellt am'),
@@ -1031,6 +1031,12 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       status: 'AVAILABLE',
     },
     filters: [
+      {
+        name: 'search',
+        label: lt('Search rooms', 'Zimmer suchen'),
+        type: 'text',
+        placeholder: lt('Room number', 'Zimmernummer'),
+      },
       { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
       { name: 'type', label: lt('Type', 'Typ'), type: 'select', options: roomTypes },
     ],

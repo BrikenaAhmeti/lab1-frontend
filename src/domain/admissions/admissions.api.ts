@@ -43,6 +43,14 @@ function buildAdmissionsQuery(params: AdmissionsListParams = {}) {
     query.set('status', params.status.trim());
   }
 
+  if (params.patientId?.trim()) {
+    query.set('patientId', params.patientId.trim());
+  }
+
+  if (params.roomId?.trim()) {
+    query.set('roomId', params.roomId.trim());
+  }
+
   return query.toString();
 }
 

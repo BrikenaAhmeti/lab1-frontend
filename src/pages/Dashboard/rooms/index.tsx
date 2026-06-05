@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppSelector } from '@/app/hooks';
@@ -17,14 +18,16 @@ import {
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
 import RoomStateCard from './state-card';
 
-type FilterParams = {
+type FilterParams = Partial<{
+  q: string | null;
   departmentId: string | null;
   type: string | null;
   availability: string | null;
-};
+}>;
 
 function getDepartmentLabel(name: string, location: string) {
   return location.trim() ? `${name} (${location})` : name;
@@ -37,6 +40,7 @@ export default function RoomsListPage() {
   const roles = useAppSelector((state) => state.auth.user?.roles ?? []);
   const isAdmin = isAdminUser(roles);
   const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get('q')?.trim() ?? '';
   const departmentId = searchParams.get('departmentId')?.trim() ?? '';
   const type = normalizeRoomType(searchParams.get('type'));
   const availability = searchParams.get('availability')?.trim().toLowerCase() ?? '';
@@ -50,8 +54,9 @@ export default function RoomsListPage() {
   const deleteRoom = useDeleteRoom();
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [searchValue, setSearchValue] = useState(search);
   const status = getRoomApiStatus(roomsQuery.error);
-  const hasFilters = !!departmentId || !!type || onlyAvailable;
+  const hasFilters = !!search || !!departmentId || !!type || onlyAvailable;
 
   useEffect(() => {
     const successMessage = (location.state as { success?: string } | null)?.success;
@@ -67,6 +72,27 @@ export default function RoomsListPage() {
     );
   }, [location.pathname, location.search, location.state, navigate]);
 
+  useEffect(() => {
+    setSearchValue(search);
+  }, [search]);
+
+  const displayedRooms = useMemo(() => {
+    const rooms = roomsQuery.data ?? [];
+    const normalizedSearch = search.toLowerCase();
+
+    if (!normalizedSearch) {
+      return rooms;
+    }
+
+    return rooms.filter((room) =>
+      [
+        room.roomNumber,
+        room.department?.name ?? '',
+        room.department?.location ?? '',
+      ].some((value) => value.toLowerCase().includes(normalizedSearch))
+    );
+  }, [roomsQuery.data, search]);
+
   const updateParams = (values: FilterParams) => {
     const next = new URLSearchParams(searchParams);
 
@@ -79,6 +105,16 @@ export default function RoomsListPage() {
     });
 
     setSearchParams(next);
+  };
+
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updateParams({ q: searchValue });
+  };
+
+  const handleClearFilters = () => {
+    setSearchValue('');
+    updateParams({ q: null, departmentId: null, type: null, availability: null });
   };
 
   const handleDelete = async (id: string) => {
@@ -155,7 +191,7 @@ export default function RoomsListPage() {
           <Button
             type="button"
             variant="outline"
-            onClick={() => updateParams({ departmentId: null, type: null, availability: null })}
+            onClick={handleClearFilters}
           >
             {t('actions.clear')}
           </Button>
@@ -164,10 +200,21 @@ export default function RoomsListPage() {
         ) : null}
       </RoomStateCard>
     );
+  } else if (!displayedRooms.length) {
+    content = (
+      <RoomStateCard
+        title={t('states.emptyFilteredTitle')}
+        description={t('states.emptyFilteredDescription')}
+      >
+        <Button type="button" variant="outline" onClick={handleClearFilters}>
+          {t('actions.clear')}
+        </Button>
+      </RoomStateCard>
+    );
   } else {
     content = (
       <div className="grid gap-4 xl:grid-cols-2">
-        {roomsQuery.data.map((room) => (
+        {displayedRooms.map((room) => (
           <div
             key={room.id}
             className="rounded-2xl border border-border/70 bg-background/50 p-5 transition-shadow duration-200 hover:shadow-soft"
@@ -309,6 +356,7 @@ export default function RoomsListPage() {
               variant={onlyAvailable ? 'outline' : 'secondary'}
               onClick={() =>
                 updateParams({
+                  q: search || null,
                   departmentId: departmentId || null,
                   type: type || null,
                   availability: null,
@@ -323,6 +371,7 @@ export default function RoomsListPage() {
               variant={onlyAvailable ? 'secondary' : 'outline'}
               onClick={() =>
                 updateParams({
+                  q: search || null,
                   departmentId: departmentId || null,
                   type: type || null,
                   availability: 'available',
@@ -333,7 +382,18 @@ export default function RoomsListPage() {
             </Button>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr),220px,auto]">
+          <form
+            className="grid gap-3 lg:grid-cols-[minmax(0,1fr),minmax(0,1fr),220px,auto,auto]"
+            onSubmit={handleSearch}
+          >
+            <Input
+              name="q"
+              label={t('fields.search')}
+              value={searchValue}
+              onChange={(event) => setSearchValue(event.target.value)}
+              placeholder={t('filters.searchPlaceholder')}
+            />
+
             <Select
               name="departmentId"
               label={t('fields.department')}
@@ -341,6 +401,7 @@ export default function RoomsListPage() {
               disabled={departmentsQuery.isLoading || !!departmentsQuery.error}
               onChange={(event) =>
                 updateParams({
+                  q: search || null,
                   departmentId: event.target.value || null,
                   type: type || null,
                   availability: onlyAvailable ? 'available' : null,
@@ -365,6 +426,7 @@ export default function RoomsListPage() {
               value={type}
               onChange={(event) =>
                 updateParams({
+                  q: search || null,
                   departmentId: departmentId || null,
                   type: event.target.value || null,
                   availability: onlyAvailable ? 'available' : null,
@@ -379,15 +441,19 @@ export default function RoomsListPage() {
               <option value="PEDIATRIC">{t('types.PEDIATRIC')}</option>
             </Select>
 
+            <Button type="submit" className="lg:self-end">
+              {t('actions.search')}
+            </Button>
+
             <Button
               type="button"
               variant="outline"
-              className="md:self-end"
-              onClick={() => updateParams({ departmentId: null, type: null, availability: null })}
+              className="lg:self-end"
+              onClick={handleClearFilters}
             >
               {t('actions.clear')}
             </Button>
-          </div>
+          </form>
         </div>
       </Card>
 
@@ -395,7 +461,7 @@ export default function RoomsListPage() {
         title={t('list.resultsTitle')}
         description={
           roomsQuery.data
-            ? t('list.results', { count: roomsQuery.data.length })
+            ? t('list.results', { count: displayedRooms.length })
             : t('list.resultsDescription')
         }
       >

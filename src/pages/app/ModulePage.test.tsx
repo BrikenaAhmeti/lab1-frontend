@@ -88,6 +88,8 @@ describe('ModulePage', () => {
   };
   const originalService = moduleConfigs.patients.service;
   const originalDepartmentsService = moduleConfigs.departments.service;
+  const originalRoomsService = moduleConfigs.rooms.service;
+  const originalAdmissionsService = moduleConfigs.admissions.service;
   const originalReceptionistService = moduleConfigs.receptionists.service;
 
   beforeEach(() => {
@@ -106,6 +108,8 @@ describe('ModulePage', () => {
     vi.restoreAllMocks();
     moduleConfigs.patients.service = originalService;
     moduleConfigs.departments.service = originalDepartmentsService;
+    moduleConfigs.rooms.service = originalRoomsService;
+    moduleConfigs.admissions.service = originalAdmissionsService;
     moduleConfigs.receptionists.service = originalReceptionistService;
   });
 
@@ -322,5 +326,145 @@ describe('ModulePage', () => {
       'placeholder',
       'Department, location, or description'
     );
+  });
+
+  it('passes room search through the active rooms module', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue({
+      data: [
+        {
+          id: 'dep-1',
+          name: 'Cardiology',
+          location: 'Floor 2',
+        },
+      ],
+    });
+
+    moduleConfigs.rooms.service = {
+      list: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'room-1',
+            roomNumber: '101',
+            department: {
+              id: 'dep-1',
+              name: 'Cardiology',
+              location: 'Floor 2',
+            },
+            type: 'GENERAL',
+            status: 'AVAILABLE',
+            capacity: 3,
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }),
+      get: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    renderPage('rooms', '/rooms?search=101');
+
+    expect(await screen.findByText('101')).toBeInTheDocument();
+    expect(moduleConfigs.rooms.service.list).toHaveBeenCalledWith(
+      expect.objectContaining({
+        search: '101',
+        sortBy: 'roomNumber',
+        order: 'ASC',
+      })
+    );
+    expect(screen.getByLabelText('Search rooms')).toHaveAttribute('placeholder', 'Room number');
+  });
+
+  it('shows current room patients from admissions in room details', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue({
+      data: [
+        {
+          id: 'dep-1',
+          name: 'Cardiology',
+          location: 'Floor 2',
+        },
+      ],
+    });
+
+    moduleConfigs.rooms.service = {
+      list: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'room-1',
+            roomNumber: '101',
+            department: {
+              id: 'dep-1',
+              name: 'Cardiology',
+              location: 'Floor 2',
+            },
+            type: 'GENERAL',
+            status: 'OCCUPIED',
+            capacity: 3,
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }),
+      get: vi.fn().mockResolvedValue({
+        id: 'room-1',
+        roomNumber: '101',
+        department: {
+          id: 'dep-1',
+          name: 'Cardiology',
+          location: 'Floor 2',
+        },
+        type: 'GENERAL',
+        status: 'OCCUPIED',
+        capacity: 3,
+      }),
+      create: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+    moduleConfigs.admissions.service = {
+      ...moduleConfigs.admissions.service,
+      list: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'admission-1',
+            roomId: 'room-1',
+            patientId: 'patient-1',
+            status: 'ACTIVE',
+            admissionDate: '2099-10-10T00:00:00.000Z',
+            patient: {
+              id: 'patient-1',
+              firstName: 'Lena',
+              lastName: 'Morris',
+            },
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 100,
+        totalPages: 1,
+      }),
+    };
+
+    renderPage('rooms');
+
+    expect(await screen.findByText('101')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Details' }));
+
+    await waitFor(() => {
+      expect(moduleConfigs.admissions.service.list).toHaveBeenCalledWith({
+        page: 1,
+        limit: 100,
+        status: 'ACTIVE',
+        roomId: 'room-1',
+      });
+    });
+    expect(await screen.findByText('Current patients')).toBeInTheDocument();
+    expect(screen.getByText('Lena Morris')).toBeInTheDocument();
   });
 });
