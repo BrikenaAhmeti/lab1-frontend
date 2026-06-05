@@ -13,8 +13,10 @@
   },
   "filters": {
     "title": "Filter",
-    "description": "Filtern Sie Aufnahmen nach Status.",
-    "allStatuses": "Alle Status"
+    "description": "Filtern Sie Aufnahmen nach Status, Datum oder Datumsbereich.",
+    "allStatuses": "Alle Status",
+    "exactDate": "Exakter Tag",
+    "dateRange": "Datumsbereich"
   },
   "list": {
     "title": "Aufnahmeliste",
@@ -42,6 +44,8 @@
     "patientName": "Patientenname",
     "room": "Zimmer",
     "admissionDate": "Aufnahmedatum",
+    "from": "Von",
+    "to": "Bis",
     "status": "Status"
   },
   "labels": {

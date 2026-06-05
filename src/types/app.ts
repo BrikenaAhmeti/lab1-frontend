@@ -72,7 +72,7 @@ export type ColumnConfig = {
   render?: (item: any, language: Language) => ReactNode;
 };
 
-export type FilterFieldType = 'text' | 'select' | 'date';
+export type FilterFieldType = 'text' | 'select' | 'date' | 'dateRange';
 
 export type FilterConfig = {
   name: string;
@@ -81,6 +81,12 @@ export type FilterConfig = {
   placeholder?: LocalizedText;
   options?: OptionConfig[];
   source?: ReferenceKey;
+  fromName?: string;
+  toName?: string;
+  exactLabel?: LocalizedText;
+  rangeLabel?: LocalizedText;
+  fromLabel?: LocalizedText;
+  toLabel?: LocalizedText;
 };
 
 export type FormFieldType = 'text' | 'textarea' | 'date' | 'time' | 'number' | 'select' | 'password';

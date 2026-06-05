@@ -12,6 +12,7 @@ import DeleteModal from '@/ui/organisms/DeleteModal';
 import EmptyState from '@/ui/molecules/EmptyState';
 import EntityDetailsModal from '@/ui/organisms/EntityDetailsModal';
 import EntityFormModal from '@/ui/organisms/EntityFormModal';
+import DateRangePicker from '@/ui/atoms/DateRangePicker';
 import ListSkeleton from '@/ui/molecules/ListSkeleton';
 import Modal from '@/ui/molecules/Modal';
 import PageHeader from '@/ui/molecules/PageHeader';
@@ -19,7 +20,7 @@ import Pagination from '@/ui/molecules/Pagination';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useToast } from '@/app/contexts/ToastContext';
-import { authApi, fetchArrayWithFallback } from '@/libs/app/api';
+import { apiClient, authApi, fetchArrayWithFallback } from '@/libs/app/api';
 import {
   formatDate,
   formatPersonName,
@@ -50,6 +51,14 @@ function normalizeFilterValue(value: string, filter: FilterConfig) {
   }
 
   return normalizeOptionValue(value, filter.options);
+}
+
+function getFilterParamNames(filter: FilterConfig) {
+  if (filter.type !== 'dateRange') {
+    return [filter.name];
+  }
+
+  return [filter.name, filter.fromName ?? 'from', filter.toName ?? 'to'];
 }
 
 function buildNextSearchParams(current: URLSearchParams, values: Record<string, string | number | null>) {
@@ -234,6 +243,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const canUpdate = permissionFlags.canUpdate;
   const canDelete = permissionFlags.canDelete;
   const canRead = permissionFlags.canRead;
+  const canAction = permissionFlags.canAction;
   const isReadOnly = permissionFlags.isReadOnly;
 
   const page = getPositiveNumber(searchParams.get('page'), 1);
@@ -246,7 +256,9 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
       const params = new URLSearchParams(searchParamsKey);
 
       return config.filters.reduce<Record<string, string>>((values, filter) => {
-        values[filter.name] = normalizeFilterValue(params.get(filter.name) || '', filter);
+        getFilterParamNames(filter).forEach((name) => {
+          values[name] = normalizeFilterValue(params.get(name) || '', filter);
+        });
         return values;
       }, {});
     },
@@ -428,6 +440,23 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     },
   });
 
+  const dischargeAdmissionMutation = useMutation({
+    mutationFn: async (item: any) => {
+      const id = String(getValue(item, 'id'));
+      await apiClient.put(`/api/admissions/${id}/discharge`, {});
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['admissions'] }),
+        queryClient.invalidateQueries({ queryKey: ['rooms'] }),
+      ]);
+      showToast(t(lt('Patient discharged successfully.', 'Patient erfolgreich entlassen.')), 'success');
+    },
+    onError: (error) => {
+      showToast(getErrorMessage(error, t), 'error');
+    },
+  });
+
   const currentItem = formState.mode === 'edit' ? detailQuery.data || formState.item : formState.item;
   const currentRoomAdmissions = useMemo(() => {
     if (moduleKey !== 'rooms' || !detailItem?.id) {
@@ -507,14 +536,20 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
 
   const clearFilters = useCallback(() => {
     const cleared = config.filters.reduce<Record<string, string>>((values, filter) => {
-      values[filter.name] = '';
+      getFilterParamNames(filter).forEach((name) => {
+        values[name] = '';
+      });
       return values;
     }, {});
 
     setDraftFilters(cleared);
     updateSearchParams({
       page: 1,
-      ...Object.fromEntries(config.filters.map((filter) => [filter.name, null])),
+      ...Object.fromEntries(
+        config.filters.flatMap((filter) =>
+          getFilterParamNames(filter).map((name) => [name, null])
+        )
+      ),
     });
   }, [config.filters, updateSearchParams]);
 
@@ -539,9 +574,29 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
             {t(commonCopy.resetPassword)}
           </Button>
         ) : null}
+        {moduleKey === 'admissions' && canAction ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={String(getValue(item, 'status')).toUpperCase() !== 'ACTIVE'}
+            loading={
+              dischargeAdmissionMutation.isPending
+              && String(getValue(dischargeAdmissionMutation.variables, 'id')) === String(getValue(item, 'id'))
+            }
+            onClick={() => {
+              if (!window.confirm(t(lt('Discharge this patient?', 'Diesen Patienten entlassen?')))) {
+                return;
+              }
+
+              void dischargeAdmissionMutation.mutateAsync(item);
+            }}
+          >
+            {t(lt('Discharge', 'Entlassen'))}
+          </Button>
+        ) : null}
       </div>
     ),
-    [canDelete, canUpdate, config, openDetailModal, openEditModal, t]
+    [canAction, canDelete, canUpdate, config, dischargeAdmissionMutation, moduleKey, openDetailModal, openEditModal, t]
   );
 
   const handlePageChange = useCallback(
@@ -572,7 +627,8 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     canRead ||
     (supportsAction(config, 'edit') && canUpdate) ||
     (supportsAction(config, 'delete') && canDelete) ||
-    Boolean(config.getPasswordUserId && canUpdate);
+    Boolean(config.getPasswordUserId && canUpdate) ||
+    Boolean(moduleKey === 'admissions' && canAction);
 
   return (
     <div className="space-y-6">
@@ -597,6 +653,33 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
       <Card title={t(commonCopy.filters)} description={t(commonCopy.results)} className="relative z-20">
         <form className="grid gap-4 md:grid-cols-2 xl:grid-cols-4" onSubmit={submitFilters}>
           {config.filters.map((filter) => {
+            if (filter.type === 'dateRange') {
+              const fromName = filter.fromName ?? 'from';
+              const toName = filter.toName ?? 'to';
+
+              return (
+                <DateRangePicker
+                  key={filter.name}
+                  label={t(filter.label)}
+                  exactLabel={t(filter.exactLabel ?? lt('Exact day', 'Exakter Tag'))}
+                  rangeLabel={t(filter.rangeLabel ?? lt('Date range', 'Datumsbereich'))}
+                  value={{
+                    date: draftFilters[filter.name] || '',
+                    from: draftFilters[fromName] || '',
+                    to: draftFilters[toName] || '',
+                  }}
+                  onChange={(value) =>
+                    setDraftFilters((current) => ({
+                      ...current,
+                      [filter.name]: value.date,
+                      [fromName]: value.from,
+                      [toName]: value.to,
+                    }))
+                  }
+                />
+              );
+            }
+
             const referenceOptions = filter.source ? references[filter.source] || [] : [];
             const options = filter.source
               ? referenceOptions

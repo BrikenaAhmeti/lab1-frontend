@@ -29,12 +29,16 @@ import { useRooms } from '@/domain/rooms/rooms.hooks';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import DateRangePicker from '@/ui/atoms/DateRangePicker';
 import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
 import AdmissionStateCard from './state-card';
 
 type FilterParams = {
-  status: string | null;
+  status?: string | null;
+  date?: string | null;
+  from?: string | null;
+  to?: string | null;
 };
 
 type AdmissionFormValues = {
@@ -71,13 +75,22 @@ export default function AdmissionsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const status = normalizeAdmissionStatus(searchParams.get('status'));
+  const date = searchParams.get('date')?.trim() ?? '';
+  const from = searchParams.get('from')?.trim() ?? '';
+  const to = searchParams.get('to')?.trim() ?? '';
   const [patientSearch, setPatientSearch] = useState('');
   const [form, setForm] = useState<AdmissionFormValues>(emptyForm);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [formError, setFormError] = useState('');
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
-  const admissionsQuery = useAdmissions({ status });
+  const admissionsParams = {
+    ...(status ? { status } : {}),
+    ...(date ? { date } : {}),
+    ...(from ? { from } : {}),
+    ...(to ? { to } : {}),
+  };
+  const admissionsQuery = useAdmissions(admissionsParams);
   const patientsQuery = usePatients({ page: 1, limit: 50, search: patientSearch });
   const roomsQuery = useRooms();
   const createAdmission = useCreateAdmission();
@@ -87,7 +100,7 @@ export default function AdmissionsPage() {
   const roomsStatus = getRoomApiStatus(roomsQuery.error);
   const saving = createAdmission.isPending;
   const statuses = [admissionsStatus, patientsStatus, roomsStatus];
-  const hasStatusFilter = !!status;
+  const hasFilters = !!status || !!date || !!from || !!to;
 
   useEffect(() => {
     if (!form.roomId || !roomsQuery.data?.some((room) => room.id === form.roomId)) {
@@ -252,15 +265,19 @@ export default function AdmissionsPage() {
   } else if (!admissionsQuery.data?.length) {
     listContent = (
       <AdmissionStateCard
-        title={hasStatusFilter ? t('states.emptyFilteredTitle') : t('states.emptyTitle')}
+        title={hasFilters ? t('states.emptyFilteredTitle') : t('states.emptyTitle')}
         description={
-          hasStatusFilter
+          hasFilters
             ? t('states.emptyFilteredDescription')
             : t('states.emptyDescription')
         }
       >
-        {hasStatusFilter ? (
-          <Button type="button" variant="outline" onClick={() => updateParams({ status: null })}>
+        {hasFilters ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => updateParams({ status: null, date: null, from: null, to: null })}
+          >
             {t('actions.clear')}
           </Button>
         ) : null}
@@ -513,7 +530,7 @@ export default function AdmissionsPage() {
       </Card>
 
       <Card title={t('filters.title')} description={t('filters.description')}>
-        <div className="grid gap-3 md:grid-cols-[220px,auto]">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[220px,260px,auto]">
           <Select
             name="status"
             label={t('fields.status')}
@@ -525,11 +542,25 @@ export default function AdmissionsPage() {
             <option value="DISCHARGED">{t('statuses.DISCHARGED')}</option>
           </Select>
 
+          <DateRangePicker
+            label={t('fields.admissionDate')}
+            exactLabel={t('filters.exactDate')}
+            rangeLabel={t('filters.dateRange')}
+            value={{ date, from, to }}
+            onChange={(value) =>
+              updateParams({
+                date: value.date || null,
+                from: value.from || null,
+                to: value.to || null,
+              })
+            }
+          />
+
           <Button
             type="button"
             variant="outline"
             className="md:self-end"
-            onClick={() => updateParams({ status: null })}
+            onClick={() => updateParams({ status: null, date: null, from: null, to: null })}
           >
             {t('actions.clear')}
           </Button>

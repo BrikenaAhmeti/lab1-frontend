@@ -13,8 +13,10 @@
   },
   "filters": {
     "title": "Filters",
-    "description": "Filter admissions by status.",
-    "allStatuses": "All statuses"
+    "description": "Filter admissions by status, date, or date range.",
+    "allStatuses": "All statuses",
+    "exactDate": "Exact day",
+    "dateRange": "Date range"
   },
   "list": {
     "title": "Admissions list",
@@ -42,6 +44,8 @@
     "patientName": "Patient name",
     "room": "Room",
     "admissionDate": "Admission date",
+    "from": "From",
+    "to": "To",
     "status": "Status"
   },
   "labels": {

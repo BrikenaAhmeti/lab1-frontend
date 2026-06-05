@@ -12,6 +12,9 @@ export const admissionsKeys = {
       params.status?.trim() ?? '',
       params.patientId?.trim() ?? '',
       params.roomId?.trim() ?? '',
+      params.date?.trim() ?? '',
+      params.from?.trim() ?? '',
+      params.to?.trim() ?? '',
     ] as const,
   active: () => [...admissionsKeys.all, 'active'] as const,
 };

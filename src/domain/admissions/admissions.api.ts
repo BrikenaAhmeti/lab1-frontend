@@ -51,6 +51,18 @@ function buildAdmissionsQuery(params: AdmissionsListParams = {}) {
     query.set('roomId', params.roomId.trim());
   }
 
+  if (params.date?.trim()) {
+    query.set('date', params.date.trim());
+  }
+
+  if (params.from?.trim()) {
+    query.set('from', params.from.trim());
+  }
+
+  if (params.to?.trim()) {
+    query.set('to', params.to.trim());
+  }
+
   return query.toString();
 }
 

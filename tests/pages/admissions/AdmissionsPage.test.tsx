@@ -10,7 +10,8 @@ const mockUsePatients = vi.fn();
 const mockUseRooms = vi.fn();
 
 vi.mock('@/domain/admissions/admissions.hooks', () => ({
-  useAdmissions: (params?: { status?: string }) => mockUseAdmissions(params),
+  useAdmissions: (params?: { status?: string; date?: string; from?: string; to?: string }) =>
+    mockUseAdmissions(params),
   useCreateAdmission: () => mockUseCreateAdmission(),
   useDischargeAdmission: () => mockUseDischargeAdmission(),
 }));
@@ -183,14 +184,19 @@ describe('AdmissionsPage', () => {
     });
   });
 
-  it('passes the status filter to the admissions query and disables unavailable rooms', () => {
+  it('passes status and date range filters to the admissions query and disables unavailable rooms', () => {
     render(
-      <MemoryRouter initialEntries={['/app/admissions?status=ACTIVE']}>
+      <MemoryRouter initialEntries={['/app/admissions?status=ACTIVE&from=2099-10-01&to=2099-10-31']}>
         <AdmissionsPage />
       </MemoryRouter>
     );
 
-    expect(mockUseAdmissions).toHaveBeenCalledWith({ status: 'ACTIVE' });
+    expect(mockUseAdmissions).toHaveBeenCalledWith({
+      status: 'ACTIVE',
+      from: '2099-10-01',
+      to: '2099-10-31',
+    });
+    expect(screen.getByDisplayValue('2099-10-01 - 2099-10-31')).toBeInTheDocument();
 
     const roomSelect = screen.getByLabelText('Room') as HTMLSelectElement;
     const fullRoomOption = roomSelect.querySelector('option[value="room-2"]');

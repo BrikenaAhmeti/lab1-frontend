@@ -1076,7 +1076,18 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     endpoint: '/api/admissions',
     service: createCrudService(
       '/api/admissions',
-      allowListParams('page', 'limit', 'status', 'patientId', 'roomId')
+      allowListParams(
+        'page',
+        'limit',
+        'sortBy',
+        'order',
+        'status',
+        'patientId',
+        'roomId',
+        'date',
+        'from',
+        'to'
+      )
     ),
     sortOptions: [
       option('createdAt', 'Created at', 'Erstellt am'),
@@ -1098,6 +1109,17 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     },
     filters: [
       { name: 'status', label: lt('Status', 'Status'), type: 'select', options: admissionStatuses },
+      {
+        name: 'date',
+        label: lt('Admission date', 'Aufnahmedatum'),
+        type: 'dateRange',
+        fromName: 'from',
+        toName: 'to',
+        exactLabel: lt('Exact day', 'Exakter Tag'),
+        rangeLabel: lt('Date range', 'Datumsbereich'),
+        fromLabel: lt('From', 'Von'),
+        toLabel: lt('To', 'Bis'),
+      },
       { name: 'patientId', label: lt('Patient', 'Patient'), type: 'select', source: 'patients' },
       { name: 'roomId', label: lt('Room', 'Zimmer'), type: 'select', source: 'rooms' },
     ],

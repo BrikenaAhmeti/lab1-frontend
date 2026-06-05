@@ -467,4 +467,62 @@ describe('ModulePage', () => {
     expect(await screen.findByText('Current patients')).toBeInTheDocument();
     expect(screen.getByText('Lena Morris')).toBeInTheDocument();
   });
+
+  it('passes admission date filters and discharges active admissions', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+    const putMock = vi.spyOn(apiClient, 'put').mockResolvedValue({ data: {} });
+    const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    moduleConfigs.admissions.service = {
+      list: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'admission-1',
+            patientId: 'patient-1',
+            roomId: 'room-1',
+            status: 'ACTIVE',
+            admissionDate: '2099-10-10T00:00:00.000Z',
+            patient: {
+              id: 'patient-1',
+              firstName: 'Lena',
+              lastName: 'Morris',
+            },
+            room: {
+              id: 'room-1',
+              roomNumber: '101',
+            },
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }),
+      get: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    renderPage('admissions', '/admissions?date=2099-10-10');
+
+    expect(await screen.findByText('Lena Morris')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('2099-10-10')).toBeInTheDocument();
+    expect(moduleConfigs.admissions.service.list).toHaveBeenCalledWith(
+      expect.objectContaining({
+        date: '2099-10-10',
+        sortBy: 'admissionDate',
+        order: 'DESC',
+      })
+    );
+
+    const dischargeButton = screen.getByRole('button', { name: 'Discharge' });
+    expect(dischargeButton).toBeEnabled();
+    fireEvent.click(dischargeButton);
+    expect(confirmMock).toHaveBeenCalledWith('Discharge this patient?');
+
+    await waitFor(() => {
+      expect(putMock).toHaveBeenCalledWith('/api/admissions/admission-1/discharge', {});
+    });
+  });
 });

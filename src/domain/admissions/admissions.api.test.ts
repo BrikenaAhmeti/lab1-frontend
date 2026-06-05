@@ -16,10 +16,13 @@ describe('AdmissionsApi', () => {
       status: ' ACTIVE ',
       patientId: ' patient-1 ',
       roomId: ' room-1 ',
+      date: ' 2099-10-10 ',
+      from: ' 2099-10-01 ',
+      to: ' 2099-10-31 ',
     });
 
     expect(getMock).toHaveBeenCalledWith(
-      '/api/admissions?status=ACTIVE&patientId=patient-1&roomId=room-1'
+      '/api/admissions?status=ACTIVE&patientId=patient-1&roomId=room-1&date=2099-10-10&from=2099-10-01&to=2099-10-31'
     );
   });
 });
