@@ -2,8 +2,10 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm } from 'react-hook-form';
 import Button from '@/ui/atoms/Button';
+import DatePicker from '@/ui/atoms/DatePicker';
 import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
+import TimePicker from '@/ui/atoms/TimePicker';
 import Textarea from '@/ui/atoms/Textarea';
 import { commonCopy } from '@/config/copy';
 import { useLanguage } from '@/app/contexts/LanguageContext';
@@ -144,6 +146,30 @@ export default function EntityFormModal({
                           </option>
                         ))}
                       </Select>
+                    )}
+                  />
+                );
+              }
+
+              if (field.type === 'date' || field.type === 'time') {
+                const Picker = field.type === 'date' ? DatePicker : TimePicker;
+
+                return (
+                  <Controller
+                    key={field.name}
+                    name={field.name}
+                    control={form.control}
+                    render={({ field: ctl }) => (
+                      <Picker
+                        label={t(field.label)}
+                        hint={field.hint ? t(field.hint) : undefined}
+                        error={error}
+                        name={ctl.name}
+                        value={typeof ctl.value === 'string' ? ctl.value : String(ctl.value ?? '')}
+                        onBlur={ctl.onBlur}
+                        onChange={ctl.onChange}
+                        ref={ctl.ref}
+                      />
                     )}
                   />
                 );

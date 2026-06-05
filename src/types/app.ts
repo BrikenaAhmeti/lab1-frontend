@@ -89,6 +89,7 @@ export type FormFieldConfig = {
   name: string;
   label: LocalizedText;
   type: FormFieldType;
+  valuePaths?: string[];
   placeholder?: LocalizedText;
   hint?: LocalizedText;
   options?: OptionConfig[];

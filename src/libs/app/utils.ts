@@ -276,7 +276,7 @@ function normalizeTimeInput(value: string) {
 }
 
 export function getFieldInputValue(item: any, field: FormFieldConfig) {
-  const rawValue = getValue(item, field.name, camelToSnake(field.name));
+  const rawValue = getValue(item, field.name, camelToSnake(field.name), ...(field.valuePaths || []));
 
   if (field.type === 'date') {
     return normalizeDateInput(String(rawValue || ''));

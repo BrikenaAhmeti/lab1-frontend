@@ -120,4 +120,53 @@ describe('EntityFormModal', () => {
       );
     });
   });
+
+  it('prefills appointment edit date and time from appointment fields', async () => {
+    const onSubmit = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <LanguageProvider>
+        <EntityFormModal
+          open
+          mode="edit"
+          config={moduleConfigs.appointments}
+          item={{
+            id: 'appointment-1',
+            patientId: 'patient-1',
+            doctorId: 'doctor-1',
+            appointmentDate: '2099-10-10T00:00:00.000Z',
+            appointmentTime: '10:30',
+            status: 'Scheduled',
+            notes: 'Bring reports',
+          }}
+          references={{
+            patients: [{ value: 'patient-1', label: 'Lena Morris' }],
+            doctors: [{ value: 'doctor-1', label: 'Ava Taylor' }],
+          }}
+          loading={false}
+          saving={false}
+          onClose={vi.fn()}
+          onSubmit={onSubmit}
+        />
+      </LanguageProvider>
+    );
+
+    expect(screen.getByLabelText('Date')).toHaveValue('2099-10-10');
+    expect(screen.getByLabelText('Time')).toHaveValue('10:30');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Update' }));
+
+    await waitFor(() => {
+      expect(onSubmit).toHaveBeenCalledWith(
+        expect.objectContaining({
+          patientId: 'patient-1',
+          doctorId: 'doctor-1',
+          date: '2099-10-10',
+          time: '10:30',
+          status: 'Scheduled',
+          notes: 'Bring reports',
+        })
+      );
+    });
+  });
 });

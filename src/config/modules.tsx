@@ -3,6 +3,10 @@ import Badge from '@/ui/atoms/Badge';
 import { lt } from './copy';
 import { apiClient, createCrudService } from '@/libs/app/api';
 import {
+  appointmentDatePattern,
+  appointmentTimePattern,
+} from '@/domain/appointments/appointments.utils';
+import {
   deepCamelCaseKeys,
   formatCurrency,
   formatDate,
@@ -22,6 +26,8 @@ const emailText = 'Enter a valid email address.';
 const usernameMinText = 'Username must be at least 3 characters.';
 const passwordMinText = 'Use at least 6 characters.';
 const passwordMaxText = 'Use 255 characters or fewer.';
+const dateText = 'Use date format YYYY-MM-DD.';
+const timeText = 'Use time format HH:mm.';
 const listPageSizeOptions = [10, 20, 50];
 const doctorPhonePattern = /^\+\d{8,15}$/;
 const accountModeValues = ['existing', 'new'] as const;
@@ -859,8 +865,8 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     fields: [
       { name: 'patientId', label: lt('Patient', 'Patient'), type: 'select', source: 'patients' },
       { name: 'doctorId', label: lt('Doctor', 'Arzt'), type: 'select', source: 'doctors' },
-      { name: 'date', label: lt('Date', 'Datum'), type: 'date' },
-      { name: 'time', label: lt('Time', 'Uhrzeit'), type: 'time' },
+      { name: 'date', label: lt('Date', 'Datum'), type: 'date', valuePaths: ['appointmentDate'] },
+      { name: 'time', label: lt('Time', 'Uhrzeit'), type: 'time', valuePaths: ['appointmentTime'] },
       { name: 'status', label: lt('Status', 'Status'), type: 'select', options: appointmentStatuses, modes: ['edit'] },
       { name: 'notes', label: lt('Notes', 'Notizen'), type: 'textarea' },
     ],
@@ -874,8 +880,8 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     schema: z.object({
       patientId: requiredString(),
       doctorId: requiredString(),
-      date: requiredString(),
-      time: requiredString(),
+      date: requiredString().regex(appointmentDatePattern, dateText),
+      time: requiredString().regex(appointmentTimePattern, timeText),
       status: z.string().optional(),
       notes: z.string().optional(),
     }),
