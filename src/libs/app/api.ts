@@ -108,6 +108,15 @@ export const authApi = {
     });
     return response.data;
   },
+  updateMe: async (payload: {
+    firstName?: string;
+    lastName?: string;
+    username?: string;
+    phoneNumber?: string | null;
+  }) => {
+    const response = await apiClient.patch(`${AUTH_BASE}/me`, payload);
+    return response.data;
+  },
   changePassword: async (payload: { currentPassword: string; newPassword: string }) => {
     const response = await apiClient.post(`${AUTH_BASE}/change-password`, payload);
     return response.data;
@@ -119,8 +128,8 @@ export const authApi = {
   resendConfirmationEmail: async (payload: { email: string }) => {
     await authClient.post(`${AUTH_BASE}/resend-confirmation-email`, payload);
   },
-  resetUserPassword: async (userId: string, payload: { password: string }) => {
-    const response = await apiClient.patch(`${AUTH_BASE}/users/${userId}/password`, payload);
+  resetUserPassword: async (userId: string) => {
+    const response = await apiClient.patch(`${AUTH_BASE}/users/${userId}/password`);
     return response.data;
   },
 };

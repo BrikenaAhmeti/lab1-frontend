@@ -6,13 +6,13 @@ import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
-import { commonCopy } from '@/config/copy';
+import { commonCopy, lt } from '@/config/copy';
 import DataTable from '@/ui/organisms/DataTable';
 import DeleteModal from '@/ui/organisms/DeleteModal';
 import EmptyState from '@/ui/molecules/EmptyState';
 import EntityDetailsModal from '@/ui/organisms/EntityDetailsModal';
 import EntityFormModal from '@/ui/organisms/EntityFormModal';
-import PasswordFormModal from '@/ui/organisms/PasswordFormModal';
+import Modal from '@/ui/molecules/Modal';
 import PageHeader from '@/ui/molecules/PageHeader';
 import Pagination from '@/ui/molecules/Pagination';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -302,8 +302,8 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   });
 
   const resetPasswordMutation = useMutation({
-    mutationFn: async ({ userId, password }: { userId: string; password: string }) => {
-      await authApi.resetUserPassword(userId, { password });
+    mutationFn: async (userId: string) => {
+      await authApi.resetUserPassword(userId);
     },
     onSuccess: () => {
       setPasswordResetItem(null);
@@ -644,26 +644,46 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
         }}
       />
 
-      <PasswordFormModal
+      <Modal
         open={Boolean(passwordResetItem)}
-        mode="reset"
         title={t(commonCopy.resetPassword)}
         description={t(commonCopy.passwordResetDescription)}
-        saving={resetPasswordMutation.isPending}
         onClose={() => setPasswordResetItem(null)}
-        onSubmit={async (values) => {
-          const userId = passwordResetItem ? config.getPasswordUserId?.(passwordResetItem) : '';
+      >
+        <div className="space-y-4">
+          {passwordResetItem ? (
+            <div className="rounded-2xl border border-border bg-muted/45 p-4">
+              <p className="text-sm font-semibold text-foreground">
+                {config.getItemTitle?.(passwordResetItem) || String(passwordResetItem.id)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {t(lt('Linked user account', 'Verknüpftes Benutzerkonto'))}: {config.getPasswordUserId?.(passwordResetItem)}
+              </p>
+            </div>
+          ) : null}
 
-          if (!userId) {
-            return;
-          }
+          <div className="flex flex-wrap justify-end gap-3">
+            <Button type="button" variant="outline" onClick={() => setPasswordResetItem(null)}>
+              {t(commonCopy.cancel)}
+            </Button>
+            <Button
+              type="button"
+              loading={resetPasswordMutation.isPending}
+              onClick={async () => {
+                const userId = passwordResetItem ? config.getPasswordUserId?.(passwordResetItem) : '';
 
-          await resetPasswordMutation.mutateAsync({
-            userId,
-            password: values.password,
-          });
-        }}
-      />
+                if (!userId) {
+                  return;
+                }
+
+                await resetPasswordMutation.mutateAsync(userId);
+              }}
+            >
+              {t(commonCopy.resetPassword)}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

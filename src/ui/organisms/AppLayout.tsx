@@ -1,18 +1,18 @@
 import clsx from 'clsx';
-import { useQuery } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Button from '@/ui/atoms/Button';
-import EntityDetailsModal from '@/ui/organisms/EntityDetailsModal';
 import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import ThemeToggle from '@/ui/molecules/ThemeToggle';
 import PasswordFormModal from './PasswordFormModal';
+import ProfileModal from './ProfileModal';
 import { commonCopy, lt } from '@/config/copy';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useToast } from '@/app/contexts/ToastContext';
 import { authApi } from '@/libs/app/api';
-import { formatPersonName, getErrorMessage, getValue, normalizeRoles } from '@/libs/app/utils';
+import { formatPersonName, getErrorMessage } from '@/libs/app/utils';
 import { moduleOrder, moduleRouteMeta } from '@/config/moduleMeta';
 import { hasPermission, moduleKeyToAppModule } from '@/config/permissions';
 import type { ModuleKey } from '@/types/app';
@@ -39,22 +39,6 @@ const moduleDescriptions: Record<ModuleKey, ReturnType<typeof lt>> = {
     'Front desk accounts, access, and support staff',
     'Empfangskonten, Zugriffe und Frontdesk-Unterstützung'
   ),
-};
-
-const profileDetailsConfig = {
-  singular: lt('Profile', 'Profil'),
-  columns: [
-    { key: 'name', label: lt('Name', 'Name'), render: (item: any) => formatPersonName(item) },
-    { key: 'email', label: lt('Email', 'E-Mail'), render: (item: any) => String(getValue(item, 'email')) },
-    { key: 'username', label: lt('Username', 'Benutzername'), render: (item: any) => String(getValue(item, 'username')) || 'N/A' },
-    {
-      key: 'roles',
-      label: lt('Roles', 'Rollen'),
-      render: (item: any) => normalizeRoles(getValue(item, 'roles', 'role')).join(', ') || 'N/A',
-    },
-  ],
-  fields: [],
-  getItemTitle: (item: any) => formatPersonName(item) || String(getValue(item, 'email')),
 };
 
 function initialsFromUser(fullName: string, email?: string) {
@@ -165,22 +149,38 @@ function iconForKey(key: NavItem['key']) {
 
 export default function AppLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const accountMenuRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const queryClient = useQueryClient();
+  const { user, logout, syncUser } = useAuth();
   const { t } = useLanguage();
   const { showToast } = useToast();
   const fullName = formatPersonName(user) || 'MedSphere User';
   const initials = initialsFromUser(fullName, user?.email);
   const menuLabel = t(isSidebarOpen ? lt('Close navigation', 'Navigation schließen') : lt('Open navigation', 'Navigation öffnen'));
+  const emailLabel = user?.email || 'care@medsphere.app';
   const profileQuery = useQuery({
     queryKey: ['auth', 'me'],
     queryFn: () => authApi.me(),
     enabled: isProfileModalOpen,
     staleTime: 30_000,
+  });
+  const profileMutation = useMutation({
+    mutationFn: authApi.updateMe,
+    onSuccess: async (updatedUser) => {
+      syncUser(updatedUser);
+      queryClient.setQueryData(['auth', 'me'], updatedUser);
+      setIsProfileModalOpen(false);
+      showToast(t(commonCopy.profileUpdated), 'success');
+    },
+    onError: (error) => {
+      showToast(getErrorMessage(error, t), 'error');
+    },
   });
 
   const navigationItems: NavItem[] = [
@@ -226,6 +226,47 @@ export default function AppLayout() {
     ) || navigationItems[0];
 
   const closeSidebar = () => setIsSidebarOpen(false);
+  const openProfileModal = () => {
+    setIsAccountMenuOpen(false);
+    closeSidebar();
+    setIsProfileModalOpen(true);
+  };
+  const openPasswordModal = () => {
+    setIsAccountMenuOpen(false);
+    closeSidebar();
+    setIsPasswordModalOpen(true);
+  };
+  const signOut = async () => {
+    setIsAccountMenuOpen(false);
+    await logout();
+    closeSidebar();
+    navigate('/login', { replace: true });
+  };
+
+  useEffect(() => {
+    if (!isAccountMenuOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (!accountMenuRef.current?.contains(event.target as Node)) {
+        setIsAccountMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsAccountMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isAccountMenuOpen]);
 
   return (
     <div className="workspace-page relative min-h-screen overflow-hidden">
@@ -321,29 +362,29 @@ export default function AppLayout() {
               </div>
             </nav>
 
-            <div className="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-3 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)]">
+            <div className="mt-3 rounded-[22px] border border-white/12 bg-white/10 p-3 shadow-[inset_0_1px_0_hsl(0_0%_100%/0.05)] md:hidden">
               <div className="flex items-center gap-3">
                 <div className="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft">
                   {initials}
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-sm font-semibold text-white">{fullName}</p>
-                  <p className="truncate text-xs text-sky-50/70">{user?.email || 'care@medsphere.app'}</p>
+                  <p className="truncate text-xs text-sky-50/70">{emailLabel}</p>
                 </div>
               </div>
 
               <Button
                 variant="ghost"
-                className="mt-3 h-10 w-full rounded-[16px] border-white/10 text-white hover:bg-white/10"
-                onClick={() => setIsProfileModalOpen(true)}
+                className="mt-3 h-9 w-full rounded-[16px] border-white/10 text-white hover:bg-white/10"
+                onClick={openProfileModal}
               >
                 {t(commonCopy.profileDetails)}
               </Button>
 
               <Button
                 variant="ghost"
-                className="mt-3 h-10 w-full rounded-[16px] border-white/10 text-white hover:bg-white/10"
-                onClick={() => setIsPasswordModalOpen(true)}
+                className="mt-2 h-9 w-full rounded-[16px] border-white/10 text-white hover:bg-white/10"
+                onClick={openPasswordModal}
               >
                 {t(commonCopy.changePassword)}
               </Button>
@@ -351,11 +392,7 @@ export default function AppLayout() {
               <Button
                 variant="outline"
                 className="mt-3 h-10 w-full rounded-[16px] border-white/10 bg-white text-primary hover:bg-white/90"
-                onClick={async () => {
-                  await logout();
-                  closeSidebar();
-                  navigate('/login', { replace: true });
-                }}
+                onClick={signOut}
               >
                 {t(commonCopy.signOut)}
               </Button>
@@ -397,9 +434,77 @@ export default function AppLayout() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2 lg:justify-end">
-           
                 <ThemeToggle compact />
                 <LanguageSwitch compact />
+                <div ref={accountMenuRef} className="relative hidden md:block">
+                  <button
+                    type="button"
+                    aria-label={t(lt('Account menu', 'Kontomenü'))}
+                    aria-expanded={isAccountMenuOpen}
+                    className="flex h-12 min-w-0 items-center gap-3 rounded-2xl border border-border/70 bg-background/75 px-2.5 pr-3 text-left text-foreground shadow-soft transition hover:bg-muted/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+                    onClick={() => setIsAccountMenuOpen((current) => !current)}
+                  >
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-xs font-bold text-white shadow-soft">
+                      {initials}
+                    </span>
+                    <span className="hidden min-w-0 md:block">
+                      <span className="block max-w-[8.5rem] truncate text-sm font-semibold leading-5 text-foreground xl:max-w-[150px]">
+                        {fullName}
+                      </span>
+                      <span className="block max-w-[8.5rem] truncate text-xs leading-4 text-muted-foreground xl:max-w-[150px]">
+                        {emailLabel}
+                      </span>
+                    </span>
+                    <span
+                      className={clsx(
+                        'ml-0.5 h-2 w-2 shrink-0 rotate-45 border-b-2 border-r-2 border-current transition-transform',
+                        isAccountMenuOpen && 'rotate-[225deg]'
+                      )}
+                      aria-hidden="true"
+                    />
+                  </button>
+
+                  {isAccountMenuOpen ? (
+                    <div className="absolute right-0 top-full z-50 mt-3 w-[min(19rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-border bg-card p-3 shadow-panel">
+                      <div className="rounded-[18px] bg-muted/55 p-3">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[16px] bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--accent)),hsl(var(--secondary)))] text-sm font-bold text-white shadow-soft">
+                            {initials}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-foreground">{fullName}</p>
+                            <p className="truncate text-xs text-muted-foreground">{emailLabel}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-2 grid gap-1">
+                        <button
+                          type="button"
+                          className="rounded-xl px-3 py-2 text-left text-sm font-semibold text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+                          onClick={openProfileModal}
+                        >
+                          {t(commonCopy.profileDetails)}
+                        </button>
+                        <button
+                          type="button"
+                          className="rounded-xl px-3 py-2 text-left text-sm font-semibold text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+                          onClick={openPasswordModal}
+                        >
+                          {t(commonCopy.changePassword)}
+                        </button>
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        className="mt-3 h-10 w-full rounded-xl bg-background text-primary"
+                        onClick={signOut}
+                      >
+                        {t(commonCopy.signOut)}
+                      </Button>
+                    </div>
+                  ) : null}
+                </div>
               </div>
             </div>
           </header>
@@ -439,14 +544,15 @@ export default function AppLayout() {
         }}
       />
 
-      <EntityDetailsModal
+      <ProfileModal
         open={isProfileModalOpen}
-        config={profileDetailsConfig}
-        item={profileQuery.data || user}
+        user={profileQuery.data || user}
         loading={profileQuery.isLoading}
         error={profileQuery.error}
+        saving={profileMutation.isPending}
         onClose={() => setIsProfileModalOpen(false)}
         onRetry={() => profileQuery.refetch()}
+        onSubmit={(values) => profileMutation.mutateAsync(values)}
       />
     </div>
   );

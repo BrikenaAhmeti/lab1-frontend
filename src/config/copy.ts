@@ -136,6 +136,7 @@ export const commonCopy = {
   passwordMismatch: lt('Passwords do not match.', 'Die Passwörter stimmen nicht überein.'),
   changePassword: lt('Change password', 'Passwort ändern'),
   profileDetails: lt('Profile details', 'Profildetails'),
+  profileUpdated: lt('Profile updated.', 'Profil aktualisiert.'),
   resetPassword: lt('Reset password', 'Passwort zurücksetzen'),
   currentPassword: lt('Current password', 'Aktuelles Passwort'),
   newPassword: lt('New password', 'Neues Passwort'),
@@ -144,13 +145,13 @@ export const commonCopy = {
     'Password updated. Please sign in again.',
     'Passwort aktualisiert. Bitte melden Sie sich erneut an.'
   ),
-  passwordResetSuccess: lt('Password reset successfully.', 'Passwort erfolgreich zurückgesetzt.'),
+  passwordResetSuccess: lt('Password reset email sent.', 'Passwort-Zurücksetzungs-E-Mail gesendet.'),
   passwordChangeDescription: lt(
     'Update your password to keep your account secure.',
     'Aktualisieren Sie Ihr Passwort, um Ihr Konto sicher zu halten.'
   ),
   passwordResetDescription: lt(
-    'Set a temporary password for this linked user account.',
-    'Legen Sie ein temporäres Passwort für dieses verknüpfte Benutzerkonto fest.'
+    'Generate a new password and email it to this linked user account.',
+    'Generieren Sie ein neues Passwort und senden Sie es per E-Mail an dieses verknüpfte Benutzerkonto.'
   ),
 };

@@ -197,17 +197,12 @@ function buildDoctorPayload(values: Record<string, any>, mode: 'create' | 'edit'
     return stripEmptyValues(payload);
   }
 
-  if (values.accountMode === 'new') {
-    return stripEmptyValues({
-      ...payload,
-      email: String(values.email || '').trim(),
-      username: String(values.username || '').trim(),
-      password: String(values.password || '').trim(),
-      userId: undefined,
-    });
-  }
-
-  return stripEmptyValues(payload);
+  return stripEmptyValues({
+    ...payload,
+    email: String(values.email || '').trim(),
+    username: String(values.username || '').trim(),
+    userId: undefined,
+  });
 }
 
 function buildNursePayload(values: Record<string, any>, mode: 'create' | 'edit') {
@@ -237,75 +232,19 @@ function buildNursePayload(values: Record<string, any>, mode: 'create' | 'edit')
 }
 
 function createDoctorSchema(mode: 'create' | 'edit') {
-  return z
-    .object({
-      accountMode:
-        mode === 'create' ? z.enum(accountModeValues) : z.string().optional(),
-      userId: optionalTrimmedString(),
-      firstName: requiredString(),
-      lastName: requiredString(),
-      specialization: requiredString(),
-      departmentId: requiredString(),
-      phoneNumber: requiredString().regex(doctorPhonePattern, phoneNumberText),
-      email: optionalTrimmedString(),
-      username: optionalTrimmedString(),
-      password: optionalTrimmedString(),
-    })
-    .superRefine((values, context) => {
-      if (mode === 'edit') {
-        return;
-      }
-
-      if (values.accountMode === 'new') {
-        const emailResult = emailRule().safeParse(values.email?.trim() || '');
-
-        if (!emailResult.success) {
-          emailResult.error.issues.forEach((issue) => {
-            context.addIssue({
-              ...issue,
-              path: ['email'],
-            });
-          });
-        }
-
-        if (values.username?.trim()) {
-          const usernameResult = usernameRule().safeParse(values.username.trim());
-
-          if (!usernameResult.success) {
-            usernameResult.error.issues.forEach((issue) => {
-              context.addIssue({
-                ...issue,
-                path: ['username'],
-              });
-            });
-          }
-        }
-
-        if (values.password?.trim()) {
-          const passwordResult = passwordRule().safeParse(values.password.trim());
-
-          if (!passwordResult.success) {
-            passwordResult.error.issues.forEach((issue) => {
-              context.addIssue({
-                ...issue,
-                path: ['password'],
-              });
-            });
-          }
-        }
-
-        return;
-      }
-
-      if (!values.userId?.trim()) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['userId'],
-          message: requiredText,
-        });
-      }
-
-    });
+  return z.object({
+    userId: optionalTrimmedString(),
+    firstName: requiredString(),
+    lastName: requiredString(),
+    specialization: requiredString(),
+    departmentId: requiredString(),
+    phoneNumber: requiredString().regex(doctorPhonePattern, phoneNumberText),
+    email: mode === 'create' ? emailRule() : optionalTrimmedString(),
+    username: optionalTrimmedString().refine(
+      (value) => !value || value.trim().length >= 3,
+      usernameMinText
+    ),
+  });
 }
 
 function createNurseSchema(mode: 'create' | 'edit') {
@@ -710,19 +649,11 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     ],
     fields: [
       {
-        name: 'accountMode',
-        label: lt('Account setup', 'Kontoeinrichtung'),
-        type: 'select',
-        hint: lt('New logins email the password with a confirmation link before first login.', 'Neue Logins senden das Passwort mit einem Bestätigungslink vor der ersten Anmeldung per E-Mail.'),
-        options: accountModeOptions,
-        modes: ['create'],
-      },
-      {
         name: 'userId',
         label: lt('User account', 'Benutzerkonto'),
         type: 'select',
         source: 'users',
-        showWhen: (values, mode) => mode === 'edit' || values.accountMode !== 'new',
+        modes: ['edit'],
       },
       { name: 'firstName', label: lt('First name', 'Vorname'), type: 'text' },
       { name: 'lastName', label: lt('Last name', 'Nachname'), type: 'text' },
@@ -733,17 +664,8 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         name: 'email',
         label: lt('Email', 'E-Mail'),
         type: 'text',
-        hint: lt('Required for sending the password and confirmation link.', 'Erforderlich, um Passwort und Bestätigungslink zu senden.'),
+        hint: lt('Password and confirmation link are sent to this address.', 'Passwort und Bestätigungslink werden an diese Adresse gesendet.'),
         modes: ['create'],
-        showWhen: (values) => values.accountMode === 'new',
-      },
-      {
-        name: 'password',
-        label: lt('Password', 'Passwort'),
-        type: 'password',
-        hint: lt('Optional. If left blank, MedSphere generates one and emails it with the confirmation link.', 'Optional. Wenn leer, generiert MedSphere ein Passwort und sendet es mit dem Bestätigungslink per E-Mail.'),
-        modes: ['create'],
-        showWhen: (values) => values.accountMode === 'new',
       },
       {
         name: 'username',
@@ -751,7 +673,6 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         type: 'text',
         hint: lt('Optional. Use at least 3 characters if provided.', 'Optional. Verwenden Sie mindestens 3 Zeichen, falls angegeben.'),
         modes: ['create'],
-        showWhen: (values) => values.accountMode === 'new',
       },
     ],
     columns: [
@@ -761,11 +682,9 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       { key: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), render: (item) => String(getValue(item, 'phoneNumber')) },
     ],
     getSchema: createDoctorSchema,
-    getInitialValues: (_item, mode) => ({
-      accountMode: mode === 'create' ? 'existing' : '',
+    getInitialValues: () => ({
       email: '',
       username: '',
-      password: '',
     }),
     cleanPayload: buildDoctorPayload,
     getItemTitle: (item) => formatPersonName(item),

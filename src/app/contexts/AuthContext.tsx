@@ -23,6 +23,7 @@ type AuthContextValue = {
   login: (values: { identifier: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
+  syncUser: (user: any) => void;
   can: (roles?: string[]) => boolean;
   errorMessage: (error: any, translate?: (value: LocalizedText) => string) => string;
 };
@@ -143,6 +144,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const syncUser = useCallback(
+    (nextUserPayload: any) => {
+      const nextUser = normalizeUser(nextUserPayload);
+
+      userRef.current = nextUser;
+      setUser(nextUser);
+
+      if (accessToken) {
+        store.dispatch(
+          setReduxSession({
+            user: nextUser as any,
+            tokens: { accessToken },
+          })
+        );
+      }
+    },
+    [accessToken]
+  );
+
   const can = (roles?: string[]) => {
     if (!roles?.length) {
       return true;
@@ -167,6 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         logoutAll,
+        syncUser,
         can,
         errorMessage: getErrorMessage,
       }}

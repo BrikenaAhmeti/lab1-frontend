@@ -60,7 +60,7 @@ describe('EntityFormModal', () => {
     });
   });
 
-  it('submits doctor create values without userId when creating a new linked user', async () => {
+  it('submits doctor create values with email for backend account provisioning', async () => {
     const onSubmit = vi.fn().mockResolvedValue(undefined);
 
     render(
@@ -71,7 +71,6 @@ describe('EntityFormModal', () => {
           config={moduleConfigs.doctors}
           item={null}
           references={{
-            users: [{ value: 'user-1', label: 'Ava Taylor' }],
             departments: [{ value: 'dep-1', label: 'Cardiology' }],
           }}
           loading={false}
@@ -82,8 +81,8 @@ describe('EntityFormModal', () => {
       </LanguageProvider>
     );
 
-    fireEvent.click(screen.getByRole('combobox', { name: /Account setup/i }));
-    fireEvent.click(screen.getByRole('option', { name: /Create new login/i }));
+    expect(screen.queryByRole('combobox', { name: /Account setup/i })).not.toBeInTheDocument();
+    expect(document.getElementById('password')).toBeNull();
     fireEvent.change(screen.getByLabelText('First name'), {
       target: { value: 'Ava' },
     });
@@ -104,18 +103,12 @@ describe('EntityFormModal', () => {
     fireEvent.change(screen.getByRole('textbox', { name: /Username/i }), {
       target: { value: 'avataylor' },
     });
-    const passwordInput = document.getElementById('password');
-    expect(passwordInput).not.toBeNull();
-    fireEvent.change(passwordInput as HTMLElement, {
-      target: { value: 'secret123' },
-    });
 
     fireEvent.click(screen.getByRole('button', { name: 'Create' }));
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith(
         expect.objectContaining({
-          accountMode: 'new',
           firstName: 'Ava',
           lastName: 'Taylor',
           specialization: 'Cardiology',
@@ -123,7 +116,6 @@ describe('EntityFormModal', () => {
           phoneNumber: '+38344111222',
           email: 'ava@example.com',
           username: 'avataylor',
-          password: 'secret123',
         })
       );
     });
