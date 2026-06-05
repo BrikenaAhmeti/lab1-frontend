@@ -30,6 +30,9 @@ export type InvoiceStats = {
 export type InvoiceListParams = {
   patientId?: string;
   status?: InvoiceStatus | '';
+  date?: string;
+  from?: string;
+  to?: string;
 };
 
 export type CreateInvoiceDTO = {

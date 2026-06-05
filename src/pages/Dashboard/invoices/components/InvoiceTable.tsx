@@ -16,8 +16,10 @@ type InvoiceTableProps = {
   canManage: boolean;
   payingId?: string;
   cancellingId?: string;
+  downloadingPdfId?: string;
   onPay: (invoice: Invoice) => void;
   onCancel: (invoice: Invoice) => void;
+  onDownloadPdf: (invoice: Invoice) => void;
 };
 
 export default function InvoiceTable({
@@ -25,8 +27,10 @@ export default function InvoiceTable({
   canManage,
   payingId,
   cancellingId,
+  downloadingPdfId,
   onPay,
   onCancel,
+  onDownloadPdf,
 }: InvoiceTableProps) {
   const { t, i18n } = useTranslation('invoices');
   const locale = i18n.language === 'de' ? 'de-DE' : 'en-US';
@@ -66,32 +70,39 @@ export default function InvoiceTable({
                   </Badge>
                 </td>
                 <td className="px-3 py-3">
-                  {canManageRow ? (
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        loading={payingId === invoice.id}
-                        disabled={cancellingId === invoice.id}
-                        onClick={() => onPay(invoice)}
-                      >
-                        {t('actions.markPaid')}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        loading={cancellingId === invoice.id}
-                        disabled={payingId === invoice.id}
-                        onClick={() => onCancel(invoice)}
-                      >
-                        {t('actions.cancel')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="text-right text-xs text-muted-foreground">
-                      {canManage ? t('table.noActions') : t('labels.viewOnly')}
-                    </div>
-                  )}
+                  <div className="flex justify-end gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      loading={downloadingPdfId === invoice.id}
+                      disabled={payingId === invoice.id || cancellingId === invoice.id}
+                      onClick={() => onDownloadPdf(invoice)}
+                    >
+                      {t('actions.downloadPdf')}
+                    </Button>
+                    {canManageRow ? (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          loading={payingId === invoice.id}
+                          disabled={cancellingId === invoice.id}
+                          onClick={() => onPay(invoice)}
+                        >
+                          {t('actions.markPaid')}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          loading={cancellingId === invoice.id}
+                          disabled={payingId === invoice.id}
+                          onClick={() => onCancel(invoice)}
+                        >
+                          {t('actions.cancel')}
+                        </Button>
+                      </>
+                    ) : null}
+                  </div>
                 </td>
               </tr>
             );

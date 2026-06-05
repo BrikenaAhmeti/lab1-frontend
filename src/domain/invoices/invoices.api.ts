@@ -61,6 +61,18 @@ function buildInvoicesQuery(params: InvoiceListParams = {}) {
     query.set('status', params.status.trim());
   }
 
+  if (params.date?.trim()) {
+    query.set('date', params.date.trim());
+  }
+
+  if (params.from?.trim()) {
+    query.set('from', params.from.trim());
+  }
+
+  if (params.to?.trim()) {
+    query.set('to', params.to.trim());
+  }
+
   const value = query.toString();
   return value ? `?${value}` : '';
 }

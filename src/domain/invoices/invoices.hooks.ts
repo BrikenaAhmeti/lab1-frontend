@@ -10,6 +10,9 @@ export const invoicesKeys = {
       ...invoicesKeys.lists(),
       params.patientId?.trim() ?? '',
       params.status?.trim() ?? '',
+      params.date?.trim() ?? '',
+      params.from?.trim() ?? '',
+      params.to?.trim() ?? '',
     ] as const,
   stats: () => [...invoicesKeys.all, 'stats'] as const,
 };

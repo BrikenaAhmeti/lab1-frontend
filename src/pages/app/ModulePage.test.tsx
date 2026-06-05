@@ -90,6 +90,7 @@ describe('ModulePage', () => {
   const originalDepartmentsService = moduleConfigs.departments.service;
   const originalRoomsService = moduleConfigs.rooms.service;
   const originalAdmissionsService = moduleConfigs.admissions.service;
+  const originalInvoicesService = moduleConfigs.invoices.service;
   const originalReceptionistService = moduleConfigs.receptionists.service;
 
   beforeEach(() => {
@@ -110,6 +111,7 @@ describe('ModulePage', () => {
     moduleConfigs.departments.service = originalDepartmentsService;
     moduleConfigs.rooms.service = originalRoomsService;
     moduleConfigs.admissions.service = originalAdmissionsService;
+    moduleConfigs.invoices.service = originalInvoicesService;
     moduleConfigs.receptionists.service = originalReceptionistService;
   });
 
@@ -523,6 +525,62 @@ describe('ModulePage', () => {
 
     await waitFor(() => {
       expect(putMock).toHaveBeenCalledWith('/api/admissions/admission-1/discharge', {});
+    });
+  });
+
+  it('passes invoice date range filters and marks pending invoices as paid', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue({ data: [] });
+    const putMock = vi.spyOn(apiClient, 'put').mockResolvedValue({ data: {} });
+    const confirmMock = vi.spyOn(window, 'confirm').mockReturnValue(true);
+
+    moduleConfigs.invoices.service = {
+      list: vi.fn().mockResolvedValue({
+        data: [
+          {
+            id: 'invoice-1',
+            patientId: 'patient-1',
+            amount: 450,
+            date: '2099-10-10',
+            status: 'PENDING',
+            description: 'Hospital stay',
+            patient: {
+              id: 'patient-1',
+              firstName: 'Lena',
+              lastName: 'Morris',
+            },
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }),
+      get: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    renderPage('invoices', '/invoices?from=2099-10-01&to=2099-10-31');
+
+    expect(await screen.findByText('Lena Morris')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('2099-10-01 - 2099-10-31')).toBeInTheDocument();
+    expect(moduleConfigs.invoices.service.list).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: '2099-10-01',
+        to: '2099-10-31',
+        sortBy: 'date',
+        order: 'DESC',
+      })
+    );
+
+    expect(screen.getByRole('button', { name: 'Download PDF' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mark as paid' }));
+    expect(confirmMock).toHaveBeenCalledWith('Mark this invoice as paid?');
+
+    await waitFor(() => {
+      expect(putMock).toHaveBeenCalledWith('/api/invoices/invoice-1/pay');
     });
   });
 });

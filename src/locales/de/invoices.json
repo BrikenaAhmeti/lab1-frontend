@@ -13,9 +13,11 @@
   },
   "filters": {
     "title": "Filter",
-    "description": "Filtern Sie Rechnungen nach Zahlungsstatus.",
+    "description": "Filtern Sie Rechnungen nach Zahlungsstatus, Datum oder Datumsbereich.",
     "statusLabel": "Status",
-    "allStatuses": "Alle Status"
+    "allStatuses": "Alle Status",
+    "exactDate": "Exakter Tag",
+    "dateRange": "Datumsbereich"
   },
   "form": {
     "title": "Rechnung erstellen",
@@ -48,6 +50,7 @@
   "actions": {
     "retry": "Erneut versuchen",
     "clear": "Filter löschen",
+    "downloadPdf": "PDF herunterladen",
     "markPaid": "Als bezahlt markieren",
     "cancel": "Rechnung stornieren"
   },
@@ -61,6 +64,7 @@
     "save": "Die Rechnung konnte nicht gespeichert werden.",
     "pay": "Die Rechnung konnte nicht als bezahlt markiert werden.",
     "cancel": "Die Rechnung konnte nicht storniert werden.",
+    "pdf": "Die Rechnungs-PDF konnte nicht heruntergeladen werden.",
     "stats": "Die Umsatzübersicht konnte nicht geladen werden.",
     "patients": "Patienten konnten nicht geladen werden."
   },
@@ -76,7 +80,7 @@
     "emptyTitle": "Noch keine Rechnungen",
     "emptyDescription": "Erstellen Sie die erste Rechnung, um die Abrechnung zu verfolgen.",
     "emptyFilteredTitle": "Keine Rechnungen für diesen Filter",
-    "emptyFilteredDescription": "Versuchen Sie einen anderen Status oder löschen Sie den Filter.",
+    "emptyFilteredDescription": "Versuchen Sie einen anderen Status, ein anderes Datum oder löschen Sie den Filter.",
     "errorTitle": "Rechnungen konnten nicht geladen werden",
     "unauthorizedTitle": "Nicht autorisiert",
     "unauthorizedDescription": "Ihre Sitzung ist für diese Anfrage nicht autorisiert.",

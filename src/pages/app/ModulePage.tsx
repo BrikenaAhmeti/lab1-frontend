@@ -12,7 +12,7 @@ import DeleteModal from '@/ui/organisms/DeleteModal';
 import EmptyState from '@/ui/molecules/EmptyState';
 import EntityDetailsModal from '@/ui/organisms/EntityDetailsModal';
 import EntityFormModal from '@/ui/organisms/EntityFormModal';
-import DateRangePicker from '@/ui/atoms/DateRangePicker';
+import DateRangePicker from '@/ui/molecules/DateRangePicker';
 import ListSkeleton from '@/ui/molecules/ListSkeleton';
 import Modal from '@/ui/molecules/Modal';
 import PageHeader from '@/ui/molecules/PageHeader';
@@ -21,6 +21,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useToast } from '@/app/contexts/ToastContext';
 import { apiClient, authApi, fetchArrayWithFallback } from '@/libs/app/api';
+import { downloadInvoicePdf } from '@/domain/invoices/invoices.pdf';
 import {
   formatDate,
   formatPersonName,
@@ -457,6 +458,33 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     },
   });
 
+  const markInvoicePaidMutation = useMutation({
+    mutationFn: async (item: any) => {
+      const id = String(getValue(item, 'id'));
+      await apiClient.put(`/api/invoices/${id}/pay`);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      showToast(t(lt('Invoice marked as paid.', 'Rechnung wurde als bezahlt markiert.')), 'success');
+    },
+    onError: (error) => {
+      showToast(getErrorMessage(error, t), 'error');
+    },
+  });
+
+  const downloadInvoicePdfMutation = useMutation({
+    mutationFn: async (item: any) => {
+      await downloadInvoicePdf(item, {
+        language,
+        locale: language === 'de' ? 'de-DE' : 'en-US',
+        currency: 'EUR',
+      });
+    },
+    onError: (error) => {
+      showToast(getErrorMessage(error, t), 'error');
+    },
+  });
+
   const currentItem = formState.mode === 'edit' ? detailQuery.data || formState.item : formState.item;
   const currentRoomAdmissions = useMemo(() => {
     if (moduleKey !== 'rooms' || !detailItem?.id) {
@@ -594,9 +622,61 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
             {t(lt('Discharge', 'Entlassen'))}
           </Button>
         ) : null}
+        {moduleKey === 'invoices' && canRead ? (
+          <Button
+            size="sm"
+            variant="outline"
+            loading={
+              downloadInvoicePdfMutation.isPending
+              && String(getValue(downloadInvoicePdfMutation.variables, 'id')) === String(getValue(item, 'id'))
+            }
+            disabled={
+              markInvoicePaidMutation.isPending
+              && String(getValue(markInvoicePaidMutation.variables, 'id')) === String(getValue(item, 'id'))
+            }
+            onClick={() => {
+              void downloadInvoicePdfMutation.mutateAsync(item);
+            }}
+          >
+            {t(lt('Download PDF', 'PDF herunterladen'))}
+          </Button>
+        ) : null}
+        {moduleKey === 'invoices' && canAction ? (
+          <Button
+            size="sm"
+            variant="secondary"
+            disabled={String(getValue(item, 'status')).toUpperCase() !== 'PENDING'}
+            loading={
+              markInvoicePaidMutation.isPending
+              && String(getValue(markInvoicePaidMutation.variables, 'id')) === String(getValue(item, 'id'))
+            }
+            onClick={() => {
+              if (!window.confirm(t(lt('Mark this invoice as paid?', 'Diese Rechnung als bezahlt markieren?')))) {
+                return;
+              }
+
+              void markInvoicePaidMutation.mutateAsync(item);
+            }}
+          >
+            {t(lt('Mark as paid', 'Als bezahlt markieren'))}
+          </Button>
+        ) : null}
       </div>
     ),
-    [canAction, canDelete, canUpdate, config, dischargeAdmissionMutation, moduleKey, openDetailModal, openEditModal, t]
+    [
+      canAction,
+      canDelete,
+      canRead,
+      canUpdate,
+      config,
+      dischargeAdmissionMutation,
+      downloadInvoicePdfMutation,
+      markInvoicePaidMutation,
+      moduleKey,
+      openDetailModal,
+      openEditModal,
+      t,
+    ]
   );
 
   const handlePageChange = useCallback(
@@ -628,7 +708,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     (supportsAction(config, 'edit') && canUpdate) ||
     (supportsAction(config, 'delete') && canDelete) ||
     Boolean(config.getPasswordUserId && canUpdate) ||
-    Boolean(moduleKey === 'admissions' && canAction);
+    Boolean((moduleKey === 'admissions' || moduleKey === 'invoices') && canAction);
 
   return (
     <div className="space-y-6">

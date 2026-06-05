@@ -13,9 +13,11 @@
   },
   "filters": {
     "title": "Filters",
-    "description": "Filter invoices by payment status.",
+    "description": "Filter invoices by payment status, date, or date range.",
     "statusLabel": "Status",
-    "allStatuses": "All statuses"
+    "allStatuses": "All statuses",
+    "exactDate": "Exact day",
+    "dateRange": "Date range"
   },
   "form": {
     "title": "Create invoice",
@@ -48,6 +50,7 @@
   "actions": {
     "retry": "Retry",
     "clear": "Clear filter",
+    "downloadPdf": "Download PDF",
     "markPaid": "Mark as paid",
     "cancel": "Cancel invoice"
   },
@@ -61,6 +64,7 @@
     "save": "Unable to save the invoice.",
     "pay": "Unable to mark the invoice as paid.",
     "cancel": "Unable to cancel the invoice.",
+    "pdf": "Unable to download the invoice PDF.",
     "stats": "Unable to load the revenue summary.",
     "patients": "Unable to load patients."
   },
@@ -76,7 +80,7 @@
     "emptyTitle": "No invoices yet",
     "emptyDescription": "Create the first invoice to start tracking billing.",
     "emptyFilteredTitle": "No invoices match this filter",
-    "emptyFilteredDescription": "Try another status or clear the filter.",
+    "emptyFilteredDescription": "Try another status, date, or clear the filter.",
     "errorTitle": "Unable to load invoices",
     "unauthorizedTitle": "Unauthorized",
     "unauthorizedDescription": "Your session is not authorized for this request.",

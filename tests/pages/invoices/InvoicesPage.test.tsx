@@ -13,7 +13,13 @@ const mockUseCancelInvoice = vi.fn();
 const mockUsePatients = vi.fn();
 
 vi.mock('@/domain/invoices/invoices.hooks', () => ({
-  useInvoices: (params?: { patientId?: string; status?: string }) => mockUseInvoices(params),
+  useInvoices: (params?: {
+    patientId?: string;
+    status?: string;
+    date?: string;
+    from?: string;
+    to?: string;
+  }) => mockUseInvoices(params),
   useInvoiceStats: () => mockUseInvoiceStats(),
   useCreateInvoice: () => mockUseCreateInvoice(),
   usePayInvoice: () => mockUsePayInvoice(),
@@ -159,15 +165,27 @@ describe('InvoicesPage', () => {
     });
   });
 
-  it('renders the revenue card, create form, and passes the status filter to the invoices query', () => {
-    renderPage('/app/invoices?status=PAID', ['ADMIN']);
+  it('renders the revenue card, create form, and passes status/date filters to the invoices query', () => {
+    renderPage('/app/invoices?status=PAID&from=2099-10-01&to=2099-10-31', ['ADMIN']);
 
-    expect(mockUseInvoices).toHaveBeenCalledWith({ status: 'PAID' });
+    expect(mockUseInvoices).toHaveBeenCalledWith({
+      status: 'PAID',
+      from: '2099-10-01',
+      to: '2099-10-31',
+    });
     expect(screen.getByText('Total revenue')).toBeInTheDocument();
     expect(screen.getByText(/1,200|1200/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Create invoice' })).toBeInTheDocument();
     expect(screen.getByLabelText('Status')).toHaveValue('PAID');
+    expect(screen.getByDisplayValue('2099-10-01 - 2099-10-31')).toBeInTheDocument();
     expect(screen.getAllByText('Pending')).not.toHaveLength(0);
+  });
+
+  it('passes an exact invoice date filter to the invoices query', () => {
+    renderPage('/app/invoices?date=2099-10-10', ['RECEPTIONIST']);
+
+    expect(mockUseInvoices).toHaveBeenCalledWith({ date: '2099-10-10' });
+    expect(screen.getByDisplayValue('2099-10-10')).toBeInTheDocument();
   });
 
   it('submits the create invoice form with the expected payload', async () => {
@@ -204,6 +222,6 @@ describe('InvoicesPage', () => {
 
     expect(screen.queryByText('Create invoice')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /mark as paid/i })).not.toBeInTheDocument();
-    expect(screen.getByText('View only')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /download pdf/i })).toBeInTheDocument();
   });
 });

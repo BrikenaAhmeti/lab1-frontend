@@ -1154,7 +1154,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     endpoint: '/api/invoices',
     service: createCrudService(
       '/api/invoices',
-      allowListParams('page', 'limit', 'patientId', 'status')
+      allowListParams('page', 'limit', 'patientId', 'status', 'date', 'from', 'to')
     ),
     sortOptions: [
       option('createdAt', 'Created at', 'Erstellt am'),
@@ -1176,6 +1176,17 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     filters: [
       { name: 'patientId', label: lt('Patient', 'Patient'), type: 'select', source: 'patients' },
       { name: 'status', label: lt('Status', 'Status'), type: 'select', options: invoiceStatuses },
+      {
+        name: 'date',
+        label: lt('Invoice date', 'Rechnungsdatum'),
+        type: 'dateRange',
+        fromName: 'from',
+        toName: 'to',
+        exactLabel: lt('Exact day', 'Exakter Tag'),
+        rangeLabel: lt('Date range', 'Datumsbereich'),
+        fromLabel: lt('From', 'Von'),
+        toLabel: lt('To', 'Bis'),
+      },
     ],
     fields: [
       { name: 'patientId', label: lt('Patient', 'Patient'), type: 'select', source: 'patients' },

@@ -29,9 +29,9 @@ import { useRooms } from '@/domain/rooms/rooms.hooks';
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
-import DateRangePicker from '@/ui/atoms/DateRangePicker';
 import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
+import DateRangePicker from '@/ui/molecules/DateRangePicker';
 import AdmissionStateCard from './state-card';
 
 type FilterParams = {

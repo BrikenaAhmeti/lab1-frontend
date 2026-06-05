@@ -11,6 +11,7 @@ import {
   usePayInvoice,
 } from '@/domain/invoices/invoices.hooks';
 import { invoiceStatusValues, type Invoice } from '@/domain/invoices/invoices.types';
+import { downloadInvoicePdf } from '@/domain/invoices/invoices.pdf';
 import {
   getInvoiceApiMessage,
   getInvoiceApiStatus,
@@ -24,10 +25,18 @@ import { formatCurrency } from '@/utils/formatters/currency';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 import Select from '@/ui/atoms/Select';
+import DateRangePicker from '@/ui/molecules/DateRangePicker';
 import ListSkeleton from '@/ui/molecules/ListSkeleton';
 import InvoiceForm, { type InvoiceFormValues } from './components/InvoiceForm';
 import InvoiceTable from './components/InvoiceTable';
 import InvoiceStateCard from './state-card';
+
+type FilterParams = {
+  status?: string | null;
+  date?: string | null;
+  from?: string | null;
+  to?: string | null;
+};
 
 const createEmptyForm = (): InvoiceFormValues => ({
   patientId: '',
@@ -81,7 +90,16 @@ export default function InvoicesPage() {
   const roles = useAppSelector((state) => state.auth.user?.roles ?? []);
   const canManageInvoices = hasAnyRole(roles, ['ADMIN', 'ADMINS', 'RECEPTIONIST', 'RECEPTIONISTS']);
   const status = normalizeInvoiceStatus(searchParams.get('status'));
-  const invoicesQuery = useInvoices({ status });
+  const date = searchParams.get('date')?.trim() ?? '';
+  const from = searchParams.get('from')?.trim() ?? '';
+  const to = searchParams.get('to')?.trim() ?? '';
+  const invoiceParams = {
+    ...(status ? { status } : {}),
+    ...(date ? { date } : {}),
+    ...(from ? { from } : {}),
+    ...(to ? { to } : {}),
+  };
+  const invoicesQuery = useInvoices(invoiceParams);
   const statsQuery = useInvoiceStats();
   const patientsQuery = usePatients({ page: 1, limit: 100, search: '' });
   const createInvoice = useCreateInvoice();
@@ -92,12 +110,13 @@ export default function InvoicesPage() {
   const [formError, setFormError] = useState('');
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [downloadingPdfId, setDownloadingPdfId] = useState('');
   const invoicesStatus = getInvoiceApiStatus(invoicesQuery.error);
   const statsStatus = getInvoiceApiStatus(statsQuery.error);
   const patientsStatus = getPatientApiStatus(patientsQuery.error);
   const statuses = [invoicesStatus, statsStatus, canManageInvoices ? patientsStatus : undefined];
   const locale = i18n.language === 'de' ? 'de-DE' : 'en-US';
-  const hasStatusFilter = !!status;
+  const hasFilters = !!status || !!date || !!from || !!to;
   const saving = createInvoice.isPending;
 
   const patientOptions = (patientsQuery.data?.items ?? []).map((patient) => ({
@@ -113,14 +132,16 @@ export default function InvoicesPage() {
     setActionSuccess('');
   };
 
-  const updateStatusFilter = (nextStatus: string | null) => {
+  const updateParams = (values: FilterParams) => {
     const next = new URLSearchParams(searchParams);
 
-    if (nextStatus && nextStatus.trim()) {
-      next.set('status', nextStatus);
-    } else {
-      next.delete('status');
-    }
+    Object.entries(values).forEach(([key, value]) => {
+      if (value && value.trim()) {
+        next.set(key, value);
+      } else {
+        next.delete(key);
+      }
+    });
 
     setSearchParams(next);
   };
@@ -191,6 +212,23 @@ export default function InvoicesPage() {
     }
   };
 
+  const handleDownloadPdf = async (invoice: Invoice) => {
+    resetFeedback();
+    setDownloadingPdfId(invoice.id);
+
+    try {
+      await downloadInvoicePdf(invoice, {
+        language: i18n.language,
+        locale,
+        currency: 'EUR',
+      });
+    } catch {
+      setActionError(t('errors.pdf'));
+    } finally {
+      setDownloadingPdfId('');
+    }
+  };
+
   if (statuses.includes(401)) {
     return (
       <InvoiceStateCard
@@ -232,15 +270,19 @@ export default function InvoicesPage() {
   } else if (!invoicesQuery.data?.length) {
     listContent = (
       <InvoiceStateCard
-        title={hasStatusFilter ? t('states.emptyFilteredTitle') : t('states.emptyTitle')}
+        title={hasFilters ? t('states.emptyFilteredTitle') : t('states.emptyTitle')}
         description={
-          hasStatusFilter
+          hasFilters
             ? t('states.emptyFilteredDescription')
             : t('states.emptyDescription')
         }
       >
-        {hasStatusFilter ? (
-          <Button type="button" variant="outline" onClick={() => updateStatusFilter(null)}>
+        {hasFilters ? (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => updateParams({ status: null, date: null, from: null, to: null })}
+          >
             {t('actions.clear')}
           </Button>
         ) : null}
@@ -253,8 +295,10 @@ export default function InvoicesPage() {
         canManage={canManageInvoices}
         payingId={payInvoice.variables}
         cancellingId={cancelInvoice.variables}
+        downloadingPdfId={downloadingPdfId}
         onPay={handlePayInvoice}
         onCancel={handleCancelInvoice}
+        onDownloadPdf={handleDownloadPdf}
       />
     );
   }
@@ -303,12 +347,12 @@ export default function InvoicesPage() {
       </div>
 
       <Card title={t('filters.title')} description={t('filters.description')}>
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,240px),auto] sm:items-end">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[220px,260px,auto]">
           <Select
             label={t('filters.statusLabel')}
             name="status"
             value={status}
-            onChange={(event) => updateStatusFilter(event.target.value || null)}
+            onChange={(event) => updateParams({ status: event.target.value || null })}
           >
             <option value="">{t('filters.allStatuses')}</option>
             {invoiceStatusValues.map((invoiceStatus) => (
@@ -318,16 +362,29 @@ export default function InvoicesPage() {
             ))}
           </Select>
 
-          <div>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={!hasStatusFilter}
-              onClick={() => updateStatusFilter(null)}
-            >
-              {t('actions.clear')}
-            </Button>
-          </div>
+          <DateRangePicker
+            label={t('fields.date')}
+            exactLabel={t('filters.exactDate')}
+            rangeLabel={t('filters.dateRange')}
+            value={{ date, from, to }}
+            onChange={(value) =>
+              updateParams({
+                date: value.date || null,
+                from: value.from || null,
+                to: value.to || null,
+              })
+            }
+          />
+
+          <Button
+            type="button"
+            variant="outline"
+            className="md:self-end"
+            disabled={!hasFilters}
+            onClick={() => updateParams({ status: null, date: null, from: null, to: null })}
+          >
+            {t('actions.clear')}
+          </Button>
         </div>
       </Card>
 
