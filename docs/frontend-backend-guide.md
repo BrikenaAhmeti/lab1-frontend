@@ -329,15 +329,15 @@ These are the main module endpoints expected by the current config.
 | Module | Route | Endpoint | Filters | Create/Edit Fields | Main Roles |
 | --- | --- | --- | --- | --- | --- |
 | Patients | `/patients` | `/api/patients` | `search`, `bloodGroup`, `gender` | `firstName`, `lastName`, `dateOfBirth`, `gender`, `phoneNumber`, `bloodType`, `address` | Admin full; receptionist create/update; doctor/nurse read |
-| Doctors | `/doctors` | `/api/doctors` | `departmentId`, `specialization` | account mode, `userId`, `firstName`, `lastName`, `specialization`, `departmentId`, `phoneNumber`, optional new login fields | Admin full |
+| Doctors | `/doctors` | `/api/doctors` | `departmentId`, `specialization` | `firstName`, `lastName`, `specialization`, `departmentId`, `phoneNumber`, create-only `email` and optional `username`, edit-only linked `userId` | Admin full |
 | Departments | `/departments` | `/api/departments` | none | `name`, `location`, `description` | Admin full |
 | Appointments | `/appointments` | `/api/appointments` | `date`, `doctorId`, `patientId`, `status`, `from`, `to` | `patientId`, `doctorId`, `date`, `time`, edit-only `status`, `notes` | Admin/receptionist full; doctor update/action; nurse read |
 | Medical records | `/medical-records` | `/api/medical-records` | `patientId` | `patientId`, `doctorId`, `date`, `diagnosis`, `treatment`, `prescriptionsText` | Admin full; doctor view/read/create/update; nurse/receptionist read |
 | Prescriptions | `/prescriptions` | `/api/prescriptions` | `medicalRecordId` | `medicalRecordId`, `medicine`, `dosage`, `duration`, `instructions` | Admin/doctor create/update; nurse/receptionist read |
 | Rooms | `/rooms` | `/api/rooms` | `departmentId`, `type` | `roomNumber`, `departmentId`, `type`, `status`, `capacity` | Admin full; nurse/receptionist read; doctor read |
-| Admissions | `/admissions` | `/api/admissions` | `status`, `patientId`, `roomId` | `patientId`, `roomId`, `admissionDate` | Admin/receptionist/nurse create/update/action; doctor read |
+| Admissions | `/admissions` | `/api/admissions` | `status`, `patientId`, `roomId` | `patientId`, `roomId`, `admissionDate` | Admin/receptionist create/update/action; nurse/doctor read |
 | Invoices | `/invoices` | `/api/invoices` | `patientId`, `status` | `patientId`, `amount`, `date`, edit-only `status`, `description` | Admin/receptionist create/update/action |
-| Nurses | `/nurses` | `/api/nurses` | `departmentId` | account mode, `userId`, `firstName`, `lastName`, `departmentId`, `shift`, optional new login fields | Admin full |
+| Nurses | `/nurses` | `/api/nurses` | `search`, `departmentId`, `shift` | create-only `email` and `username`, `firstName`, `lastName`, `departmentId`, `shift` | Admin full |
 | Receptionists | `/receptionists` | `/api/auth/users` and `/api/auth/users/receptionists` | client-side `search`, `isActive`, `emailConfirmed` | `firstName`, `lastName`, `email`, `username`, `phoneNumber`, `isActive` | Admin create/update/read |
 
 Notes:
@@ -346,7 +346,7 @@ Notes:
 - `sortBy` values are converted from camelCase to snake_case before sending to the backend.
 - Empty values are stripped before create/update payloads.
 - Appointments and invoices omit `status` on create because defaults are configured on the frontend and should usually be enforced by the backend too.
-- Admissions have create enabled, but generic edit/delete UI is disabled in `actions`; discharge-type flows should be represented as actions.
+- Admissions are created by admins and receptionists in the active permission matrix. Generic edit/delete UI is disabled in `actions`; discharge-type flows should be represented as actions.
 - Receptionists are special: list filtering/pagination is done client-side after fetching `/api/auth/users` and filtering users with role `RECEPTIONIST`.
 
 ## Reference Dropdown Endpoints
@@ -357,7 +357,7 @@ Reference dropdowns are configured in [`referenceConfigs`](../src/config/modules
 | --- | --- | --- |
 | Patients | `/api/patients?page=1&limit=100&sortBy=created_at&order=DESC` | Patient selects. |
 | Departments | `/api/departments/all?sortBy=name&order=ASC` | Department selects. |
-| Users | `/api/auth/users` | Link doctor/nurse to an existing user account. |
+| Users | `/api/auth/users` | User options for supported linked-account flows and admin staff account lookups. |
 | Doctors | `/api/doctors?page=1&limit=100&sortBy=last_name&order=ASC` | Doctor selects. |
 | Rooms | `/api/rooms/available?page=1&limit=100&sortBy=room_number&order=ASC` | Available room selects, with `/api/rooms` fallback. |
 | Medical records | `/api/medical-records?page=1&limit=100&sortBy=date&order=DESC` | Prescription medical-record selects. |
@@ -451,7 +451,7 @@ Patients:
 Doctors:
 
 - Important fields: `id`, `userId`, `firstName`, `lastName`, `specialization`, `departmentId`, `phoneNumber`, `department`.
-- Create can link an existing user with `userId` or create a new login with `email`, optional `username`, optional `password`.
+- Current generic create sends doctor profile fields plus `email` and optional `username`, while edit can show a linked `userId`. Older dashboard doctor form code also supports existing-user linking and optional manual password.
 - Phone number format is expected to look like `+38344111222`.
 
 Departments:
@@ -497,7 +497,7 @@ Nurses:
 
 - Important fields: `id`, `userId`, `firstName`, `lastName`, `departmentId`, `shift`, `department`.
 - Shift values: `Morning`, `Evening`, `Night`.
-- Create can link an existing user, create a new login, or create without portal account depending on backend support.
+- Current create sends nurse profile fields plus required `email` and `username`; backend should generate/send the initial password and confirmation link where supported. Edit updates nurse profile fields only.
 
 Receptionists:
 

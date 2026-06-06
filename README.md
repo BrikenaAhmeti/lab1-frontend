@@ -1,97 +1,151 @@
-# Frontend Dashboard
+# MedSphere Frontend Dashboard
 
-Healthcare management dashboard built with React, TypeScript, and Vite.
+MedSphere is a role-aware healthcare management dashboard built with React, TypeScript, Vite, TanStack Query, Axios, Tailwind CSS, i18next, Redux Toolkit, Vitest, and Testing Library.
 
-## Getting started
+The app manages daily hospital workflows for admins, doctors, nurses, and receptionists. Frontend permissions are used to show the correct navigation and actions for each role, while the backend must still enforce authorization for every endpoint.
+
+## Getting Started
 
 ```bash
 npm install
 
-# Optional: set API base URLs (see "Environment variables" below).
+# Optional local API overrides.
 cp .env.example .env
 
-# Start the dev server (http://localhost:3001)
+# Start the Vite dev server.
 npm run dev
 ```
 
-## Environment variables
+The dev server is configured for:
 
-Optional environment overrides (Vite). Restart the dev server after changing `.env`:
+```text
+http://localhost:3001
+```
 
-- Create a `.env` file (see `.env.example` for the format).
-- Supported variables:
-  - `VITE_API_CORE` (default: `http://localhost:3011`)
-  - `VITE_API_URL` (optional HMS API, defaults to `VITE_API_CORE`)
+## Environment Variables
+
+Vite reads optional API overrides from `.env`.
+
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `VITE_API_CORE` | `http://localhost:3011` | Main backend base URL. |
+| `VITE_API_URL` | falls back to `VITE_API_CORE` | Hospital Management System API base URL. |
+| `VITE_API_DEVICE_INFO` | falls back to `VITE_API_CORE` | Secondary base URL used by the legacy Axios client. |
+
+Restart the dev server after changing `.env`.
 
 ## Scripts
 
-- `npm run dev` starts the Vite dev server (configured for port `3001`).
-- `npm run build` type-checks (`tsc -b`) and creates a production build in `dist/`.
-- `npm run preview` serves the production build locally (run `npm run build` first).
-- `npm run analyze` runs the production build with a chunk report and writes `dist/chunk-report.json`.
-- `npm run lint` runs ESLint on a targeted set of app sources.
-- `npm test` runs the Vitest suite (CI mode).
+- `npm run dev` starts Vite on port `3001`.
+- `npm run build` type-checks with `tsc -b` and creates `dist/`.
+- `npm run preview` serves the production build locally.
+- `npm run analyze` builds with chunk analysis and writes `dist/chunk-report.json`.
+- `npm run lint` runs ESLint against `src` and `tests`.
+- `npm test` runs the Vitest suite in CI mode.
 - `npm run test:watch` runs Vitest in watch mode.
-- `npm run test:ui` runs Vitest with the UI runner.
+- `npm run test:ui` opens the Vitest UI runner.
+
+## Routes
+
+Public routes:
+
+- `/`
+- `/login`
+- `/confirm-email`
+
+Protected routes:
+
+- `/dashboard`
+- `/patients`
+- `/doctors`
+- `/departments`
+- `/appointments`
+- `/medical-records`
+- `/prescriptions`
+- `/rooms`
+- `/admissions`
+- `/invoices`
+- `/nurses`
+- `/receptionists`
+- `/unauthorized`
+
+Unknown routes render the not-found page.
+
+## Role-Based Functionality
+
+Roles and permissions are defined in `src/config/permissions.ts`.
+
+| Module | Admin | Doctor | Nurse | Receptionist |
+| --- | --- | --- | --- | --- |
+| Dashboard | View/read | View/read | View/read | View/read |
+| Patients | Create/read/update/delete | Read | Read | Create/read/update |
+| Doctors | Create/read/update/delete | No access | No access | No access |
+| Departments | Create/read/update/delete | No access | No access | No access |
+| Appointments | Create/read/update/delete/action | Read/update/action | Read | Create/read/update/action |
+| Medical records | Create/read/update/delete | Create/read/update | Read | Read |
+| Prescriptions | Create/read/update/delete | Create/read/update | Read | Read |
+| Rooms | Create/read/update/delete/action | Read | View/read | View/read |
+| Admissions | Create/read/update/delete/action | Read | View/read | Create/read/update/action |
+| Invoices | Create/read/update/delete/action | No access | No access | Create/read/update/action |
+| Nurses | Create/read/update/delete | No access | No access | No access |
+| Receptionists | Create/read/update | No access | No access | No access |
+| Users | Create/read/update/delete | No access | No access | No access |
+
+Permission actions:
+
+- `VIEW` shows the route/navigation item.
+- `READ` allows data fetching and read-only display.
+- `CREATE`, `UPDATE`, and `DELETE` control CRUD buttons and mutations.
+- `ACTION` controls workflow actions such as appointment status changes, payment, or admission actions.
+
+## Main Workflow
+
+Recommended hospital setup order:
+
+1. Create departments.
+2. Create rooms for departments.
+3. Create doctors and portal account details.
+4. Create nurses and portal account details.
+5. Create receptionist accounts.
+6. Create or update patients.
+7. Schedule appointments after patients and doctors exist.
+8. Create admissions after patients and available rooms exist.
+9. Create medical records after patients and doctors exist.
+10. Create prescriptions after medical records exist.
+11. Create invoices after patients exist.
+12. Use the dashboard to monitor today's appointments, available rooms, and active admissions.
 
 ## Backend Contract Notes
 
-The dashboard is aligned with the Hospital Management System backend ERD:
+- Auth uses `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout`, `/api/auth/logout-all`, `/api/auth/me`, `/api/auth/change-password`, `/api/auth/confirm-email`, and `/api/auth/users/:userId/password`.
+- The app sends requests with `withCredentials: true`; local backend CORS must allow credentials.
+- Paginated lists should return `data` or `items`, plus `total`, `page`, `limit`, and `totalPages`.
+- API responses may use snake_case or camelCase; the current app client normalizes many response keys to camelCase.
+- Appointments render `date`/`time` and also tolerate `appointmentDate`/`appointmentTime`.
+- Medical record `prescriptionsText` is a summary only; medicine rows belong in prescriptions.
+- Doctor creation in the current generic module uses doctor profile fields plus email and optional username. The older dashboard doctor form also supports linking an existing user and optional manual password.
+- Nurse creation uses nurse profile fields plus required email and username; the backend is expected to send the generated password and confirmation link where supported.
+- Admissions can be created by admins and receptionists in the active permission matrix. Nurses are read-only for admissions.
+- Generic admission edit/delete UI is disabled even though admin permissions include update/delete, so discharge-style changes should be implemented as explicit actions.
+- Invoices belong to patients and can optionally link to appointments or admissions if the backend supports those relationships.
 
-- Patients accept optional `userId` for portal login.
-- Appointments use separate `appointmentDate` and `appointmentTime` fields.
-- Medical records send `prescriptionsText` only as a general summary; medicine details belong in prescription rows.
-- Nurses can be created with no portal account, an existing user account, or a newly provisioned user account.
-- Invoices can optionally link to either an appointment or an admission.
+## Documentation
 
-## Performance Checklist
-
-- All active HMS page routes are loaded with `React.lazy()` and rendered behind `Suspense`.
-- Route fallbacks use a real skeleton UI through `src/hms/components/RouteSkeleton.tsx`.
-- Dashboard and module queries now use memoized derived state plus `staleTime` to avoid unnecessary repeated work and refetches.
-- Expensive shared UI pieces such as `DataTable`, `Pagination`, and `PageHeader` are wrapped with `React.memo`.
-- `useMemo` and `useCallback` are applied to the heavier `ModulePage` and dashboard data shaping logic.
-- Images that still render through `<img />` now use `loading="lazy"`.
-- Large tables already use pagination, which satisfies the 50+ row requirement.
-
-## Bundle Size
-
-Measured with `vite build` before and after the route-splitting work.
-
-| Build | Main JS | Gzip |
-| --- | ---: | ---: |
-| Before | `447.14 kB` | `139.74 kB` |
-| After | `320.94 kB` | `105.07 kB` |
-| Delta | `-126.20 kB` (`-28.2%`) | `-34.67 kB` (`-24.8%`) |
-
-## Bundle Analysis
-
-Run:
-
-```bash
-npm run analyze
-```
-
-This generates `dist/chunk-report.json` and confirms dedicated lazy chunks for each HMS page entry:
-
-- `LoginRoutePage`
-- `DashboardRoutePage`
-- `NotFoundRoutePage`
-- `PatientsRoutePage`
-- `DoctorsRoutePage`
-- `DepartmentsRoutePage`
-- `AppointmentsRoutePage`
-- `MedicalRecordsRoutePage`
-- `PrescriptionsRoutePage`
-- `RoomsRoutePage`
-- `AdmissionsRoutePage`
-- `InvoicesRoutePage`
-- `NursesRoutePage`
-
-Shared CRUD route logic is intentionally extracted into shared async chunks such as `createModuleRoutePage-*.js` to avoid duplicating the same code into every page chunk.
+- Full frontend prompt and role-based specification: `docs/frontend-detailed-prompt.md`
+- Frontend/backend integration guide: `docs/frontend-backend-guide.md`
 
 ## Verification
 
-Latest checks run successfully on June 4, 2026:
+Latest checks run successfully on June 6, 2026:
 
-- `npm run build`
+- `npm test` - 22 test files passed, 63 tests passed.
+- `npm run lint` - passed.
+- `npm run build` - passed.
+
+Recommended verification before release:
+
+```bash
+npm test
+npm run lint
+npm run build
+```

@@ -30,7 +30,7 @@ Implement frontend features using the actual business flow:
 5. Admin creates nurses and optionally creates or links nurse user accounts.
 6. Admin or receptionist creates patients.
 7. Admin, receptionist, or doctor creates appointments after patients and doctors exist.
-8. Admin, receptionist, or nurse creates admissions after patients and rooms exist.
+8. Admin or receptionist creates admissions after patients and rooms exist.
 9. Doctor or admin creates medical records after patients and doctors exist.
 10. Doctor or admin creates prescriptions after medical records exist.
 11. Admin or receptionist creates invoices after patients exist, optionally linked to appointments or admissions if backend supports it.
@@ -187,10 +187,11 @@ Important:
 
 Create doctors after departments and user account decisions.
 
-Doctor account modes:
+Doctor account behavior:
 
-- Link existing user with `userId`.
-- Create new login with `email`, optional `username`, optional `password`.
+- The current generic `/doctors` module creates a doctor profile and portal account from doctor details plus `email` and optional `username`.
+- Editing can show a linked `userId` and password reset flow when the doctor already has a linked user account.
+- Older dashboard doctor form code also supports linking an existing user with `userId` or creating a new linked user with optional `password`.
 
 Why:
 
@@ -206,11 +207,11 @@ Frontend route:
 
 Create nurses after departments and user account decisions.
 
-Nurse account modes:
+Nurse account behavior:
 
-- Link existing user with `userId`.
-- Create new login with `email`, optional `username`, optional `password`.
-- Backend may also allow nurses without portal login depending on implementation.
+- The current generic `/nurses` module creates a nurse profile and portal account from nurse details plus required `email` and `username`.
+- Email and username are locked on nurse edit; profile details such as department and shift can be updated.
+- Backend is expected to generate/send the initial password and confirmation link where supported.
 
 Why:
 
@@ -385,7 +386,7 @@ Admin can:
 - Create, view, update, and delete medical records where UI supports it.
 - Create, view, update, and delete prescriptions.
 - Create, view, update, delete, and run actions on rooms.
-- Create, view, update, and run actions on admissions. Current generic admissions UI hides edit/delete actions even though permissions include them.
+- Create and view admissions, run configured admission actions, and hold update/delete permission for backend-supported admission changes. Current generic admissions UI disables edit/delete actions.
 - Create, view, update, and run billing actions on invoices.
 - Create, view, update, and delete nurses.
 - Create, view, and update receptionists. Delete is hidden for receptionists.
@@ -632,22 +633,27 @@ Sort options:
 
 Form fields:
 
-- `accountMode`: `existing` or `new`, create only.
-- `userId`: existing user link.
+- `userId`: edit-only linked user account in the current generic route.
 - `firstName`.
 - `lastName`.
 - `specialization`.
 - `departmentId`.
 - `phoneNumber`.
-- `email`: when creating a new login.
-- `password`: optional when creating a new login.
-- `username`: optional when creating a new login.
+- `email`: create-only portal account email in the current generic route.
+- `username`: optional create-only portal account username in the current generic route.
+
+Legacy dashboard doctor form behavior:
+
+- Supports `accountMode` as existing user or new linked user.
+- Existing-user mode sends `userId`.
+- New-linked-user mode sends `email`, optional `username`, and optional `password`.
 
 Frontend details:
 
 - Department must exist before creating doctor.
-- Existing user options come from `/api/auth/users`.
-- New login payload omits `userId` and includes email/username/password when provided.
+- Existing user options come from `/api/auth/users` where the linked-user flow is used.
+- Current generic create payload omits `userId` and includes email/username for the portal account.
+- Legacy new-linked-user payload can include email/username/password and omits `userId`.
 - Phone number should match format like `+38344111222`.
 - Password reset can appear when doctor has a linked `userId`.
 
@@ -655,7 +661,8 @@ Tests to include:
 
 - Non-admin create route or action is forbidden.
 - Admin create submits doctor fields.
-- New linked user mode sends email/username/password and omits `userId`.
+- Current generic create sends email/username and omits `userId`.
+- Legacy new linked user mode sends email/username/password and omits `userId`.
 - Invalid optional new user fields show friendly validation.
 - Department filter is passed to query.
 - Delete only visible for admin.
@@ -677,8 +684,9 @@ CRUD:
 
 Filters:
 
+- `search`: first name, last name, email, or username.
 - `departmentId`.
-- Some older nurse list tests also cover a shift filter in specialized pages. The current generic module config only lists `departmentId`.
+- `shift`: `Morning`, `Evening`, `Night`.
 
 Sort options:
 
@@ -689,30 +697,27 @@ Sort options:
 
 Form fields:
 
-- `accountMode`: `existing` or `new`, create only.
-- `userId`: existing user link.
+- `email`: required create-only portal account email; disabled on edit.
+- `username`: required create-only portal account username; disabled on edit.
 - `firstName`.
 - `lastName`.
 - `departmentId`.
 - `shift`: `Morning`, `Evening`, `Night`.
-- `email`: when creating a new login.
-- `password`: optional when creating a new login.
-- `username`: optional when creating a new login.
 
 Frontend details:
 
 - Department must exist before creating nurse.
-- Existing user options come from `/api/auth/users`.
-- New login mode sends email/username/password and omits `userId`.
+- Create mode sends email/username and omits `userId`.
+- Backend generates/sends the initial password where supported.
 - Password reset can appear when nurse has a linked `userId`.
 
 Tests to include:
 
 - Create form trims values.
-- New linked user mode sends only the correct fields.
-- Invalid optional new user fields show validation.
-- Department filter is passed.
-- Shift rendering/filtering is covered if using the older specialized nurse list.
+- Create sends only email, username, and nurse profile fields.
+- Invalid account fields show validation.
+- Search, department, and shift filters are passed.
+- Edit disables email and username and submits only nurse profile fields.
 
 ### Receptionists
 
