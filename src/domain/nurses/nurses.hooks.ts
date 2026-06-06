@@ -6,7 +6,12 @@ export const nursesKeys = {
   all: ['nurses'] as const,
   lists: () => [...nursesKeys.all, 'list'] as const,
   list: (params: NursesListParams = {}) =>
-    [...nursesKeys.lists(), params.departmentId?.trim() ?? ''] as const,
+    [
+      ...nursesKeys.lists(),
+      params.departmentId?.trim() ?? '',
+      params.search?.trim() ?? '',
+      params.shift?.trim() ?? '',
+    ] as const,
   details: () => [...nursesKeys.all, 'detail'] as const,
   detail: (id: string) => [...nursesKeys.details(), id] as const,
 };

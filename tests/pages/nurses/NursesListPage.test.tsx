@@ -10,7 +10,8 @@ const mockUseDeleteNurse = vi.fn();
 const mockUseDepartments = vi.fn();
 
 vi.mock('@/domain/nurses/nurses.hooks', () => ({
-  useNurses: (params?: { departmentId?: string }) => mockUseNurses(params),
+  useNurses: (params?: { departmentId?: string; search?: string; shift?: string }) =>
+    mockUseNurses(params),
   useDeleteNurse: () => mockUseDeleteNurse(),
 }));
 
@@ -122,18 +123,29 @@ describe('NursesListPage', () => {
     });
   });
 
-  it('passes the selected department filter to the nurses query', () => {
-    renderPage('/app/nurses?departmentId=dep-2');
+  it('passes selected search, department, and shift filters to the nurses query', () => {
+    renderPage('/app/nurses?departmentId=dep-2&search=Mia&shift=Night');
 
-    expect(mockUseNurses).toHaveBeenCalledWith({ departmentId: 'dep-2' });
+    expect(mockUseNurses).toHaveBeenCalledWith({
+      departmentId: 'dep-2',
+      search: 'Mia',
+      shift: 'Night',
+    });
+    expect(screen.getByLabelText('Search nurses')).toHaveValue('Mia');
     expect(screen.getByLabelText('Department')).toHaveValue('dep-2');
+    expect(screen.getByLabelText('Shift')).toHaveValue('Night');
   });
 
-  it('shows only nurses matching the selected shift filter', () => {
+  it('leaves shift filtering to the backend response', () => {
     renderPage('/app/nurses?shift=Night');
 
+    expect(mockUseNurses).toHaveBeenCalledWith({
+      departmentId: '',
+      search: '',
+      shift: 'Night',
+    });
     expect(screen.getByText('Mia Lopez')).toBeInTheDocument();
-    expect(screen.queryByText('Ava Taylor')).not.toBeInTheDocument();
+    expect(screen.getByText('Ava Taylor')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /create nurse/i })).toBeInTheDocument();
   });
 });

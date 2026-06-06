@@ -98,6 +98,7 @@ export type FormFieldConfig = {
   valuePaths?: string[];
   placeholder?: LocalizedText;
   hint?: LocalizedText;
+  disabled?: boolean | ((values: Record<string, any>, mode: 'create' | 'edit') => boolean);
   options?: OptionConfig[];
   source?: ReferenceKey;
   step?: string;

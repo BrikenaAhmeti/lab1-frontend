@@ -91,6 +91,7 @@ describe('ModulePage', () => {
   const originalRoomsService = moduleConfigs.rooms.service;
   const originalAdmissionsService = moduleConfigs.admissions.service;
   const originalInvoicesService = moduleConfigs.invoices.service;
+  const originalNursesService = moduleConfigs.nurses.service;
   const originalReceptionistService = moduleConfigs.receptionists.service;
 
   beforeEach(() => {
@@ -112,6 +113,7 @@ describe('ModulePage', () => {
     moduleConfigs.rooms.service = originalRoomsService;
     moduleConfigs.admissions.service = originalAdmissionsService;
     moduleConfigs.invoices.service = originalInvoicesService;
+    moduleConfigs.nurses.service = originalNursesService;
     moduleConfigs.receptionists.service = originalReceptionistService;
   });
 
@@ -379,6 +381,81 @@ describe('ModulePage', () => {
       })
     );
     expect(screen.getByLabelText('Search rooms')).toHaveAttribute('placeholder', 'Room number');
+  });
+
+  it('creates nurse accounts from email and username while passing backend filters', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue({
+      data: [
+        {
+          id: 'dep-1',
+          name: 'Cardiology',
+          location: 'Floor 2',
+        },
+      ],
+    });
+
+    moduleConfigs.nurses.service = {
+      list: vi.fn().mockResolvedValue({
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }),
+      get: vi.fn(),
+      create: vi.fn().mockResolvedValue({ id: 'nurse-1' }),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    renderPage('nurses', '/nurses?search=Ava&departmentId=dep-1&shift=Night');
+
+    expect(await screen.findByText('No data yet')).toBeInTheDocument();
+    expect(moduleConfigs.nurses.service.list).toHaveBeenCalledWith(
+      expect.objectContaining({
+        search: 'Ava',
+        departmentId: 'dep-1',
+        shift: 'Night',
+      })
+    );
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Create new' })[0]);
+
+    expect(screen.queryByRole('combobox', { name: /Account setup/i })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('User account')).not.toBeInTheDocument();
+    expect(document.getElementById('password')).toBeNull();
+
+    fireEvent.change(document.getElementById('email') as HTMLInputElement, {
+      target: { value: 'ava@example.com' },
+    });
+    fireEvent.change(document.getElementById('username') as HTMLInputElement, {
+      target: { value: 'avataylor' },
+    });
+    fireEvent.change(document.getElementById('firstName') as HTMLInputElement, {
+      target: { value: 'Ava' },
+    });
+    fireEvent.change(document.getElementById('lastName') as HTMLInputElement, {
+      target: { value: 'Taylor' },
+    });
+    const departmentSelects = screen.getAllByTestId('select-departmentId');
+    fireEvent.click(departmentSelects[departmentSelects.length - 1]);
+    fireEvent.click(screen.getByRole('option', { name: /^Cardiology$/i }));
+    const shiftSelects = screen.getAllByTestId('select-shift');
+    fireEvent.click(shiftSelects[shiftSelects.length - 1]);
+    fireEvent.click(screen.getByRole('option', { name: /^Night$/i }));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => {
+      expect(moduleConfigs.nurses.service.create).toHaveBeenCalledWith({
+        email: 'ava@example.com',
+        username: 'avataylor',
+        firstName: 'Ava',
+        lastName: 'Taylor',
+        departmentId: 'dep-1',
+        shift: 'Night',
+      });
+    });
   });
 
   it('shows current room patients from admissions in room details', async () => {

@@ -102,6 +102,9 @@ export default function EntityFormModal({
           <fieldset className="grid gap-4 md:grid-cols-2" disabled={readOnly}>
             {visibleFields.map((field) => {
               const error = String(form.formState.errors[field.name]?.message || '');
+              const disabled = typeof field.disabled === 'function'
+                ? field.disabled(formValues, mode)
+                : field.disabled;
               const options = field.source
                 ? references[field.source] || []
                 : (field.options || []).map((option) => ({
@@ -116,6 +119,7 @@ export default function EntityFormModal({
                       label={t(field.label)}
                       error={error}
                       placeholder={field.placeholder ? t(field.placeholder) : ''}
+                      disabled={disabled}
                       {...form.register(field.name)}
                     />
                   </div>
@@ -135,6 +139,7 @@ export default function EntityFormModal({
                         error={error}
                         name={ctl.name}
                         value={typeof ctl.value === 'string' ? ctl.value : String(ctl.value ?? '')}
+                        disabled={disabled}
                         onBlur={ctl.onBlur}
                         onChange={ctl.onChange}
                         ref={ctl.ref}
@@ -166,6 +171,7 @@ export default function EntityFormModal({
                         error={error}
                         name={ctl.name}
                         value={typeof ctl.value === 'string' ? ctl.value : String(ctl.value ?? '')}
+                        disabled={disabled}
                         onBlur={ctl.onBlur}
                         onChange={ctl.onChange}
                         ref={ctl.ref}
@@ -184,6 +190,7 @@ export default function EntityFormModal({
                   hint={field.hint ? t(field.hint) : undefined}
                   error={error}
                   placeholder={field.placeholder ? t(field.placeholder) : ''}
+                  disabled={disabled}
                   {...form.register(field.name)}
                 />
               );

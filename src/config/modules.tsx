@@ -30,12 +30,7 @@ const dateText = 'Use date format YYYY-MM-DD.';
 const timeText = 'Use time format HH:mm.';
 const listPageSizeOptions = [10, 20, 50];
 const doctorPhonePattern = /^\+\d{8,15}$/;
-const accountModeValues = ['existing', 'new'] as const;
 const nurseShiftValues = ['Morning', 'Evening', 'Night'] as const;
-const accountModeOptions = [
-  option('existing', 'Link existing user', 'Vorhandenen Benutzer verknüpfen'),
-  option('new', 'Create new login', 'Neuen Login erstellen'),
-];
 
 const requiredString = () => z.string().trim().min(1, requiredText);
 const positiveNumber = () => z.coerce.number().gt(0, positiveNumberText);
@@ -213,7 +208,6 @@ function buildDoctorPayload(values: Record<string, any>, mode: 'create' | 'edit'
 
 function buildNursePayload(values: Record<string, any>, mode: 'create' | 'edit') {
   const payload = {
-    userId: String(values.userId || '').trim(),
     firstName: String(values.firstName || '').trim(),
     lastName: String(values.lastName || '').trim(),
     departmentId: String(values.departmentId || '').trim(),
@@ -224,17 +218,11 @@ function buildNursePayload(values: Record<string, any>, mode: 'create' | 'edit')
     return stripEmptyValues(payload);
   }
 
-  if (values.accountMode === 'new') {
-    return stripEmptyValues({
-      ...payload,
-      email: String(values.email || '').trim(),
-      username: String(values.username || '').trim(),
-      password: String(values.password || '').trim(),
-      userId: undefined,
-    });
-  }
-
-  return stripEmptyValues(payload);
+  return stripEmptyValues({
+    ...payload,
+    email: String(values.email || '').trim(),
+    username: String(values.username || '').trim(),
+  });
 }
 
 function createDoctorSchema(mode: 'create' | 'edit') {
@@ -256,71 +244,39 @@ function createDoctorSchema(mode: 'create' | 'edit') {
 function createNurseSchema(mode: 'create' | 'edit') {
   return z
     .object({
-      accountMode:
-        mode === 'create' ? z.enum(accountModeValues) : z.string().optional(),
-      userId: optionalTrimmedString(),
       firstName: requiredString(),
       lastName: requiredString(),
       departmentId: requiredString(),
       shift: z.enum(nurseShiftValues, { message: requiredText }),
       email: optionalTrimmedString(),
       username: optionalTrimmedString(),
-      password: optionalTrimmedString(),
     })
     .superRefine((values, context) => {
       if (mode === 'edit') {
         return;
       }
 
-      if (values.accountMode === 'new') {
-        const emailResult = emailRule().safeParse(values.email?.trim() || '');
+      const emailResult = emailRule().safeParse(values.email?.trim() || '');
 
-        if (!emailResult.success) {
-          emailResult.error.issues.forEach((issue) => {
-            context.addIssue({
-              ...issue,
-              path: ['email'],
-            });
+      if (!emailResult.success) {
+        emailResult.error.issues.forEach((issue) => {
+          context.addIssue({
+            ...issue,
+            path: ['email'],
           });
-        }
-
-        if (values.username?.trim()) {
-          const usernameResult = usernameRule().safeParse(values.username.trim());
-
-          if (!usernameResult.success) {
-            usernameResult.error.issues.forEach((issue) => {
-              context.addIssue({
-                ...issue,
-                path: ['username'],
-              });
-            });
-          }
-        }
-
-        if (values.password?.trim()) {
-          const passwordResult = passwordRule().safeParse(values.password.trim());
-
-          if (!passwordResult.success) {
-            passwordResult.error.issues.forEach((issue) => {
-              context.addIssue({
-                ...issue,
-                path: ['password'],
-              });
-            });
-          }
-        }
-
-        return;
-      }
-
-      if (!values.userId?.trim()) {
-        context.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['userId'],
-          message: requiredText,
         });
       }
 
+      const usernameResult = usernameRule().safeParse(values.username?.trim() || '');
+
+      if (!usernameResult.success) {
+        usernameResult.error.issues.forEach((issue) => {
+          context.addIssue({
+            ...issue,
+            path: ['username'],
+          });
+        });
+      }
     });
 }
 
@@ -1223,7 +1179,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     endpoint: '/api/nurses',
     service: createCrudService(
       '/api/nurses',
-      allowListParams('page', 'limit', 'departmentId')
+      allowListParams('page', 'limit', 'search', 'departmentId', 'shift')
     ),
     sortOptions: [
       option('createdAt', 'Created at', 'Erstellt am'),
@@ -1243,52 +1199,45 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       shift: 'Morning',
     },
     filters: [
-      { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
-    ],
-    fields: [
       {
-        name: 'accountMode',
-        label: lt('Account setup', 'Kontoeinrichtung'),
-        type: 'select',
-        hint: lt('New logins email the password with a confirmation link before first login.', 'Neue Logins senden das Passwort mit einem Bestätigungslink vor der ersten Anmeldung per E-Mail.'),
-        options: accountModeOptions,
-        modes: ['create'],
+        name: 'search',
+        label: lt('Search nurses', 'Pflegekräfte suchen'),
+        type: 'text',
+        placeholder: lt(
+          'First name, last name, email, or username',
+          'Vorname, Nachname, E-Mail oder Benutzername'
+        ),
       },
-      {
-        name: 'userId',
-        label: lt('User account', 'Benutzerkonto'),
-        type: 'select',
-        source: 'users',
-        showWhen: (values, mode) => mode === 'edit' || values.accountMode !== 'new',
-      },
-      { name: 'firstName', label: lt('First name', 'Vorname'), type: 'text' },
-      { name: 'lastName', label: lt('Last name', 'Nachname'), type: 'text' },
       { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
       { name: 'shift', label: lt('Shift', 'Schicht'), type: 'select', options: nurseShifts },
+    ],
+    fields: [
       {
         name: 'email',
         label: lt('Email', 'E-Mail'),
         type: 'text',
-        hint: lt('Required for sending the password and confirmation link.', 'Erforderlich, um Passwort und Bestätigungslink zu senden.'),
-        modes: ['create'],
-        showWhen: (values) => values.accountMode === 'new',
-      },
-      {
-        name: 'password',
-        label: lt('Password', 'Passwort'),
-        type: 'password',
-        hint: lt('Optional. If left blank, MedSphere generates one and emails it with the confirmation link.', 'Optional. Wenn leer, generiert MedSphere ein Passwort und sendet es mit dem Bestätigungslink per E-Mail.'),
-        modes: ['create'],
-        showWhen: (values) => values.accountMode === 'new',
+        valuePaths: ['user.email'],
+        hint: lt(
+          'New nurses receive a 10-character password and confirmation link at this email.',
+          'Neue Pflegekräfte erhalten ein 10-stelliges Passwort und einen Bestätigungslink an diese E-Mail.'
+        ),
+        disabled: (_values, mode) => mode === 'edit',
       },
       {
         name: 'username',
         label: lt('Username', 'Benutzername'),
         type: 'text',
-        hint: lt('Optional. Use at least 3 characters if provided.', 'Optional. Verwenden Sie mindestens 3 Zeichen, falls angegeben.'),
-        modes: ['create'],
-        showWhen: (values) => values.accountMode === 'new',
+        valuePaths: ['user.username'],
+        hint: lt(
+          'Required for the nurse portal account and locked after creation.',
+          'Erforderlich für das Pflegekraft-Portal und nach der Erstellung gesperrt.'
+        ),
+        disabled: (_values, mode) => mode === 'edit',
       },
+      { name: 'firstName', label: lt('First name', 'Vorname'), type: 'text' },
+      { name: 'lastName', label: lt('Last name', 'Nachname'), type: 'text' },
+      { name: 'departmentId', label: lt('Department', 'Abteilung'), type: 'select', source: 'departments' },
+      { name: 'shift', label: lt('Shift', 'Schicht'), type: 'select', options: nurseShifts },
     ],
     columns: [
       { key: 'name', label: lt('Nurse', 'Pflegekraft'), render: (item) => formatPersonName(item) },
@@ -1296,12 +1245,6 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       { key: 'shift', label: lt('Shift', 'Schicht'), render: (item) => String(getValue(item, 'shift')) },
     ],
     getSchema: createNurseSchema,
-    getInitialValues: (_item, mode) => ({
-      accountMode: mode === 'create' ? 'existing' : '',
-      email: '',
-      username: '',
-      password: '',
-    }),
     cleanPayload: buildNursePayload,
     getItemTitle: (item) => formatPersonName(item),
     getPasswordUserId: (item) => String(getValue(item, 'userId')),

@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDepartments } from '@/domain/departments/departments.hooks';
@@ -14,13 +15,15 @@ import {
 import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
+import Input from '@/ui/atoms/Input';
 import Select from '@/ui/atoms/Select';
 import NurseStateCard from './state-card';
 
-type FilterParams = {
+type FilterParams = Partial<{
+  search: string | null;
   departmentId: string | null;
   shift: string | null;
-};
+}>;
 
 function getDepartmentLabel(name: string, location: string) {
   return location.trim() ? `${name} (${location})` : name;
@@ -31,14 +34,18 @@ export default function NursesListPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const search = searchParams.get('search')?.trim() ?? '';
   const departmentId = searchParams.get('departmentId')?.trim() ?? '';
   const shift = normalizeNurseShift(searchParams.get('shift'));
-  const nursesQuery = useNurses({ departmentId });
+  const nursesQuery = useNurses({ departmentId, search, shift });
   const departmentsQuery = useDepartments();
   const deleteNurse = useDeleteNurse();
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
+  const [searchValue, setSearchValue] = useState(search);
   const status = getNurseApiStatus(nursesQuery.error);
+  const displayedNurses = nursesQuery.data ?? [];
+  const hasFilters = !!search || !!departmentId || !!shift;
 
   useEffect(() => {
     const successMessage = (location.state as { success?: string } | null)?.success;
@@ -54,6 +61,10 @@ export default function NursesListPage() {
     );
   }, [location.pathname, location.search, location.state, navigate]);
 
+  useEffect(() => {
+    setSearchValue(search);
+  }, [search]);
+
   const updateParams = (values: FilterParams) => {
     const next = new URLSearchParams(searchParams);
 
@@ -68,6 +79,20 @@ export default function NursesListPage() {
     setSearchParams(next);
   };
 
+  const handleSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    updateParams({
+      search: searchValue.trim() || null,
+      departmentId: departmentId || null,
+      shift: shift || null,
+    });
+  };
+
+  const handleClearFilters = () => {
+    setSearchValue('');
+    updateParams({ search: null, departmentId: null, shift: null });
+  };
+
   const getShiftLabel = (value: string) => {
     const normalized = normalizeNurseShift(value);
 
@@ -77,16 +102,6 @@ export default function NursesListPage() {
 
     return value || t('labels.notAvailable');
   };
-
-  const displayedNurses = useMemo(() => {
-    const nurses = nursesQuery.data ?? [];
-
-    if (!shift) {
-      return nurses;
-    }
-
-    return nurses.filter((nurse) => normalizeNurseShift(nurse.shift) === shift);
-  }, [nursesQuery.data, shift]);
 
   const handleDelete = async (id: string) => {
     if (!window.confirm(t('details.deleteConfirm'))) {
@@ -138,24 +153,19 @@ export default function NursesListPage() {
         </Button>
       </NurseStateCard>
     );
-  } else if (!nursesQuery.data?.length) {
-    content = (
-      <NurseStateCard
-        title={t('states.emptyTitle')}
-        description={t('states.emptyDescription')}
-      >
-        <Button onClick={() => navigate('/app/nurses/new')}>{t('actions.create')}</Button>
-      </NurseStateCard>
-    );
   } else if (!displayedNurses.length) {
     content = (
       <NurseStateCard
-        title={t('states.emptyFilteredTitle')}
-        description={t('states.emptyFilteredDescription')}
+        title={hasFilters ? t('states.emptyFilteredTitle') : t('states.emptyTitle')}
+        description={hasFilters ? t('states.emptyFilteredDescription') : t('states.emptyDescription')}
       >
-        <Button type="button" variant="outline" onClick={() => updateParams({ departmentId, shift: null })}>
-          {t('actions.clearShift')}
-        </Button>
+        {hasFilters ? (
+          <Button type="button" variant="outline" onClick={handleClearFilters}>
+            {t('actions.clear')}
+          </Button>
+        ) : (
+          <Button onClick={() => navigate('/app/nurses/new')}>{t('actions.create')}</Button>
+        )}
       </NurseStateCard>
     );
   } else {
@@ -250,7 +260,15 @@ export default function NursesListPage() {
             </div>
           ) : null}
 
-          <div className="grid gap-3 md:grid-cols-[minmax(0,1fr),220px,auto]">
+          <form className="grid gap-3 lg:grid-cols-[minmax(0,1fr),minmax(0,1fr),220px,auto,auto]" onSubmit={handleSearch}>
+            <Input
+              name="search"
+              label={t('fields.search')}
+              value={searchValue}
+              placeholder={t('filters.searchPlaceholder')}
+              onChange={(event) => setSearchValue(event.target.value)}
+            />
+
             <Select
               name="departmentId"
               label={t('fields.department')}
@@ -258,6 +276,7 @@ export default function NursesListPage() {
               disabled={departmentsQuery.isLoading || !!departmentsQuery.error}
               onChange={(event) =>
                 updateParams({
+                  search: search || null,
                   departmentId: event.target.value || null,
                   shift: shift || null,
                 })
@@ -279,6 +298,7 @@ export default function NursesListPage() {
               value={shift}
               onChange={(event) =>
                 updateParams({
+                  search: search || null,
                   departmentId: departmentId || null,
                   shift: event.target.value || null,
                 })
@@ -291,14 +311,21 @@ export default function NursesListPage() {
             </Select>
 
             <Button
+              type="submit"
+              className="lg:self-end"
+            >
+              {t('actions.search')}
+            </Button>
+
+            <Button
               type="button"
               variant="outline"
-              className="md:self-end"
-              onClick={() => updateParams({ departmentId: null, shift: null })}
+              className="lg:self-end"
+              onClick={handleClearFilters}
             >
               {t('actions.clear')}
             </Button>
-          </div>
+          </form>
         </div>
       </Card>
 

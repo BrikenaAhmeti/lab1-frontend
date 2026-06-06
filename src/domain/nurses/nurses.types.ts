@@ -8,20 +8,31 @@ export type NurseDepartment = {
   location: string;
 };
 
+export type NurseUser = {
+  id?: string;
+  email?: string | null;
+  username?: string | null;
+};
+
 export type Nurse = {
   id: string;
   userId?: string | null;
+  email?: string | null;
+  username?: string | null;
   firstName: string;
   lastName: string;
   departmentId: string;
   shift: string;
   department?: NurseDepartment | null;
+  user?: NurseUser | null;
   createdAt?: string;
   updatedAt?: string;
 };
 
 export type NursesListParams = {
   departmentId?: string;
+  search?: string;
+  shift?: string;
 };
 
 type NurseCreateBase = {
@@ -31,27 +42,11 @@ type NurseCreateBase = {
   shift: NurseShift;
 };
 
-type NurseExistingUserCreate = NurseCreateBase & {
-  userId: string;
-  email?: never;
-  username?: never;
-  password?: never;
-};
-
-type NurseNewLinkedUserCreate = NurseCreateBase & {
+export type CreateNurseDTO = NurseCreateBase & {
   userId?: undefined;
   email: string;
-  username?: string;
+  username: string;
   password?: string;
 };
 
-type NurseWithoutUserCreate = NurseCreateBase & {
-  userId?: undefined | null;
-  email?: never;
-  username?: never;
-  password?: never;
-};
-
-export type CreateNurseDTO = NurseWithoutUserCreate | NurseExistingUserCreate | NurseNewLinkedUserCreate;
-
-export type UpdateNurseDTO = Partial<NurseCreateBase & { userId: string | null }>;
+export type UpdateNurseDTO = Partial<NurseCreateBase>;
