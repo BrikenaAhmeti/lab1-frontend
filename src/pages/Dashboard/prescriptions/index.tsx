@@ -496,6 +496,14 @@ export default function PrescriptionsPage() {
           >
             {t('actions.viewRecords')}
           </Button>
+          <Button
+            variant="outline"
+            disabled={!recordId}
+            className="print:hidden"
+            onClick={() => window.print()}
+          >
+            {t('actions.print')}
+          </Button>
           {canManage ? (
             <Button disabled={!recordId} onClick={handleCreateClick}>
               {t('actions.create')}

@@ -8,8 +8,22 @@ export default function MedicalRecordsRoutePage() {
     <RouteGuard module="medicalRecords" action="VIEW">
       <Routes>
         <Route index element={<MedicalRecordsListPage />} />
-        <Route path="new" element={<MedicalRecordFormPage />} />
-        <Route path=":id/edit" element={<MedicalRecordFormPage />} />
+        <Route
+          path="new"
+          element={
+            <RouteGuard module="medicalRecords" action="CREATE">
+              <MedicalRecordFormPage />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path=":id/edit"
+          element={
+            <RouteGuard module="medicalRecords" action="UPDATE">
+              <MedicalRecordFormPage />
+            </RouteGuard>
+          }
+        />
         <Route path="*" element={<Navigate to="/medical-records" replace />} />
       </Routes>
     </RouteGuard>

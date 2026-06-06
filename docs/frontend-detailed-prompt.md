@@ -477,6 +477,8 @@ Can access:
 - Dashboard.
 - Patients.
 - Appointments.
+- Medical records read-only.
+- Prescriptions read-only.
 - Rooms read-only.
 - Admissions.
 - Invoices.
@@ -485,10 +487,10 @@ Receptionist can:
 
 - Create, view, and update patients.
 - Create, view, update, and run appointment actions.
+- View and print medical records and prescriptions.
 - View rooms.
 - Create, view, update, and run admission actions.
 - Create, view, update, and run invoice actions.
-- Not access medical records or prescriptions.
 - Not manage doctors, departments, nurses, receptionists, or users.
 
 Receptionist workflow:
@@ -496,8 +498,9 @@ Receptionist workflow:
 1. Search or create patient.
 2. Schedule appointment with doctor.
 3. If patient is admitted, create admission and select available room.
-4. Create invoice for patient.
-5. Mark invoice paid when payment is received.
+4. View or print medical records and prescriptions when needed.
+5. Create invoice for patient.
+6. Mark invoice paid when payment is received.
 
 ## CRUD, Filters, Sorts, And Fields By Module
 
@@ -749,21 +752,18 @@ Form fields:
 - `lastName`.
 - `email`.
 - `username`.
-- `password`: create only.
 - `phoneNumber`.
 - `isActive`.
-- `emailConfirmed`.
-- `lockoutEnabled`.
 
 Frontend details:
 
 - The list fetches all users and filters users whose roles include `RECEPTIONIST`.
 - Pagination and filtering are client-side in the receptionist service.
-- Receptionist create payload uses boolean values for status fields.
+- Receptionist create payload does not include a password; the backend generates one, emails it with the confirmation link, and leaves `emailConfirmed` false until the receptionist confirms.
 
 Tests to include:
 
-- Creates receptionist with auth-specific payload shape.
+- Creates receptionist without manual password or email-confirmed override.
 - Client-side search/status/email-confirmed filters work.
 - Delete action is hidden.
 - Password reset works when user id exists.
@@ -842,7 +842,7 @@ CRUD:
 - Admin: create, read, update, delete where UI supports it.
 - Doctor: create, read, update in permission matrix. Specialized page currently shows doctor/admin management actions.
 - Nurse: read.
-- Receptionist: no access.
+- Receptionist: read and print only.
 
 Filters:
 
@@ -871,6 +871,7 @@ Frontend details:
 - Non-admin doctor may auto-select own active doctor profile by matching current user id to doctor `userId`.
 - `prescriptionsText` is only a summary. Actual medication rows live in prescriptions.
 - Nurse sees records without write actions.
+- Receptionist sees records without create, edit, or delete actions and can print.
 
 Tests to include:
 
@@ -899,7 +900,7 @@ CRUD:
 - Doctor: create, read, update.
 - Specialized prescriptions page lets doctor/admin manage prescriptions.
 - Nurse: read.
-- Receptionist: no access.
+- Receptionist: read and print only.
 
 Filters:
 
@@ -936,6 +937,7 @@ Tests to include:
 - Update and delete for managers.
 - Print action for managers if using prescription panel.
 - Nurse sees view-only mode.
+- Receptionist sees view-only mode with print.
 
 ### Rooms
 

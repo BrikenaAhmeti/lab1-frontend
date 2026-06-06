@@ -117,7 +117,7 @@ describe('ModulePage', () => {
     moduleConfigs.receptionists.service = originalReceptionistService;
   });
 
-  it('creates receptionist accounts with the receptionist auth payload shape', async () => {
+  it('creates receptionist accounts without a manual password or email confirmation override', async () => {
     moduleConfigs.receptionists.service = {
       list: vi.fn().mockResolvedValue({
         data: [],
@@ -137,6 +137,10 @@ describe('ModulePage', () => {
     expect(await screen.findByText('No data yet')).toBeInTheDocument();
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Create new' })[0]);
+    expect(screen.queryByText(/lockout/i)).not.toBeInTheDocument();
+    expect(document.getElementById('password')).toBeNull();
+    expect(screen.getAllByText('Email confirmed')).toHaveLength(1);
+
     fireEvent.change(document.getElementById('firstName') as HTMLInputElement, {
       target: { value: 'Lira' },
     });
@@ -149,9 +153,6 @@ describe('ModulePage', () => {
     fireEvent.change(document.getElementById('username') as HTMLInputElement, {
       target: { value: 'lira.gashi' },
     });
-    fireEvent.change(document.getElementById('password') as HTMLInputElement, {
-      target: { value: 'Reception123!' },
-    });
     fireEvent.change(document.getElementById('phoneNumber') as HTMLInputElement, {
       target: { value: '+38344111222' },
     });
@@ -163,13 +164,49 @@ describe('ModulePage', () => {
         lastName: 'Gashi',
         email: 'lira@example.com',
         username: 'lira.gashi',
-        password: 'Reception123!',
         phoneNumber: '+38344111222',
-        emailConfirmed: false,
-        lockoutEnabled: true,
         isActive: true,
       });
     });
+  });
+
+  it('hides receptionist lockout from details', async () => {
+    const receptionist = {
+      id: 'receptionist-1',
+      firstName: 'Mira',
+      lastName: 'Desk',
+      email: 'mira@example.com',
+      username: 'mira.desk',
+      phoneNumber: '+38344111000',
+      isActive: true,
+      emailConfirmed: false,
+      lockoutEnabled: true,
+      roles: ['RECEPTIONIST'],
+      createdAt: '2025-01-05T08:00:00.000Z',
+    };
+
+    moduleConfigs.receptionists.service = {
+      list: vi.fn().mockResolvedValue({
+        data: [receptionist],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }),
+      get: vi.fn().mockResolvedValue(receptionist),
+      create: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    renderPage('receptionists');
+
+    expect(await screen.findByText('Mira Desk')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Details' }));
+
+    expect(await screen.findByRole('heading', { name: 'Details: Receptionist' })).toBeInTheDocument();
+    expect(screen.queryByText(/lockout/i)).not.toBeInTheDocument();
   });
 
   it('shows friendly retry UI for network errors and recovers on retry', async () => {
@@ -456,6 +493,63 @@ describe('ModulePage', () => {
         shift: 'Night',
       });
     });
+  });
+
+  it('shows nurse account email and username once in details', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue({
+      data: [
+        {
+          id: 'dep-1',
+          name: 'Cardiology',
+          location: 'Floor 2',
+        },
+      ],
+    });
+
+    const nurse = {
+      id: 'nurse-1',
+      userId: 'user-1',
+      firstName: 'Test',
+      lastName: 'Demo1',
+      departmentId: 'dep-1',
+      shift: 'Morning',
+      department: {
+        id: 'dep-1',
+        name: 'Cardiology',
+        location: 'Floor 2',
+      },
+      user: {
+        id: 'user-1',
+        email: 'brikena.up@gmail.com',
+        username: 'test_demo1',
+      },
+    };
+
+    moduleConfigs.nurses.service = {
+      list: vi.fn().mockResolvedValue({
+        data: [nurse],
+        total: 1,
+        page: 1,
+        limit: 10,
+        totalPages: 1,
+      }),
+      get: vi.fn().mockResolvedValue(nurse),
+      create: vi.fn(),
+      update: vi.fn(),
+      remove: vi.fn(),
+    };
+
+    renderPage('nurses');
+
+    expect(await screen.findByText('Test Demo1')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Details' }));
+
+    expect(await screen.findByRole('heading', { name: 'Details: Nurse' })).toBeInTheDocument();
+    expect(await screen.findByText('brikena.up@gmail.com')).toBeInTheDocument();
+    expect(await screen.findByText('test_demo1')).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'User' })).not.toBeInTheDocument();
+    expect(screen.queryByText('Not available')).not.toBeInTheDocument();
   });
 
   it('shows current room patients from admissions in room details', async () => {

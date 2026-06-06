@@ -138,6 +138,8 @@ export type ModuleConfig = {
   getItemTitle?: (item: any) => string;
   getInitialValues?: (item: any, mode: 'create' | 'edit') => Record<string, any>;
   getPasswordUserId?: (item: any) => string;
+  hiddenDetailFields?: string[];
+  hiddenDetailSections?: string[];
 };
 
 export type ReferenceConfig = {

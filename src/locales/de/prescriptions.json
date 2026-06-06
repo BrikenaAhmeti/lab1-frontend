@@ -28,7 +28,8 @@
     "cancel": "Abbrechen",
     "retry": "Erneut versuchen",
     "viewPatient": "Patient ansehen",
-    "viewRecords": "Akten ansehen"
+    "viewRecords": "Akten ansehen",
+    "print": "Drucken"
   },
   "fields": {
     "patientSearch": "Patientensuche",

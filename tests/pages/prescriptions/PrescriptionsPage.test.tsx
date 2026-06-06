@@ -27,6 +27,28 @@ vi.mock('@/domain/medical-records/medical-records.hooks', () => ({
   useDeletePrescription: () => mockUseDeletePrescription(),
 }));
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const labels: Record<string, string> = {
+        'actions.create': 'Create prescription',
+        'actions.delete': 'Delete',
+        'actions.edit': 'Edit',
+        'actions.print': 'Print',
+        'actions.save': 'Save prescription',
+        'fields.dosage': 'Dosage',
+        'fields.duration': 'Duration',
+        'fields.instructions': 'Instructions',
+        'fields.medicine': 'Medicine',
+        'labels.viewOnly': 'View only',
+      };
+
+      return labels[key] ?? key;
+    },
+    i18n: { language: 'en' },
+  }),
+}));
+
 function createUser(roles: string[]) {
   return {
     id: 'u-1',
@@ -104,6 +126,12 @@ describe('PrescriptionsPage', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+
+    Object.defineProperty(window, 'print', {
+      configurable: true,
+      writable: true,
+      value: vi.fn(),
+    });
 
     mockUsePatients.mockReturnValue({
       data: {
@@ -197,10 +225,35 @@ describe('PrescriptionsPage', () => {
     });
   });
 
-  it('shows view-only mode for users without write access', () => {
-    renderPage('/app/prescriptions?patientId=patient-1&recordId=record-1', ['NURSE']);
+  it('shows printable view-only mode for receptionists', () => {
+    mockUseMedicalRecordPrescriptions.mockReturnValue({
+      data: [
+        {
+          id: 'prescription-1',
+          medicalRecordId: 'record-1',
+          medicine: 'Amlodipine',
+          dosage: '5mg',
+          duration: '30 days',
+          instructions: 'Morning',
+          createdAt: '2026-05-05T10:00:00.000Z',
+          updatedAt: '2026-05-05T10:00:00.000Z',
+        },
+      ],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+      refetch: vi.fn(),
+    });
+
+    renderPage('/app/prescriptions?patientId=patient-1&recordId=record-1', ['RECEPTIONIST']);
 
     expect(screen.getByText('View only')).toBeInTheDocument();
+    expect(screen.getByText('Amlodipine')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /create prescription/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^edit$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^delete$/i })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /print/i }));
+    expect(window.print).toHaveBeenCalled();
   });
 });

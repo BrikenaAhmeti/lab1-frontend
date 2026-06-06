@@ -24,8 +24,6 @@ const positiveNumberText = 'Enter a value greater than zero.';
 const phoneNumberText = 'Use a valid phone number like +38344111222.';
 const emailText = 'Enter a valid email address.';
 const usernameMinText = 'Username must be at least 3 characters.';
-const passwordMinText = 'Use at least 6 characters.';
-const passwordMaxText = 'Use 255 characters or fewer.';
 const dateText = 'Use date format YYYY-MM-DD.';
 const timeText = 'Use time format HH:mm.';
 const listPageSizeOptions = [10, 20, 50];
@@ -37,7 +35,6 @@ const positiveNumber = () => z.coerce.number().gt(0, positiveNumberText);
 const optionalTrimmedString = () => z.string().trim().optional().or(z.literal(''));
 const emailRule = () => z.email(emailText);
 const usernameRule = () => z.string().min(3, usernameMinText).max(255);
-const passwordRule = () => z.string().min(6, passwordMinText).max(255, passwordMaxText);
 
 function option(value: string, en: string, de: string): OptionConfig {
   return {
@@ -298,7 +295,7 @@ function parseBooleanString(value: unknown, fallback: boolean) {
   return fallback;
 }
 
-function createReceptionistSchema(mode: 'create' | 'edit') {
+function createReceptionistSchema() {
   return z.object({
     firstName: requiredString(),
     lastName: requiredString(),
@@ -307,38 +304,20 @@ function createReceptionistSchema(mode: 'create' | 'edit') {
       (value) => !value || value.trim().length >= 3,
       usernameMinText
     ),
-    password:
-      mode === 'create'
-        ? passwordRule()
-        : optionalTrimmedString().refine(
-            (value) => !value || value.trim().length >= 6,
-            passwordMinText
-          ),
     phoneNumber: optionalTrimmedString(),
     isActive: z.enum(['true', 'false']),
-    emailConfirmed: z.enum(['true', 'false']),
-    lockoutEnabled: z.enum(['true', 'false']),
   });
 }
 
-function buildReceptionistPayload(values: Record<string, any>, mode: 'create' | 'edit') {
+function buildReceptionistPayload(values: Record<string, any>) {
   const payload = {
     firstName: String(values.firstName || '').trim(),
     lastName: String(values.lastName || '').trim(),
     email: String(values.email || '').trim(),
     username: String(values.username || '').trim(),
     phoneNumber: String(values.phoneNumber || '').trim(),
-    emailConfirmed: parseBooleanString(values.emailConfirmed, false),
-    lockoutEnabled: parseBooleanString(values.lockoutEnabled, true),
     isActive: parseBooleanString(values.isActive, true),
   };
-
-  if (mode === 'create') {
-    return stripEmptyValues({
-      ...payload,
-      password: String(values.password || '').trim(),
-    });
-  }
 
   return stripEmptyValues(payload);
 }
@@ -1248,6 +1227,7 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     cleanPayload: buildNursePayload,
     getItemTitle: (item) => formatPersonName(item),
     getPasswordUserId: (item) => String(getValue(item, 'userId')),
+    hiddenDetailSections: ['user'],
   },
   receptionists: {
     key: 'receptionists',
@@ -1279,8 +1259,6 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
     },
     createDefaults: {
       isActive: 'true',
-      emailConfirmed: 'false',
-      lockoutEnabled: 'true',
     },
     filters: [
       {
@@ -1309,7 +1287,10 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         name: 'email',
         label: lt('Email', 'E-Mail'),
         type: 'text',
-        hint: lt('The password and confirmation link are sent to this address.', 'Passwort und Bestätigungslink werden an diese Adresse gesendet.'),
+        hint: lt(
+          'A generated password and confirmation link are sent to this address.',
+          'Ein generiertes Passwort und ein Bestätigungslink werden an diese Adresse gesendet.'
+        ),
       },
       {
         name: 'username',
@@ -1317,31 +1298,12 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
         type: 'text',
         hint: lt('Optional. Use at least 3 characters if provided.', 'Optional. Verwenden Sie mindestens 3 Zeichen, falls angegeben.'),
       },
-      {
-        name: 'password',
-        label: lt('Password', 'Passwort'),
-        type: 'password',
-        hint: lt('Required for new receptionist accounts. It will be emailed with the confirmation link.', 'Erforderlich für neue Rezeptionistenkonten. Es wird mit dem Bestätigungslink per E-Mail gesendet.'),
-        modes: ['create'],
-      },
       { name: 'phoneNumber', label: lt('Phone number', 'Telefonnummer'), type: 'text' },
       {
         name: 'isActive',
         label: lt('Status', 'Status'),
         type: 'select',
         options: activeStateOptions,
-      },
-      {
-        name: 'emailConfirmed',
-        label: lt('Email confirmed', 'E-Mail bestätigt'),
-        type: 'select',
-        options: booleanStatusOptions,
-      },
-      {
-        name: 'lockoutEnabled',
-        label: lt('Lockout enabled', 'Sperre aktiviert'),
-        type: 'select',
-        options: booleanStatusOptions,
       },
     ],
     columns: [
@@ -1371,14 +1333,12 @@ export const moduleConfigs: Record<ModuleKey, ModuleConfig> = {
       lastName: String(getValue(item, 'lastName')),
       email: String(getValue(item, 'email')),
       username: String(getValue(item, 'username')),
-      password: '',
       phoneNumber: String(getValue(item, 'phoneNumber')),
       isActive: String(parseBooleanString(getValue(item, 'isActive'), true)),
-      emailConfirmed: String(parseBooleanString(getValue(item, 'emailConfirmed'), false)),
-      lockoutEnabled: String(parseBooleanString(getValue(item, 'lockoutEnabled'), true)),
     }),
     cleanPayload: buildReceptionistPayload,
     getItemTitle: (item) => formatPersonName(item) || String(getValue(item, 'email')),
     getPasswordUserId: (item) => String(getValue(item, 'id')),
+    hiddenDetailFields: ['lockoutEnabled'],
   },
 };

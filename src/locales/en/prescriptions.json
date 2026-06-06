@@ -28,7 +28,8 @@
     "cancel": "Cancel",
     "retry": "Try again",
     "viewPatient": "View patient",
-    "viewRecords": "View records"
+    "viewRecords": "View records",
+    "print": "Print"
   },
   "fields": {
     "patientSearch": "Patient search",

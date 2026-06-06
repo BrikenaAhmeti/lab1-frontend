@@ -272,8 +272,8 @@ The frontend normalizes roles to uppercase. Backend may return roles as strings 
 | Dashboard | View/read | View/read | View/read | View/read |
 | Patients | Full CRUD | View/read | View/read | View/read/create/update |
 | Appointments | Full CRUD + action | View/read/update/action | View/read | View/read/create/update/action |
-| Medical records | Full CRUD | View/read/create/update | View/read | No access |
-| Prescriptions | Full CRUD | View/read/create/update | Read only | No access |
+| Medical records | Full CRUD | View/read/create/update | View/read | View/read |
+| Prescriptions | Full CRUD | View/read/create/update | Read only | View/read |
 | Rooms | Full CRUD + action | Read only | View/read | View/read |
 | Admissions | Full CRUD + action | Read only | View/read | View/read/create/update/action |
 | Invoices | Full CRUD + action | No access | No access | View/read/create/update/action |
@@ -332,13 +332,13 @@ These are the main module endpoints expected by the current config.
 | Doctors | `/doctors` | `/api/doctors` | `departmentId`, `specialization` | account mode, `userId`, `firstName`, `lastName`, `specialization`, `departmentId`, `phoneNumber`, optional new login fields | Admin full |
 | Departments | `/departments` | `/api/departments` | none | `name`, `location`, `description` | Admin full |
 | Appointments | `/appointments` | `/api/appointments` | `date`, `doctorId`, `patientId`, `status`, `from`, `to` | `patientId`, `doctorId`, `date`, `time`, edit-only `status`, `notes` | Admin/receptionist full; doctor update/action; nurse read |
-| Medical records | `/medical-records` | `/api/medical-records` | `patientId` | `patientId`, `doctorId`, `date`, `diagnosis`, `treatment`, `prescriptionsText` | Admin full; doctor view/read/create/update; nurse read |
-| Prescriptions | `/prescriptions` | `/api/prescriptions` | `medicalRecordId` | `medicalRecordId`, `medicine`, `dosage`, `duration`, `instructions` | Admin/doctor create/update; nurse read |
+| Medical records | `/medical-records` | `/api/medical-records` | `patientId` | `patientId`, `doctorId`, `date`, `diagnosis`, `treatment`, `prescriptionsText` | Admin full; doctor view/read/create/update; nurse/receptionist read |
+| Prescriptions | `/prescriptions` | `/api/prescriptions` | `medicalRecordId` | `medicalRecordId`, `medicine`, `dosage`, `duration`, `instructions` | Admin/doctor create/update; nurse/receptionist read |
 | Rooms | `/rooms` | `/api/rooms` | `departmentId`, `type` | `roomNumber`, `departmentId`, `type`, `status`, `capacity` | Admin full; nurse/receptionist read; doctor read |
 | Admissions | `/admissions` | `/api/admissions` | `status`, `patientId`, `roomId` | `patientId`, `roomId`, `admissionDate` | Admin/receptionist/nurse create/update/action; doctor read |
 | Invoices | `/invoices` | `/api/invoices` | `patientId`, `status` | `patientId`, `amount`, `date`, edit-only `status`, `description` | Admin/receptionist create/update/action |
 | Nurses | `/nurses` | `/api/nurses` | `departmentId` | account mode, `userId`, `firstName`, `lastName`, `departmentId`, `shift`, optional new login fields | Admin full |
-| Receptionists | `/receptionists` | `/api/auth/users` and `/api/auth/users/receptionists` | client-side `search`, `isActive`, `emailConfirmed` | `firstName`, `lastName`, `email`, `username`, create-only `password`, `phoneNumber`, `isActive`, `emailConfirmed`, `lockoutEnabled` | Admin create/update/read |
+| Receptionists | `/receptionists` | `/api/auth/users` and `/api/auth/users/receptionists` | client-side `search`, `isActive`, `emailConfirmed` | `firstName`, `lastName`, `email`, `username`, `phoneNumber`, `isActive` | Admin create/update/read |
 
 Notes:
 
@@ -501,8 +501,8 @@ Nurses:
 
 Receptionists:
 
-- Important fields: `id`, `firstName`, `lastName`, `email`, `username`, `phoneNumber`, `isActive`, `emailConfirmed`, `lockoutEnabled`, `roles`, `createdAt`.
-- Created through `/api/auth/users/receptionists`.
+- Important fields: `id`, `firstName`, `lastName`, `email`, `username`, `phoneNumber`, `isActive`, `emailConfirmed`, `roles`, `createdAt`.
+- Created through `/api/auth/users/receptionists`; backend generates a password and sends it with the confirmation link.
 - Listed by fetching `/api/auth/users` and filtering `roles` for `RECEPTIONIST`.
 
 ## Error Handling Contract
@@ -565,8 +565,8 @@ Generic forms are rendered by [`EntityFormModal`](../src/ui/organisms/EntityForm
 Validation:
 
 - Zod schemas live beside each module config in `src/config/modules.tsx`.
-- Required text, positive number, email, username, and password rules are centralized near the top of that file.
-- Doctor, nurse, and receptionist schemas are mode-aware because create and edit have different requirements.
+- Required text, positive number, email, and username rules are centralized near the top of that file.
+- Doctor and nurse schemas are mode-aware because create and edit have different requirements.
 
 Payload cleanup:
 

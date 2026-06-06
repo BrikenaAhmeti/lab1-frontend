@@ -22,6 +22,8 @@ type EntityDetailsConfig = {
   columns?: ColumnConfig[];
   fields?: FormFieldConfig[];
   getItemTitle?: (item: any) => string;
+  hiddenDetailFields?: string[];
+  hiddenDetailSections?: string[];
 };
 
 type EntityDetailsModalProps = {
@@ -107,6 +109,14 @@ function markSeenKey(seenKeys: Set<string>, key: string) {
   });
 }
 
+function hasDetailKey(keys: Set<string>, key: string) {
+  return keys.has(key) || keys.has(camelToSnake(key));
+}
+
+function createDetailKeySet(keys: string[] = []) {
+  return new Set(keys.flatMap((key) => [key, camelToSnake(key)]));
+}
+
 function isDateKey(key: string) {
   return /date/i.test(key) || /At$/.test(key);
 }
@@ -181,7 +191,12 @@ function getFieldValue(item: any, field: FormFieldConfig) {
     }
   }
 
-  return getValue(item, field.name, camelToSnake(field.name));
+  return getValue(
+    item,
+    ...(field.valuePaths ?? []),
+    field.name,
+    camelToSnake(field.name)
+  );
 }
 
 function getOptionLabel(
@@ -256,10 +271,11 @@ function buildConfiguredEntries(
   const entries: DetailEntry[] = [];
   const seenKeys = new Set<string>();
   const seenLabels = new Set<string>();
+  const hiddenKeys = createDetailKeySet(config.hiddenDetailFields);
 
   const addEntry = (entry: DetailEntry) => {
     const labelKey = getLocalizedLabelKey(entry.label, translate);
-    const hasSeenKey = seenKeys.has(entry.key) || seenKeys.has(camelToSnake(entry.key));
+    const hasSeenKey = hasDetailKey(seenKeys, entry.key);
 
     if (hasSeenKey || seenLabels.has(labelKey)) {
       markSeenKey(seenKeys, entry.key);
@@ -272,6 +288,11 @@ function buildConfiguredEntries(
   };
 
   config.columns?.forEach((column) => {
+    if (hasDetailKey(hiddenKeys, column.key)) {
+      markSeenKey(seenKeys, column.key);
+      return;
+    }
+
     const rawValue = getValue(item, column.key, camelToSnake(column.key));
     const renderedValue = column.render
       ? column.render(item, language)
@@ -286,7 +307,12 @@ function buildConfiguredEntries(
   });
 
   config.fields?.forEach((field) => {
-    if (field.type === 'password' || field.name === 'accountMode' || isSensitiveKey(field.name)) {
+    if (
+      hasDetailKey(hiddenKeys, field.name) ||
+      field.type === 'password' ||
+      field.name === 'accountMode' ||
+      isSensitiveKey(field.name)
+    ) {
       markSeenKey(seenKeys, field.name);
       return;
     }
@@ -311,11 +337,14 @@ function buildExtraEntries(
   seenKeys: Set<string>,
   seenLabels: Set<string>,
   language: Language,
-  translate: (value: LocalizedText) => string
+  translate: (value: LocalizedText) => string,
+  hiddenFieldKeys: string[] = []
 ) {
   if (!isPlainObject(item)) {
     return [];
   }
+
+  const hiddenKeys = createDetailKeySet(hiddenFieldKeys);
 
   return Object.entries(item).reduce<DetailEntry[]>((entries, [key, value]) => {
     const labelText = formatFieldLabel(key);
@@ -324,8 +353,8 @@ function buildExtraEntries(
 
     if (
       isSensitiveKey(key) ||
-      seenKeys.has(key) ||
-      seenKeys.has(camelToSnake(key)) ||
+      hasDetailKey(hiddenKeys, key) ||
+      hasDetailKey(seenKeys, key) ||
       seenLabels.has(labelKey) ||
       (!isScalarValue(value) && !isScalarArray(value))
     ) {
@@ -348,20 +377,29 @@ function buildExtraEntries(
 function buildNestedSections(
   item: any,
   language: Language,
-  translate: (value: LocalizedText) => string
+  translate: (value: LocalizedText) => string,
+  hiddenSectionKeys: string[] = [],
+  hiddenFieldKeys: string[] = []
 ) {
   if (!isPlainObject(item)) {
     return [];
   }
 
+  const hiddenSections = createDetailKeySet(hiddenSectionKeys);
+  const hiddenFields = createDetailKeySet(hiddenFieldKeys);
+
   return Object.entries(item).reduce<DetailSection[]>(
     (sections, [key, value]) => {
-      if (isSensitiveKey(key) || !isPlainObject(value)) {
+      if (isSensitiveKey(key) || hasDetailKey(hiddenSections, key) || !isPlainObject(value)) {
         return sections;
       }
 
       const entries = Object.entries(value).reduce<DetailEntry[]>((nestedEntries, [nestedKey, nestedValue]) => {
-        if (isSensitiveKey(nestedKey) || (!isScalarValue(nestedValue) && !isScalarArray(nestedValue))) {
+        if (
+          isSensitiveKey(nestedKey) ||
+          hasDetailKey(hiddenFields, nestedKey) ||
+          (!isScalarValue(nestedValue) && !isScalarArray(nestedValue))
+        ) {
           return nestedEntries;
         }
 
@@ -510,9 +548,24 @@ export default function EntityDetailsModal({
     seenLabels: new Set<string>(),
   };
   const extraEntries = item
-    ? buildExtraEntries(item, configured.seenKeys, configured.seenLabels, language, t)
+    ? buildExtraEntries(
+        item,
+        configured.seenKeys,
+        configured.seenLabels,
+        language,
+        t,
+        config.hiddenDetailFields
+      )
     : [];
-  const nestedSections = item ? buildNestedSections(item, language, t) : [];
+  const nestedSections = item
+    ? buildNestedSections(
+        item,
+        language,
+        t,
+        config.hiddenDetailSections,
+        config.hiddenDetailFields
+      )
+    : [];
   const entries = [...configured.entries, ...extraEntries];
   const highlightedEntries = getHighlightedEntries(entries);
   const detailEntries = entries.filter(

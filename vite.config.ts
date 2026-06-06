@@ -70,6 +70,8 @@ export default defineConfig({
       './src/pages/app/**/*.test.tsx',
       './src/ui/**/*.test.tsx',
       './tests/libs/**/*.test.ts',
+      './tests/pages/medical-records/MedicalRecordsPage.test.tsx',
+      './tests/pages/prescriptions/PrescriptionsPage.test.tsx',
     ],
   },
   server: {

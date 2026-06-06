@@ -63,7 +63,7 @@ export default function MedicalRecordItem({
         ) : null}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2 print:hidden">
         {showPatientLink ? (
           <Button
             size="sm"
@@ -79,6 +79,9 @@ export default function MedicalRecordItem({
           onClick={() => setShowPrescriptions((current) => !current)}
         >
           {showPrescriptions ? t('actions.hidePrescriptions') : t('actions.showPrescriptions')}
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => window.print()}>
+          {t('actions.print')}
         </Button>
         {canManage && onEdit ? (
           <Button size="sm" variant="secondary" onClick={() => onEdit(record)}>

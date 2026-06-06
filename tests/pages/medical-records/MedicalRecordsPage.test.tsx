@@ -28,6 +28,24 @@ vi.mock('@/domain/medical-records/medical-records.hooks', () => ({
   useDeletePrescription: () => mockUseDeletePrescription(),
 }));
 
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: (key: string) => {
+      const labels: Record<string, string> = {
+        'actions.create': 'Create record',
+        'actions.edit': 'Edit',
+        'actions.delete': 'Delete',
+        'actions.print': 'Print',
+        'actions.showPrescriptions': 'Show prescriptions',
+        'actions.hidePrescriptions': 'Hide prescriptions',
+      };
+
+      return labels[key] ?? key;
+    },
+    i18n: { language: 'en' },
+  }),
+}));
+
 const createUser = (roles: string[]) => ({
   id: 'u-1',
   firstName: 'Ava',
@@ -89,6 +107,12 @@ describe('MedicalRecordsListPage', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+
+    Object.defineProperty(window, 'print', {
+      configurable: true,
+      writable: true,
+      value: vi.fn(),
+    });
 
     mockUsePatients.mockReturnValue({
       data: {
@@ -189,6 +213,16 @@ describe('MedicalRecordsListPage', () => {
     renderPage('/app/medical-records?patientId=patient-1', ['NURSE']);
 
     expect(screen.getByText('Seasonal flu')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /create record/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^edit$/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^delete$/i })).not.toBeInTheDocument();
+  });
+
+  it('lets receptionists view and print records without write actions', () => {
+    renderPage('/app/medical-records?patientId=patient-1', ['RECEPTIONIST']);
+
+    expect(screen.getByText('Seasonal flu')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /print/i })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /create record/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^edit$/i })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^delete$/i })).not.toBeInTheDocument();
