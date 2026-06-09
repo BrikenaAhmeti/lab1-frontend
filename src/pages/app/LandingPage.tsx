@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import LanguageSwitch from '@/ui/molecules/LanguageSwitch';
 import ThemeToggle from '@/ui/molecules/ThemeToggle';
@@ -5,11 +6,11 @@ import { commonCopy, lt } from '@/config/copy';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
 const headerLinks = [
-  { href: '#features', label: lt('Features', 'Funktionen') },
-  { href: '#dashboard', label: lt('Dashboard', 'Dashboard') },
-  { href: '#solutions', label: lt('Solutions', 'Lösungen') },
-  { href: '#pricing', label: lt('Pricing', 'Preise') },
-  { href: '#page-end', label: lt('Contact', 'Kontakt') },
+  { href: '#features', label: lt('Features', 'Funktionen'), kind: 'workflow' },
+  { href: '#dashboard', label: lt('Dashboard', 'Dashboard'), kind: 'analytics' },
+  { href: '#solutions', label: lt('Solutions', 'Lösungen'), kind: 'visibility' },
+  { href: '#pricing', label: lt('Pricing', 'Preise'), kind: 'bolt' },
+  { href: '#page-end', label: lt('Contact', 'Kontakt'), kind: 'cloud' },
 ];
 
 const dashboardMenu = [
@@ -271,6 +272,25 @@ function LandingIcon({ kind, className = 'h-5 w-5 fill-none stroke-current strok
           <path d="m12 20-1.2-1.1C5.6 14.1 2 10.9 2 7.1A4.1 4.1 0 0 1 6.1 3 4.7 4.7 0 0 1 12 6.1 4.7 4.7 0 0 1 17.9 3 4.1 4.1 0 0 1 22 7.1c0 3.8-3.6 7-8.8 11.8L12 20Z" />
         </svg>
       );
+    case 'menu':
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+      );
+    case 'close':
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="m6 6 12 12M18 6 6 18" />
+        </svg>
+      );
+    case 'login':
+      return (
+        <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+          <path d="M10 17 15 12l-5-5M15 12H3" />
+          <path d="M15 5h3a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3h-3" />
+        </svg>
+      );
     default:
       return (
         <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
@@ -282,6 +302,10 @@ function LandingIcon({ kind, className = 'h-5 w-5 fill-none stroke-current strok
 
 export default function LandingPage() {
   const { t } = useLanguage();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const mobileMenuLabel = t(
+    isMobileMenuOpen ? lt('Close menu', 'Menü schließen') : lt('Open menu', 'Menü öffnen')
+  );
 
   return (
     <main className="landing-page relative flex min-h-screen min-w-0 flex-col overflow-x-hidden px-2.5 pb-0 pt-2.5 sm:px-3 sm:pt-3 md:px-5 md:pt-5">
@@ -292,10 +316,10 @@ export default function LandingPage() {
 
       <div className="relative mx-auto flex w-full max-w-[1500px] flex-1 flex-col">
         <header className="landing-shell animate-fade-up sticky top-2.5 z-40 rounded-[28px] px-4 py-4 sm:top-3 sm:rounded-[34px] sm:px-5 md:px-7">
-          <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+          <div className="flex items-center justify-between gap-3 xl:grid xl:grid-cols-[auto_1fr_auto]">
             <Link
               to="/"
-              className="inline-flex w-full min-w-0 items-center gap-3 rounded-2xl outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring/45 sm:w-auto"
+              className="inline-flex min-w-0 items-center gap-3 rounded-2xl outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring/45"
             >
               <img src="/medsphere-logo.png" alt="MedSphere" className="h-10 w-auto shrink-0 object-contain sm:h-12" />
               <div className="min-w-0">
@@ -304,7 +328,7 @@ export default function LandingPage() {
               </div>
             </Link>
 
-            <nav className="hidden items-center gap-1 xl:flex">
+            <nav className="hidden items-center justify-center gap-1 xl:flex">
               {headerLinks.map((item) => (
                 <a
                   key={item.href}
@@ -316,23 +340,79 @@ export default function LandingPage() {
               ))}
             </nav>
 
-            <div className="grid w-full grid-cols-2 items-center gap-2 min-[500px]:flex min-[500px]:flex-wrap min-[500px]:gap-3 xl:w-auto xl:justify-end">
+            <button
+              type="button"
+              aria-label={mobileMenuLabel}
+              aria-expanded={isMobileMenuOpen}
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border/70 bg-background/80 text-foreground shadow-soft transition hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 xl:hidden"
+              onClick={() => setIsMobileMenuOpen((current) => !current)}
+            >
+              <LandingIcon kind={isMobileMenuOpen ? 'close' : 'menu'} />
+            </button>
+
+            <div className="hidden items-center gap-3 xl:flex xl:justify-end">
               <ThemeToggle compact />
               <LanguageSwitch compact />
               <Link
                 to="/login"
-                className="inline-flex h-10 items-center justify-center rounded-full px-3 text-sm font-semibold text-foreground transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 min-[500px]:h-11 min-[500px]:px-4"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold text-foreground transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
               >
+                <LandingIcon kind="login" className="h-4 w-4 fill-none stroke-current stroke-[1.8]" />
                 {t(lt('Log in', 'Anmelden'))}
               </Link>
               <Link
                 to="/login"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--secondary)))] px-4 text-sm font-semibold text-white shadow-soft transition hover:translate-y-[-1px] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background min-[500px]:h-11 min-[500px]:px-5"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--secondary)))] px-5 text-sm font-semibold text-white shadow-soft transition hover:translate-y-[-1px] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
+                <LandingIcon kind="bolt" className="h-4 w-4 fill-none stroke-current stroke-[1.8]" />
                 {t(lt('Continue', 'Weiter'))}
               </Link>
             </div>
           </div>
+
+          {isMobileMenuOpen ? (
+            <div className="mt-4 grid gap-3 rounded-[24px] border border-border/60 bg-background/70 p-3 shadow-soft xl:hidden">
+              <nav className="grid gap-2 sm:grid-cols-2">
+                {headerLinks.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="flex min-w-0 items-center gap-3 rounded-[18px] border border-border/55 bg-card/85 px-3 py-3 text-sm font-semibold text-foreground transition hover:border-primary/25 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] bg-primary/8 text-primary">
+                      <LandingIcon kind={item.kind} className="h-[18px] w-[18px] fill-none stroke-current stroke-[1.8]" />
+                    </span>
+                    <span className="truncate">{t(item.label)}</span>
+                  </a>
+                ))}
+              </nav>
+
+              <div className="grid gap-2 min-[460px]:grid-cols-2">
+                <ThemeToggle compact />
+                <LanguageSwitch compact />
+              </div>
+
+              <div className="grid gap-2 sm:grid-cols-2">
+                <Link
+                  to="/login"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border/70 bg-card/85 px-4 text-sm font-semibold text-foreground transition hover:border-primary/25 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <LandingIcon kind="login" className="h-4 w-4 fill-none stroke-current stroke-[1.8]" />
+                  {t(lt('Log in', 'Anmelden'))}
+                </Link>
+                <Link
+                  to="/login"
+                  className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-[linear-gradient(135deg,hsl(var(--primary)),hsl(var(--secondary)))] px-4 text-sm font-semibold text-white shadow-soft transition hover:translate-y-[-1px] hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <LandingIcon kind="bolt" className="h-4 w-4 fill-none stroke-current stroke-[1.8]" />
+                  {t(lt('Continue', 'Weiter'))}
+                </Link>
+              </div>
+            </div>
+          ) : null}
         </header>
 
         <section id="dashboard" className="landing-shell mt-4 scroll-mt-28 rounded-[30px] px-4 py-5 sm:mt-6 sm:rounded-[42px] sm:px-5 sm:py-6 md:px-7 md:py-8 xl:px-9 xl:py-9">

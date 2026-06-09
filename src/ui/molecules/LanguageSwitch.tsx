@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { useId } from 'react';
 import { commonCopy } from '@/config/copy';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 
@@ -13,9 +14,10 @@ type LanguageSwitchProps = {
 
 const LanguageSwitch = ({ compact = false }: LanguageSwitchProps) => {
   const { language, setLanguage, t } = useLanguage();
+  const languageId = useId();
 
   return (
-    <label className="block min-w-0" htmlFor="sidebar-language">
+    <label className="block min-w-0" htmlFor={languageId}>
       {!compact ? (
         <span className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
           {t(commonCopy.language)}
@@ -33,7 +35,7 @@ const LanguageSwitch = ({ compact = false }: LanguageSwitchProps) => {
           </svg>
         </span>
         <select
-          id="sidebar-language"
+          id={languageId}
           aria-label={t(commonCopy.language)}
           className={clsx(
             'h-9 w-full appearance-none rounded-xl border border-border/70 bg-background/90 pr-8 text-xs font-semibold text-foreground outline-none transition',
