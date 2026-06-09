@@ -78,7 +78,8 @@
     "records": "Die Krankenaktenoptionen konnten nicht geladen werden.",
     "invalidData": "Bitte prüfen Sie die Verschreibungsdetails und versuchen Sie es erneut.",
     "notFound": "Die Verschreibung oder Krankenakte konnte nicht gefunden werden.",
-    "writeForbidden": "Sie haben keine Berechtigung, Verschreibungen zu ändern."
+    "writeForbidden": "Sie haben keine Berechtigung, Verschreibungen zu ändern.",
+    "pdf": "Die Verschreibungs-PDF konnte nicht erstellt werden."
   },
   "messages": {
     "created": "Verschreibung erfolgreich erstellt.",

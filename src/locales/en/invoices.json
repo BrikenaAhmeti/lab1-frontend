@@ -59,6 +59,17 @@
     "paid": "Invoice marked as paid.",
     "cancelled": "Invoice cancelled successfully."
   },
+  "confirmation": {
+    "payTitle": "Confirm payment",
+    "payDescription": "Review the invoice before changing its status.",
+    "payBody": "This will move the invoice from pending to paid and update billing reports after the request succeeds.",
+    "payButton": "Mark invoice paid",
+    "cancelTitle": "Cancel invoice",
+    "cancelDescription": "Review the invoice before changing its status.",
+    "cancelBody": "This will cancel the pending invoice. The invoice will remain visible with a cancelled status.",
+    "cancelButton": "Cancel invoice",
+    "keepPending": "Keep pending"
+  },
   "errors": {
     "list": "Unable to load invoices.",
     "save": "Unable to save the invoice.",

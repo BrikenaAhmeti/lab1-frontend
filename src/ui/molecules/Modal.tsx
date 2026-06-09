@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useId, type ReactNode } from 'react';
 import Button from '@/ui/atoms/Button';
 import { commonCopy } from '@/config/copy';
 import { useLanguage } from '@/app/contexts/LanguageContext';
@@ -13,6 +13,8 @@ type ModalProps = {
 
 export default function Modal({ open, title, description, onClose, children }: ModalProps) {
   const { t } = useLanguage();
+  const titleId = useId();
+  const descriptionId = useId();
 
   useEffect(() => {
     if (!open) {
@@ -44,11 +46,23 @@ export default function Modal({ open, title, description, onClose, children }: M
         className="absolute inset-0"
         onClick={onClose}
       />
-      <div className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-border bg-card p-6 shadow-panel">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={description ? descriptionId : undefined}
+        className="relative z-10 max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-[28px] border border-border bg-card p-6 shadow-panel"
+      >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-foreground">{title}</h2>
-            {description ? <p className="mt-1 text-sm text-muted-foreground">{description}</p> : null}
+            <h2 id={titleId} className="text-xl font-semibold text-foreground">
+              {title}
+            </h2>
+            {description ? (
+              <p id={descriptionId} className="mt-1 text-sm text-muted-foreground">
+                {description}
+              </p>
+            ) : null}
           </div>
           <Button variant="ghost" size="sm" onClick={onClose}>
             {t(commonCopy.close)}

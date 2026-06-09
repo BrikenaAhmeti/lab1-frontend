@@ -101,7 +101,7 @@ export default function MedicalRecordItem({
       </div>
 
       {showPrescriptions ? (
-        <PrescriptionPanel medicalRecordId={record.id} canManage={canManage} />
+        <PrescriptionPanel medicalRecordId={record.id} medicalRecord={record} canManage={canManage} />
       ) : null}
     </div>
   );

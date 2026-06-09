@@ -103,6 +103,7 @@
     "prescriptions": "We could not load the linked prescriptions.",
     "prescriptionSave": "We could not save the prescription.",
     "prescriptionDelete": "We could not delete the prescription.",
+    "prescriptionPdf": "We could not generate the prescription PDF.",
     "patients": "We could not load patient options.",
     "doctors": "We could not load doctor options.",
     "invalidPatient": "Select a valid patient to continue.",

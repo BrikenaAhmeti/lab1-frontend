@@ -6,7 +6,8 @@ import {
   useMedicalRecordPrescriptions,
   useUpdatePrescription,
 } from '@/domain/medical-records/medical-records.hooks';
-import type { Prescription } from '@/domain/medical-records/medical-records.types';
+import { downloadPrescriptionPdf } from '@/domain/medical-records/prescriptions.pdf';
+import type { MedicalRecord, Prescription } from '@/domain/medical-records/medical-records.types';
 import { getMedicalRecordApiMessage } from '@/domain/medical-records/medical-records.utils';
 import Button from '@/ui/atoms/Button';
 import Input from '@/ui/atoms/Input';
@@ -16,6 +17,7 @@ import Textarea from '@/ui/atoms/Textarea';
 
 type PrescriptionPanelProps = {
   medicalRecordId: string;
+  medicalRecord?: MedicalRecord;
   canManage?: boolean;
 };
 
@@ -66,9 +68,10 @@ function validateForm(values: PrescriptionFormValues, t: (key: string) => string
 
 export default function PrescriptionPanel({
   medicalRecordId,
+  medicalRecord,
   canManage = false,
 }: PrescriptionPanelProps) {
-  const { t } = useTranslation('medicalRecords');
+  const { t, i18n } = useTranslation('medicalRecords');
   const prescriptionsQuery = useMedicalRecordPrescriptions(medicalRecordId);
   const createPrescription = useCreatePrescription();
   const updatePrescription = useUpdatePrescription();
@@ -80,6 +83,7 @@ export default function PrescriptionPanel({
   const [formSuccess, setFormSuccess] = useState('');
   const [editingId, setEditingId] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const saving = createPrescription.isPending || updatePrescription.isPending;
 
   const resetForm = () => {
@@ -187,6 +191,27 @@ export default function PrescriptionPanel({
     }
   };
 
+  const handleDownloadPdf = async () => {
+    setFormError('');
+    setFormSuccess('');
+    setDownloadingPdf(true);
+
+    try {
+      await downloadPrescriptionPdf({
+        prescriptions,
+        medicalRecord,
+        medicalRecordId,
+        patient: medicalRecord?.patient ?? null,
+      }, {
+        language: i18n.language,
+      });
+    } catch {
+      setFormError(t('errors.prescriptionPdf'));
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
   return (
     <div className="mt-4 rounded-2xl border border-border/70 bg-background/60 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -196,7 +221,14 @@ export default function PrescriptionPanel({
         </div>
 
         <div className="flex flex-wrap gap-2 print:hidden">
-          <Button size="sm" variant="outline" onClick={() => window.print()}>
+          <Button
+            size="sm"
+            variant="outline"
+            loading={downloadingPdf}
+            onClick={() => {
+              void handleDownloadPdf();
+            }}
+          >
             {t('actions.print')}
           </Button>
           {canManage ? (

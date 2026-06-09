@@ -13,8 +13,10 @@ import {
 import { invoiceStatusValues, type Invoice } from '@/domain/invoices/invoices.types';
 import { downloadInvoicePdf } from '@/domain/invoices/invoices.pdf';
 import {
+  formatInvoiceDate,
   getInvoiceApiMessage,
   getInvoiceApiStatus,
+  getInvoicePatientName,
   getTodayInvoiceDateValue,
   invoiceDatePattern,
   normalizeInvoiceStatus,
@@ -22,11 +24,13 @@ import {
 import { usePatients } from '@/domain/patients/patients.hooks';
 import { getPatientApiMessage, getPatientApiStatus } from '@/domain/patients/patients.utils';
 import { formatCurrency } from '@/utils/formatters/currency';
+import Badge from '@/ui/atoms/Badge';
 import Button from '@/ui/atoms/Button';
 import Card from '@/ui/atoms/Card';
 import Select from '@/ui/atoms/Select';
 import DateRangePicker from '@/ui/molecules/DateRangePicker';
 import ListSkeleton from '@/ui/molecules/ListSkeleton';
+import Modal from '@/ui/molecules/Modal';
 import InvoiceForm, { type InvoiceFormValues } from './components/InvoiceForm';
 import InvoiceTable from './components/InvoiceTable';
 import InvoiceStateCard from './state-card';
@@ -36,6 +40,11 @@ type FilterParams = {
   date?: string | null;
   from?: string | null;
   to?: string | null;
+};
+
+type InvoiceAction = {
+  invoice: Invoice;
+  type: 'pay' | 'cancel';
 };
 
 const createEmptyForm = (): InvoiceFormValues => ({
@@ -111,6 +120,7 @@ export default function InvoicesPage() {
   const [actionError, setActionError] = useState('');
   const [actionSuccess, setActionSuccess] = useState('');
   const [downloadingPdfId, setDownloadingPdfId] = useState('');
+  const [invoiceAction, setInvoiceAction] = useState<InvoiceAction | null>(null);
   const invoicesStatus = getInvoiceApiStatus(invoicesQuery.error);
   const statsStatus = getInvoiceApiStatus(statsQuery.error);
   const patientsStatus = getPatientApiStatus(patientsQuery.error);
@@ -118,6 +128,11 @@ export default function InvoicesPage() {
   const locale = i18n.language === 'de' ? 'de-DE' : 'en-US';
   const hasFilters = !!status || !!date || !!from || !!to;
   const saving = createInvoice.isPending;
+  const invoiceActionLoading = invoiceAction
+    ? invoiceAction.type === 'pay'
+      ? payInvoice.isPending
+      : cancelInvoice.isPending
+    : false;
 
   const patientOptions = (patientsQuery.data?.items ?? []).map((patient) => ({
     value: patient.id,
@@ -182,33 +197,49 @@ export default function InvoicesPage() {
     }
   };
 
-  const handlePayInvoice = async (invoice: Invoice) => {
-    if (!window.confirm(t('details.payConfirm'))) {
-      return;
-    }
-
+  const handlePayInvoice = (invoice: Invoice) => {
     resetFeedback();
-
-    try {
-      await payInvoice.mutateAsync(invoice.id);
-      setActionSuccess(t('messages.paid'));
-    } catch (error: unknown) {
-      setActionError(getInvoiceApiMessage(error, t('errors.pay')));
-    }
+    setInvoiceAction({ invoice, type: 'pay' });
   };
 
-  const handleCancelInvoice = async (invoice: Invoice) => {
-    if (!window.confirm(t('details.cancelConfirm'))) {
+  const handleCancelInvoice = (invoice: Invoice) => {
+    resetFeedback();
+    setInvoiceAction({ invoice, type: 'cancel' });
+  };
+
+  const handleCloseInvoiceAction = () => {
+    if (invoiceActionLoading) {
       return;
     }
 
-    resetFeedback();
+    setInvoiceAction(null);
+  };
+
+  const handleConfirmInvoiceAction = async () => {
+    if (!invoiceAction) {
+      return;
+    }
+
+    setActionError('');
+    setActionSuccess('');
 
     try {
-      await cancelInvoice.mutateAsync(invoice.id);
-      setActionSuccess(t('messages.cancelled'));
+      if (invoiceAction.type === 'pay') {
+        await payInvoice.mutateAsync(invoiceAction.invoice.id);
+        setActionSuccess(t('messages.paid'));
+      } else {
+        await cancelInvoice.mutateAsync(invoiceAction.invoice.id);
+        setActionSuccess(t('messages.cancelled'));
+      }
+
+      setInvoiceAction(null);
     } catch (error: unknown) {
-      setActionError(getInvoiceApiMessage(error, t('errors.cancel')));
+      setActionError(
+        getInvoiceApiMessage(
+          error,
+          invoiceAction.type === 'pay' ? t('errors.pay') : t('errors.cancel')
+        )
+      );
     }
   };
 
@@ -293,8 +324,8 @@ export default function InvoicesPage() {
       <InvoiceTable
         invoices={invoicesQuery.data}
         canManage={canManageInvoices}
-        payingId={payInvoice.variables}
-        cancellingId={cancelInvoice.variables}
+        payingId={payInvoice.isPending ? payInvoice.variables : undefined}
+        cancellingId={cancelInvoice.isPending ? cancelInvoice.variables : undefined}
         downloadingPdfId={downloadingPdfId}
         onPay={handlePayInvoice}
         onCancel={handleCancelInvoice}
@@ -409,6 +440,89 @@ export default function InvoicesPage() {
           {listContent}
         </div>
       </Card>
+
+      <Modal
+        open={!!invoiceAction}
+        title={invoiceAction?.type === 'pay' ? t('confirmation.payTitle') : t('confirmation.cancelTitle')}
+        description={
+          invoiceAction?.type === 'pay'
+            ? t('confirmation.payDescription')
+            : t('confirmation.cancelDescription')
+        }
+        onClose={handleCloseInvoiceAction}
+      >
+        {invoiceAction ? (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-border bg-muted/45 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t('fields.patient')}
+                  </p>
+                  <p className="mt-1 text-base font-semibold text-foreground">
+                    {getInvoicePatientName(invoiceAction.invoice.patient) || t('labels.notAvailable')}
+                  </p>
+                </div>
+                <Badge variant={invoiceAction.type === 'pay' ? 'success' : 'danger'}>
+                  {invoiceAction.type === 'pay' ? t('statuses.PAID') : t('statuses.CANCELLED')}
+                </Badge>
+              </div>
+
+              <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t('fields.amount')}
+                  </dt>
+                  <dd className="mt-1 text-sm font-semibold text-foreground">
+                    {formatCurrency(invoiceAction.invoice.amount, 'EUR', locale)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t('fields.date')}
+                  </dt>
+                  <dd className="mt-1 text-sm font-semibold text-foreground">
+                    {formatInvoiceDate(invoiceAction.invoice.invoiceDate, i18n.language)}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              {invoiceAction.type === 'pay'
+                ? t('confirmation.payBody')
+                : t('confirmation.cancelBody')}
+            </p>
+
+            {actionError ? (
+              <div className="rounded-2xl border border-danger/20 bg-danger/10 px-4 py-3 text-sm text-danger">
+                {actionError}
+              </div>
+            ) : null}
+
+            <div className="flex flex-wrap justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={invoiceActionLoading}
+                onClick={handleCloseInvoiceAction}
+              >
+                {t('confirmation.keepPending')}
+              </Button>
+              <Button
+                type="button"
+                variant={invoiceAction.type === 'pay' ? 'secondary' : 'danger'}
+                loading={invoiceActionLoading}
+                onClick={handleConfirmInvoiceAction}
+              >
+                {invoiceAction.type === 'pay'
+                  ? t('confirmation.payButton')
+                  : t('confirmation.cancelButton')}
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
     </section>
   );
 }

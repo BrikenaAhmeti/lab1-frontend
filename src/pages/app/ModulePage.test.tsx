@@ -748,7 +748,11 @@ describe('ModulePage', () => {
     expect(screen.getByRole('button', { name: 'Download PDF' })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Mark as paid' }));
-    expect(confirmMock).toHaveBeenCalledWith('Mark this invoice as paid?');
+    expect(confirmMock).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog', { name: 'Confirm payment' })).toBeInTheDocument();
+    expect(screen.getByText('Mark invoice paid')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mark invoice paid' }));
 
     await waitFor(() => {
       expect(putMock).toHaveBeenCalledWith('/api/invoices/invoice-1/pay');

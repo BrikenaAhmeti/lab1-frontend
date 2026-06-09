@@ -1,8 +1,9 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { LanguageProvider } from '@/app/contexts/LanguageContext';
 import InvoicesPage from '@/pages/Dashboard/invoices';
 
 const mockUseInvoices = vi.fn();
@@ -82,11 +83,18 @@ function renderPage(route: string, roles: string[]) {
 
   return render(
     <Provider store={store}>
-      <MemoryRouter initialEntries={[route]}>
-        <InvoicesPage />
-      </MemoryRouter>
+      <LanguageProvider>
+        <MemoryRouter initialEntries={[route]}>
+          <InvoicesPage />
+        </MemoryRouter>
+      </LanguageProvider>
     </Provider>
   );
+}
+
+function chooseSelectOption(label: string, optionName: RegExp) {
+  fireEvent.click(screen.getByRole('combobox', { name: label }));
+  fireEvent.click(screen.getByRole('option', { name: optionName }));
 }
 
 describe('InvoicesPage', () => {
@@ -176,7 +184,7 @@ describe('InvoicesPage', () => {
     expect(screen.getByText('Total revenue')).toBeInTheDocument();
     expect(screen.getByText(/1,200|1200/)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Create invoice' })).toBeInTheDocument();
-    expect(screen.getByLabelText('Status')).toHaveValue('PAID');
+    expect(screen.getByRole('combobox', { name: 'Status' })).toHaveTextContent('Paid');
     expect(screen.getByDisplayValue('2099-10-01 - 2099-10-31')).toBeInTheDocument();
     expect(screen.getAllByText('Pending')).not.toHaveLength(0);
   });
@@ -191,7 +199,7 @@ describe('InvoicesPage', () => {
   it('submits the create invoice form with the expected payload', async () => {
     renderPage('/app/invoices', ['RECEPTIONIST']);
 
-    fireEvent.change(screen.getByLabelText('Patient'), { target: { value: 'patient-2' } });
+    chooseSelectOption('Patient', /Jon Cole/);
     fireEvent.change(screen.getByLabelText('Amount'), { target: { value: '250.50' } });
     fireEvent.change(screen.getByLabelText('Date'), { target: { value: '2026-05-07' } });
     fireEvent.change(screen.getByLabelText('Description'), { target: { value: 'Lab package' } });
@@ -200,6 +208,8 @@ describe('InvoicesPage', () => {
     await waitFor(() => {
       expect(createMutation.mutateAsync).toHaveBeenCalledWith({
         patientId: 'patient-2',
+        appointmentId: null,
+        admissionId: null,
         amount: 250.5,
         invoiceDate: '2026-05-07',
         description: 'Lab package',
@@ -211,6 +221,14 @@ describe('InvoicesPage', () => {
     renderPage('/app/invoices', ['ADMIN']);
 
     fireEvent.click(screen.getByRole('button', { name: /mark as paid/i }));
+
+    expect(window.confirm).not.toHaveBeenCalled();
+    expect(payMutation.mutateAsync).not.toHaveBeenCalled();
+    const dialog = screen.getByRole('dialog', { name: /confirm payment/i });
+    expect(dialog).toBeInTheDocument();
+    expect(within(dialog).getByText('Lena Morris')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /mark invoice paid/i }));
 
     await waitFor(() => {
       expect(payMutation.mutateAsync).toHaveBeenCalledWith('invoice-1');

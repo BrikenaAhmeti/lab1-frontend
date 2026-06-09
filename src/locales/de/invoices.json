@@ -59,6 +59,17 @@
     "paid": "Rechnung wurde als bezahlt markiert.",
     "cancelled": "Rechnung wurde erfolgreich storniert."
   },
+  "confirmation": {
+    "payTitle": "Zahlung bestätigen",
+    "payDescription": "Prüfen Sie die Rechnung, bevor der Status geändert wird.",
+    "payBody": "Dadurch wird die Rechnung von offen auf bezahlt gesetzt und die Abrechnungsberichte werden nach erfolgreicher Anfrage aktualisiert.",
+    "payButton": "Rechnung als bezahlt markieren",
+    "cancelTitle": "Rechnung stornieren",
+    "cancelDescription": "Prüfen Sie die Rechnung, bevor der Status geändert wird.",
+    "cancelBody": "Dadurch wird die offene Rechnung storniert. Die Rechnung bleibt mit dem Status storniert sichtbar.",
+    "cancelButton": "Rechnung stornieren",
+    "keepPending": "Offen lassen"
+  },
   "errors": {
     "list": "Rechnungen konnten nicht geladen werden.",
     "save": "Die Rechnung konnte nicht gespeichert werden.",

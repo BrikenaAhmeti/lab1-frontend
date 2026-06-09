@@ -11,6 +11,7 @@ import {
   useMedicalRecords,
   useUpdatePrescription,
 } from '@/domain/medical-records/medical-records.hooks';
+import { downloadPrescriptionPdf } from '@/domain/medical-records/prescriptions.pdf';
 import type {
   MedicalRecord,
   Prescription,
@@ -115,6 +116,7 @@ export default function PrescriptionsPage() {
   const [actionSuccess, setActionSuccess] = useState('');
   const [editingId, setEditingId] = useState('');
   const [showForm, setShowForm] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const patientsQuery = usePatients({ page: 1, limit: 100, search: '' });
   const selectedPatientQuery = usePatient(patientId);
   const recordsQuery = useMedicalRecords(patientId);
@@ -192,6 +194,7 @@ export default function PrescriptionsPage() {
     value: record.id,
     label: getRecordLabel(record, i18n.language, t('labels.notAvailable')),
   }));
+  const selectedRecord = (recordsQuery.data ?? []).find((record) => record.id === recordId) ?? null;
   const selectedRecordLabel = recordId
     ? recordOptions.find((option) => option.value === recordId)?.label ?? recordId
     : '';
@@ -300,6 +303,31 @@ export default function PrescriptionsPage() {
           404: t('errors.notFound'),
         })
       );
+    }
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!recordId) {
+      return;
+    }
+
+    setActionError('');
+    setActionSuccess('');
+    setDownloadingPdf(true);
+
+    try {
+      await downloadPrescriptionPdf({
+        prescriptions: prescriptionsQuery.data ?? [],
+        medicalRecord: selectedRecord,
+        medicalRecordId: recordId,
+        patient: selectedPatientQuery.data ?? selectedRecord?.patient ?? null,
+      }, {
+        language: i18n.language,
+      });
+    } catch {
+      setActionError(t('errors.pdf'));
+    } finally {
+      setDownloadingPdf(false);
     }
   };
 
@@ -499,8 +527,11 @@ export default function PrescriptionsPage() {
           <Button
             variant="outline"
             disabled={!recordId}
+            loading={downloadingPdf}
             className="print:hidden"
-            onClick={() => window.print()}
+            onClick={() => {
+              void handleDownloadPdf();
+            }}
           >
             {t('actions.print')}
           </Button>

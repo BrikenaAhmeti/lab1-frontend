@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import PrescriptionsPage from '@/pages/Dashboard/prescriptions';
 
+const mockDownloadPrescriptionPdf = vi.hoisted(() => vi.fn());
 const mockUsePatients = vi.fn();
 const mockUsePatient = vi.fn();
 const mockUseMedicalRecords = vi.fn();
@@ -16,6 +17,10 @@ const mockUseDeletePrescription = vi.fn();
 vi.mock('@/domain/patients/patients.hooks', () => ({
   usePatients: (params?: { page?: number; limit?: number; search?: string }) => mockUsePatients(params),
   usePatient: (id: string) => mockUsePatient(id),
+}));
+
+vi.mock('@/domain/medical-records/prescriptions.pdf', () => ({
+  downloadPrescriptionPdf: mockDownloadPrescriptionPdf,
 }));
 
 vi.mock('@/domain/medical-records/medical-records.hooks', () => ({
@@ -126,6 +131,7 @@ describe('PrescriptionsPage', () => {
   beforeEach(() => {
     localStorage.clear();
     vi.clearAllMocks();
+    mockDownloadPrescriptionPdf.mockResolvedValue(undefined);
 
     Object.defineProperty(window, 'print', {
       configurable: true,
@@ -225,20 +231,20 @@ describe('PrescriptionsPage', () => {
     });
   });
 
-  it('shows printable view-only mode for receptionists', () => {
+  it('shows printable view-only mode for receptionists', async () => {
+    const prescription = {
+      id: 'prescription-1',
+      medicalRecordId: 'record-1',
+      medicine: 'Amlodipine',
+      dosage: '5mg',
+      duration: '30 days',
+      instructions: 'Morning',
+      createdAt: '2026-05-05T10:00:00.000Z',
+      updatedAt: '2026-05-05T10:00:00.000Z',
+    };
+
     mockUseMedicalRecordPrescriptions.mockReturnValue({
-      data: [
-        {
-          id: 'prescription-1',
-          medicalRecordId: 'record-1',
-          medicine: 'Amlodipine',
-          dosage: '5mg',
-          duration: '30 days',
-          instructions: 'Morning',
-          createdAt: '2026-05-05T10:00:00.000Z',
-          updatedAt: '2026-05-05T10:00:00.000Z',
-        },
-      ],
+      data: [prescription],
       isLoading: false,
       isFetching: false,
       error: null,
@@ -254,6 +260,19 @@ describe('PrescriptionsPage', () => {
     expect(screen.queryByRole('button', { name: /^delete$/i })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /print/i }));
-    expect(window.print).toHaveBeenCalled();
+
+    await waitFor(() => {
+      expect(mockDownloadPrescriptionPdf).toHaveBeenCalledWith(
+        expect.objectContaining({
+          prescriptions: [prescription],
+          medicalRecordId: 'record-1',
+          patient: expect.objectContaining({
+            firstName: 'Lena',
+            lastName: 'Morris',
+          }),
+        }),
+        { language: 'en' }
+      );
+    });
   });
 });

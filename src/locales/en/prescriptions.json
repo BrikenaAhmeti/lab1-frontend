@@ -78,7 +78,8 @@
     "records": "We could not load medical record options.",
     "invalidData": "Please check the prescription details and try again.",
     "notFound": "The prescription or medical record could not be found.",
-    "writeForbidden": "You do not have permission to change prescriptions."
+    "writeForbidden": "You do not have permission to change prescriptions.",
+    "pdf": "We could not generate the prescription PDF."
   },
   "messages": {
     "created": "Prescription created successfully.",

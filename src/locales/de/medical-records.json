@@ -103,6 +103,7 @@
     "prescriptions": "Die verknüpften Verschreibungen konnten nicht geladen werden.",
     "prescriptionSave": "Die Verschreibung konnte nicht gespeichert werden.",
     "prescriptionDelete": "Die Verschreibung konnte nicht gelöscht werden.",
+    "prescriptionPdf": "Die Verschreibungs-PDF konnte nicht erstellt werden.",
     "patients": "Die Patientenoptionen konnten nicht geladen werden.",
     "doctors": "Die Arztoptionen konnten nicht geladen werden.",
     "invalidPatient": "Wählen Sie einen gültigen Patienten aus, um fortzufahren.",

@@ -23,6 +23,14 @@ type DatePickerProps = Omit<
 
 const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+function createDate(year: number, month: number, day: number) {
+  const date = new Date(0);
+  date.setFullYear(year, month, day);
+  date.setHours(0, 0, 0, 0);
+
+  return date;
+}
+
 function parseDateValue(value: string) {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
 
@@ -33,7 +41,7 @@ function parseDateValue(value: string) {
   const year = Number(match[1]);
   const month = Number(match[2]);
   const day = Number(match[3]);
-  const date = new Date(year, month - 1, day);
+  const date = createDate(year, month - 1, day);
 
   if (
     date.getFullYear() !== year ||
@@ -47,7 +55,7 @@ function parseDateValue(value: string) {
 }
 
 function formatDateValue(date: Date) {
-  const year = date.getFullYear();
+  const year = String(date.getFullYear()).padStart(4, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
 
@@ -55,7 +63,7 @@ function formatDateValue(date: Date) {
 }
 
 function startOfMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), 1);
+  return createDate(date.getFullYear(), date.getMonth(), 1);
 }
 
 function getCalendarDays(monthCursor: Date) {
@@ -65,9 +73,7 @@ function getCalendarDays(monthCursor: Date) {
   start.setDate(firstDay.getDate() - mondayOffset);
 
   return Array.from({ length: 42 }, (_, index) => {
-    const day = new Date(start);
-    day.setDate(start.getDate() + index);
-    return day;
+    return createDate(start.getFullYear(), start.getMonth(), start.getDate() + index);
   });
 }
 
@@ -150,6 +156,7 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
   const selectedDate = useMemo(() => parseDateValue(currentValue), [currentValue]);
   const [open, setOpen] = useState(false);
   const [monthCursor, setMonthCursor] = useState(() => startOfMonth(selectedDate ?? new Date()));
+  const [yearText, setYearText] = useState(() => String(monthCursor.getFullYear()));
   const rootRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -157,6 +164,10 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
       setMonthCursor(startOfMonth(selectedDate));
     }
   }, [selectedDate]);
+
+  useEffect(() => {
+    setYearText(String(monthCursor.getFullYear()).padStart(4, '0'));
+  }, [monthCursor]);
 
   useEffect(() => {
     function handleMouseDown(event: MouseEvent) {
@@ -175,10 +186,13 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
   }, []);
 
   const calendarDays = useMemo(() => getCalendarDays(monthCursor), [monthCursor]);
-  const monthLabel = new Intl.DateTimeFormat(undefined, {
-    month: 'long',
-    year: 'numeric',
-  }).format(monthCursor);
+  const monthNames = useMemo(
+    () =>
+      Array.from({ length: 12 }, (_, month) =>
+        new Intl.DateTimeFormat(undefined, { month: 'long' }).format(createDate(2020, month, 1))
+      ),
+    []
+  );
 
   const emitValue = (next: string, event?: ChangeEvent<HTMLInputElement>) => {
     if (!isControlled) {
@@ -202,6 +216,34 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
   const commitDate = (date: Date) => {
     emitValue(formatDateValue(date));
     setOpen(false);
+  };
+
+  const updateYear = (next: string) => {
+    if (!/^\d{0,4}$/.test(next)) {
+      return;
+    }
+
+    setYearText(next);
+
+    if (/^\d{4}$/.test(next)) {
+      const year = Number(next);
+
+      if (year >= 1) {
+        setMonthCursor((current) => createDate(year, current.getMonth(), 1));
+      }
+    }
+  };
+
+  const commitYear = () => {
+    const year = Number(yearText);
+
+    if (/^\d{4}$/.test(yearText) && year >= 1) {
+      setMonthCursor((current) => createDate(year, current.getMonth(), 1));
+      setYearText(String(year).padStart(4, '0'));
+      return;
+    }
+
+    setYearText(String(monthCursor.getFullYear()).padStart(4, '0'));
   };
 
   return (
@@ -253,26 +295,56 @@ const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(function DatePi
         {open ? (
           <div
             className="absolute left-0 top-full z-50 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-border bg-card p-3 shadow-soft"
-            onMouseDown={(event) => event.preventDefault()}
+            onMouseDown={(event) => {
+              if (event.target instanceof HTMLElement && event.target.closest('input, select')) {
+                return;
+              }
+
+              event.preventDefault();
+            }}
           >
-            <div className="mb-3 flex items-center justify-between gap-2">
+            <div className="mb-3 grid grid-cols-[2rem_minmax(0,1fr)_5rem_2rem] items-center gap-2">
               <button
                 type="button"
                 aria-label="Previous month"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 onClick={() =>
-                  setMonthCursor((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1))
+                  setMonthCursor((current) => createDate(current.getFullYear(), current.getMonth() - 1, 1))
                 }
               >
                 <ChevronIcon direction="left" />
               </button>
-              <p className="text-sm font-semibold text-foreground">{monthLabel}</p>
+              <select
+                aria-label="Month"
+                className="h-8 min-w-0 rounded-lg border border-border bg-card px-2 text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+                value={monthCursor.getMonth()}
+                onChange={(event) =>
+                  setMonthCursor((current) =>
+                    createDate(current.getFullYear(), Number(event.target.value), 1)
+                  )
+                }
+              >
+                {monthNames.map((month, index) => (
+                  <option key={month} value={index}>
+                    {month}
+                  </option>
+                ))}
+              </select>
+              <input
+                aria-label="Year"
+                className="h-8 rounded-lg border border-border bg-card px-2 text-center text-sm font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/45"
+                inputMode="numeric"
+                maxLength={4}
+                value={yearText}
+                onChange={(event) => updateYear(event.target.value)}
+                onBlur={commitYear}
+              />
               <button
                 type="button"
                 aria-label="Next month"
                 className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 onClick={() =>
-                  setMonthCursor((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1))
+                  setMonthCursor((current) => createDate(current.getFullYear(), current.getMonth() + 1, 1))
                 }
               >
                 <ChevronIcon direction="right" />

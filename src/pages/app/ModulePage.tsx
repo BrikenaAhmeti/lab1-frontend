@@ -23,6 +23,7 @@ import { useToast } from '@/app/contexts/ToastContext';
 import { apiClient, authApi, fetchArrayWithFallback } from '@/libs/app/api';
 import { downloadInvoicePdf } from '@/domain/invoices/invoices.pdf';
 import {
+  formatCurrency,
   formatDate,
   formatPersonName,
   getErrorMessage,
@@ -234,6 +235,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
   const [deleteItem, setDeleteItem] = useState<any>(null);
   const [detailItem, setDetailItem] = useState<any>(null);
   const [passwordResetItem, setPasswordResetItem] = useState<any>(null);
+  const [payInvoiceItem, setPayInvoiceItem] = useState<any>(null);
   const { language, t } = useLanguage();
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -465,6 +467,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['invoices'] });
+      setPayInvoiceItem(null);
       showToast(t(lt('Invoice marked as paid.', 'Rechnung wurde als bezahlt markiert.')), 'success');
     },
     onError: (error) => {
@@ -650,13 +653,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
               markInvoicePaidMutation.isPending
               && String(getValue(markInvoicePaidMutation.variables, 'id')) === String(getValue(item, 'id'))
             }
-            onClick={() => {
-              if (!window.confirm(t(lt('Mark this invoice as paid?', 'Diese Rechnung als bezahlt markieren?')))) {
-                return;
-              }
-
-              void markInvoicePaidMutation.mutateAsync(item);
-            }}
+            onClick={() => setPayInvoiceItem(item)}
           >
             {t(lt('Mark as paid', 'Als bezahlt markieren'))}
           </Button>
@@ -675,6 +672,7 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
       moduleKey,
       openDetailModal,
       openEditModal,
+      setPayInvoiceItem,
       t,
     ]
   );
@@ -943,6 +941,89 @@ export default function ModulePage({ moduleKey }: { moduleKey: ModuleKey }) {
           deleteMutation.mutate(deleteItem);
         }}
       />
+
+      <Modal
+        open={Boolean(payInvoiceItem)}
+        title={t(lt('Confirm payment', 'Zahlung bestätigen'))}
+        description={t(
+          lt(
+            'Review the invoice before changing its status.',
+            'Prüfen Sie die Rechnung, bevor der Status geändert wird.'
+          )
+        )}
+        onClose={() => {
+          if (!markInvoicePaidMutation.isPending) {
+            setPayInvoiceItem(null);
+          }
+        }}
+      >
+        {payInvoiceItem ? (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-border bg-muted/45 p-4">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t(lt('Patient', 'Patient'))}
+                  </p>
+                  <p className="mt-1 text-base font-semibold text-foreground">
+                    {formatPersonName(getValue(payInvoiceItem, 'patient')) || String(getValue(payInvoiceItem, 'patientId'))}
+                  </p>
+                </div>
+                <Badge variant="success">{t(lt('Paid', 'Bezahlt'))}</Badge>
+              </div>
+
+              <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t(lt('Amount', 'Betrag'))}
+                  </dt>
+                  <dd className="mt-1 text-sm font-semibold text-foreground">
+                    {formatCurrency(Number(getValue(payInvoiceItem, 'amount')), language)}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {t(lt('Invoice date', 'Rechnungsdatum'))}
+                  </dt>
+                  <dd className="mt-1 text-sm font-semibold text-foreground">
+                    {formatDate(String(getValue(payInvoiceItem, 'date', 'invoiceDate')), language)}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              {t(
+                lt(
+                  'This will move the invoice from pending to paid and update billing reports after the request succeeds.',
+                  'Dadurch wird die Rechnung von offen auf bezahlt gesetzt und die Abrechnungsberichte werden nach erfolgreicher Anfrage aktualisiert.'
+                )
+              )}
+            </p>
+
+            <div className="flex flex-wrap justify-end gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={markInvoicePaidMutation.isPending}
+                onClick={() => setPayInvoiceItem(null)}
+              >
+                {t(lt('Keep pending', 'Offen lassen'))}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                loading={markInvoicePaidMutation.isPending}
+                onClick={() => {
+                  void markInvoicePaidMutation.mutateAsync(payInvoiceItem);
+                }}
+              >
+                {t(lt('Mark invoice paid', 'Rechnung als bezahlt markieren'))}
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Modal>
 
       <Modal
         open={Boolean(passwordResetItem)}
